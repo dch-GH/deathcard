@@ -109,21 +109,12 @@ public partial class VoxelEntity : ModelEntity
 				(0, -1, 0),
 			};
 
-			for( int i = 0; i < neighbors.Length; i++ )
+			var drawCount = 0;
+			for ( var i = 0; i < faces; i++ )
 			{
 				var direction = neighbors[i];
-				if ( x + direction.x < 0 || y + direction.y < 0 || z + direction.z < 0
-				  || x + direction.x >= chunk.Width || y + direction.y >= chunk.Depth || z + direction.z >= chunk.Height )
-					continue;
-
 				var neighbor = chunk.GetVoxel( (ushort)(x + direction.x), (ushort)(y + direction.y), (ushort)(z + direction.z) );
-				shouldHide[i] = neighbor != null;
-			}
-			
-			var drawCount = 0;
-			for ( var i = 0; i < faces; ++i )
-			{
-				if ( shouldHide[i] )
+				if ( neighbor != null )
 					continue;
 
 				var tangent = uAxis[i];
