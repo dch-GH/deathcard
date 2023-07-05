@@ -7,7 +7,7 @@ public class Chunk
 	public const ushort DEFAULT_HEIGHT = 32;
 
 	private VoxelEntity parent;
-	private Voxel[,,] voxels;
+	private Voxel?[,,] voxels;
 
 	public ushort X;
 	public ushort Y;
@@ -22,23 +22,28 @@ public class Chunk
 		this.Y = y;
 
 		parent = entity;
-		voxels = new Voxel[width, depth, height];
+		voxels = new Voxel?[width, depth, height];
 
 		for ( x = 0; x < width; x++ )
 		for ( y = 0; y < depth; y++ )
 		for ( ushort z = 0; z < height; z++ )
+		{
 			SetVoxel( x, y, z, new Voxel( Color.Random.ToColor32() ), true );
+		}
 
 		if ( Game.IsClient )
 			parent?.GenerateChunk( this );
 	}
 
-	public Voxel GetVoxel( ushort x, ushort y, ushort z )
+	public Voxel? GetVoxel( ushort x, ushort y, ushort z )
 		=> voxels[x, y, z];
 
 	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null, bool generating = false )
 	{
-		voxels[x, y, z] = voxel ?? default( Voxel );
+		if ( x < 0 || y < 0 || z < 0
+		  || x >= Width || y >= Depth || z >= Height ) return;
+	
+		voxels[x, y, z] = voxel;
 
 		if ( !generating )
 			parent?.OnChunkChanged( this, x, y, z );

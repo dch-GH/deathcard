@@ -83,6 +83,9 @@ public partial class VoxelEntity : ModelEntity
 		for ( ushort z = 0; z < chunk.Height; z++ )
 		{
 			var voxel = chunk.GetVoxel( x, y, z );
+			if ( voxel == null )
+				continue;
+
 			var faces = 6;
 			var shouldHide = new bool[faces];
 			/*var neighbors = new (short x, short y, short z)[]
@@ -98,8 +101,8 @@ public partial class VoxelEntity : ModelEntity
 				  || x + direction.x >= chunk.Width || y + direction.y >= chunk.Depth || z + direction.z >= chunk.Height )
 					continue;
 
-				var voxel = chunk.GetVoxel( (ushort)(x + direction.x), (ushort)(y + direction.y), (ushort)(z + direction.z) );
-				shouldHide[i] = !voxel.Empty;
+				var neighbor = chunk.GetVoxel( (ushort)(x + direction.x), (ushort)(y + direction.y), (ushort)(z + direction.z) );
+				shouldHide[i] = neighbor != null;
 			}*/
 			
 			var drawCount = 0;
@@ -118,7 +121,7 @@ public partial class VoxelEntity : ModelEntity
 					var pos = positions[vertexIndex]
 						+ new Vector3( x, y, z ) * VoxelScale;
 
-					vertices.Add( new VoxelVertex( pos, normal, voxel.Color ) );
+					vertices.Add( new VoxelVertex( pos, normal, voxel.Value.Color ) );
 				}
 
 				indices.Add( offset + i * 4 + 0 );
