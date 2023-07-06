@@ -2,12 +2,12 @@
 
 public struct VoxelData
 {
-	public Voxel Voxel;
+	public Voxel? Voxel;
 	public Chunk Chunk;
 
-	public ushort X;
-	public ushort Y;
-	public ushort Z;
+	public ushort x;
+	public ushort y;
+	public ushort z;
 }
 
 public partial class VoxelEntity : ModelEntity
@@ -20,12 +20,15 @@ public partial class VoxelEntity : ModelEntity
 	{
 		Position = position ?? Vector3.Zero;
 
-		Chunks = new Chunk[2, 2, 2];
+		Chunks = new Chunk[4, 4, 4];
 
 		for ( ushort x = 0; x < Chunks.GetLength( 0 ); x++ )
 		for ( ushort y = 0; y < Chunks.GetLength( 1 ); y++ )
 		for ( ushort z = 0; z < Chunks.GetLength( 2 ); z++ )
 			Chunks[x, y, z] = new( x, y, z, entity: this );
+
+		foreach ( var chunk in Chunks )
+			GenerateChunk( chunk );
 	}
 
 	public void OnChunkChanged( Chunk chunk, ushort x, ushort y, ushort z )
@@ -113,8 +116,8 @@ public partial class VoxelEntity : ModelEntity
 			for ( var i = 0; i < faces; i++ )
 			{
 				var direction = neighbors[i];
-				var neighbor = chunk.GetVoxel( (ushort)(x + direction.x), (ushort)(y + direction.y), (ushort)(z + direction.z) );
-				if ( neighbor != null )
+				var neighbour = chunk.GetVoxelByOffset( (short)(x + direction.x), (short)(y + direction.y), (short)(z + direction.z) );
+				if ( neighbour != null )
 					continue;
 
 				var tangent = uAxis[i];
@@ -154,7 +157,7 @@ public partial class VoxelEntity : ModelEntity
 			.Create();
 
 		chunkEntity.Model = model;
-		chunkEntity.Position = Position + new Vector3( chunk.X * chunk.Width, chunk.Y * chunk.Depth, chunk.Z * chunk.Height ) * VoxelScale + VoxelScale / 2f;
+		chunkEntity.Position = Position + new Vector3( chunk.x * chunk.Width, chunk.y * chunk.Depth, chunk.z * chunk.Height ) * VoxelScale + VoxelScale / 2f;
 		chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
 	}
 
@@ -162,42 +165,42 @@ public partial class VoxelEntity : ModelEntity
 	{
 		var relative = position - Position;
 		var chunkPosition = new Vector3( relative.x / (x * VoxelScale), relative.y / (y * VoxelScale), relative.z / (z * VoxelScale) );
+		if ( chunkPosition.x < 0 || chunkPosition.y < 0 || chunkPosition.z < 0 )
+			return null;
+
 		var w = Chunks.GetLength( 0 );
 		var d = Chunks.GetLength( 1 );
 		var h = Chunks.GetLength( 2 );
 
 		var voxelIndex = (
-			x: (ushort)MathF.Abs( chunkPosition.x * x ).FloorToInt().Clamp( 0, x * w ), 
-			y: (ushort)MathF.Abs( chunkPosition.y * y ).FloorToInt().Clamp( 0, y * d ), 
-			z: (ushort)MathF.Abs( chunkPosition.z * z ).FloorToInt().Clamp( 0, z * h )
+			x: (short)(chunkPosition.x * x).FloorToInt(), 
+			y: (short)(chunkPosition.y * y).FloorToInt(), 
+			z: (short)(chunkPosition.z * z).FloorToInt()
 		);
 		var chunkIndex = (
-			x: (voxelIndex.x / x).Clamp( 0, w - 1 ),
-			y: (voxelIndex.y / y).Clamp( 0, d - 1 ),
-			z: (voxelIndex.z / z).Clamp( 0, h - 1 )
+			x: voxelIndex.x / x,
+			y: voxelIndex.y / y,
+			z: voxelIndex.z / z
 		);
-		
+
+		if ( chunkIndex.x < 0 || chunkIndex.y < 0 || chunkIndex.z < 0
+		  || chunkIndex.x >= w || chunkIndex.y >= d || chunkIndex.z >= h ) return null;
+
 		var chunk = Chunks[chunkIndex.x, chunkIndex.y, chunkIndex.z];
 		var voxel = (
-			x: (ushort)(voxelIndex.x - chunkIndex.x * x).Clamp( 0, x - 1 ),
-			y: (ushort)(voxelIndex.y - chunkIndex.y * y).Clamp( 0, y - 1 ),
-			z: (ushort)(voxelIndex.z - chunkIndex.z * z).Clamp( 0, z - 1 )
+			x: (ushort)(voxelIndex.x - chunkIndex.x * x),
+			y: (ushort)(voxelIndex.y - chunkIndex.y * y),
+			z: (ushort)(voxelIndex.z - chunkIndex.z * z)
 		);
 
 		return new VoxelData
 		{
 			Chunk = chunk,
-			Voxel = chunk.GetVoxel( voxel.x, voxel.y, voxel.z ) ?? default,
-			X = voxel.x,
-			Y = voxel.y,
-			Z = voxel.z
+			Voxel = chunk?.GetVoxel( voxel.x, voxel.y, voxel.z ),
+			x = voxel.x,
+			y = voxel.y,
+			z = voxel.z
 		};
-	}
-
-	// TODO:
-	public Voxel? GetNeighbor( Chunk chunk, Voxel voxel, ushort x, ushort y, ushort z )
-	{
-		return null;
 	}
 
 	[GameEvent.Client.Frame]
@@ -215,10 +218,13 @@ public partial class VoxelEntity : ModelEntity
 		DebugOverlay.TraceResult( tr );
 
 		var voxelData = ent?.GetClosestVoxel( tr.EndPosition - tr.Normal * VoxelScale / 2f );
-		if ( voxelData != null && Input.Down( "attack2" ) )
+		if ( voxelData?.Voxel != null )
 		{
 			var data = voxelData.Value;
-			data.Chunk.SetVoxel( data.X, data.Y, data.Z, new Voxel( Color.Black ) );
+			if ( Input.Down( "attack2" ) )
+				data.Chunk.SetVoxel( data.x, data.y, data.z, null );
+			else if ( Input.Down( "attack1" ) )
+				data.Chunk.SetVoxel( data.x, data.y, data.z, new Voxel( Color32.Black ) );
 		}
 	}
 
@@ -235,6 +241,6 @@ public partial class VoxelEntity : ModelEntity
 			ent.Delete();
 		}
 
-		ent = new VoxelEntity( Game.LocalPawn.Position );
+		ent = new VoxelEntity( 0 );
 	}
 }
