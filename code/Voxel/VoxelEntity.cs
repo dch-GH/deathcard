@@ -20,7 +20,7 @@ public partial class VoxelEntity : ModelEntity
 	{
 		Position = position ?? Vector3.Zero;
 
-		Chunks = new Chunk[4, 4, 4];
+		Chunks = new Chunk[8, 8, 4];
 
 		for ( ushort x = 0; x < Chunks.GetLength( 0 ); x++ )
 		for ( ushort y = 0; y < Chunks.GetLength( 1 ); y++ )

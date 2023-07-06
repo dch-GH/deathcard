@@ -66,8 +66,6 @@ public class Chunk
 		if ( chunkPosition.x < 0 || chunkPosition.y < 0 || chunkPosition.z < 0
 		  || chunkPosition.x >= parent.Chunks.GetLength( 0 ) || chunkPosition.y >= parent.Chunks.GetLength( 1 ) || chunkPosition.z >= parent.Chunks.GetLength( 2 ) ) return null;
 
-		var newChunk = parent.Chunks[chunkPosition.x, chunkPosition.y, chunkPosition.z];
-
 		// Calculate new voxel position.
 		var voxelPosition = (
 			x: (ushort)(x >= Width ? x % Width : x < 0 ? Width + (x % Width) : x),
