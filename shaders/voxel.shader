@@ -43,6 +43,7 @@ VS
 	{
 		PixelInput o = ProcessVertex( i );
         o.vColor = i.vColor;
+
         return FinalizeVertex( o );
     }
 }
@@ -55,6 +56,10 @@ PS
 
     float4 MainPs( PixelInput i ) : SV_Target0
 	{
-	    return float4( i.vColor.rgb, 1 );
+        float3 normal = i.vNormalWs.xyz;
+        float3 voxel = i.vColor.rgb;
+        float3 dir = (cross(normal.xyz, voxel) + 1) * 0.05f;
+
+	    return float4(voxel + dir, 1);
     }
 }
