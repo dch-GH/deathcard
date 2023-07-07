@@ -20,7 +20,7 @@ public partial class VoxelEntity : ModelEntity
 	{
 		Position = position ?? Vector3.Zero;
 
-		Chunks = new Chunk[8, 8, 4];
+		Chunks = new Chunk[4, 4, 4];
 
 		for ( ushort x = 0; x < Chunks.GetLength( 0 ); x++ )
 		for ( ushort y = 0; y < Chunks.GetLength( 1 ); y++ )
@@ -222,9 +222,9 @@ public partial class VoxelEntity : ModelEntity
 		{
 			var data = voxelData.Value;
 			if ( Input.Down( "attack2" ) )
-				data.Chunk.SetVoxel( data.x, data.y, data.z, null );
+				data.Chunk.TrySetVoxel( data.x, data.y, data.z, null );
 			else if ( Input.Down( "attack1" ) )
-				data.Chunk.SetVoxel( data.x, data.y, data.z, new Voxel( Color32.Black ) );
+				data.Chunk.TrySetVoxel( data.x, data.y, data.z, new Voxel( Color32.Black ) );
 		}
 	}
 
