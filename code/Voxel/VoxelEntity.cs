@@ -12,15 +12,24 @@ public struct VoxelData
 
 public partial class VoxelEntity : ModelEntity
 {
-	public float VoxelScale { get; set; } = 1f / 0.0254f;
-	public Chunk[,,] Chunks;
 	public Dictionary<Chunk, ModelEntity> Entities = new();
+
+	public float VoxelScale { get; set; } = 1f / 0.0254f;
+
+	public Chunk[,,] Chunks { get; private set; }
+	public int Width { get; private set; }
+	public int Depth { get; private set; }
+	public int Height { get; private set; }
 
 	public VoxelEntity( Vector3? position = null )
 	{
 		Position = position ?? Vector3.Zero;
 
 		Chunks = new Chunk[4, 4, 4];
+
+		Width = Chunks.GetLength( 0 );
+		Depth = Chunks.GetLength( 1 );
+		Height = Chunks.GetLength( 2 );
 
 		for ( ushort x = 0; x < Chunks.GetLength( 0 ); x++ )
 		for ( ushort y = 0; y < Chunks.GetLength( 1 ); y++ )
@@ -241,6 +250,6 @@ public partial class VoxelEntity : ModelEntity
 			ent.Delete();
 		}
 
-		ent = new VoxelEntity( 0 );
+		ent = new VoxelEntity( 550 );
 	}
 }

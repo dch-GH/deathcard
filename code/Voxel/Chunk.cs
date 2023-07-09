@@ -54,27 +54,24 @@ public class Chunk
 			z: (float)(z + 1) / Height
 		);
 
-		var chunkPosition = (x: this.x, y: this.y, z: this.z);
-		if ( offset.x > 1 || offset.x <= 0 )
-			chunkPosition.x = (ushort)(chunkPosition.x + (x <= 0 ? -1 : 0) + offset.x);
-		if ( offset.y > 1 || offset.y <= 0 )
-			chunkPosition.y = (ushort)(chunkPosition.y + (y <= 0 ? -1 : 0) + offset.y);
-		if ( offset.z > 1 || offset.z <= 0 )
-			chunkPosition.z = (ushort)(chunkPosition.z + (z <= 0 ? -1 : 0) + offset.z);
-
+		var chunkPosition = (
+			x: (ushort)(this.x + (offset.x > 1 || offset.x <= 0 ? (x <= 1 ? -1 : 0) + offset.x : 0)),
+			y: (ushort)(this.y + (offset.y > 1 || offset.y <= 0 ? (y <= 1 ? -1 : 0) + offset.y : 0)),
+			z: (ushort)(this.z + (offset.z > 1 || offset.z <= 0 ? (z <= 1 ? -1 : 0) + offset.z : 0))
+		);
+		
 		// Are we out of chunk bounds?
-		if ( chunkPosition.x < 0 || chunkPosition.y < 0 || chunkPosition.z < 0
-		  || chunkPosition.x >= parent.Chunks.GetLength( 0 ) || chunkPosition.y >= parent.Chunks.GetLength( 1 ) || chunkPosition.z >= parent.Chunks.GetLength( 2 ) ) return null;
-		var newChunk = parent.Chunks[chunkPosition.x, chunkPosition.y, chunkPosition.z];
+		var chunks = parent.Chunks;
+		if ( chunkPosition.x >= parent.Width 
+			|| chunkPosition.y >= parent.Depth
+			|| chunkPosition.z >= parent.Height ) return null;
+		var newChunk = chunks[chunkPosition.x, chunkPosition.y, chunkPosition.z];
 
 		// Calculate new voxel position.
-		var voxelPosition = (
-			x: (ushort)(x >= Width ? x % Width : x < 0 ? Width + (x % Width) : x),
-			y: (ushort)(y >= Depth ? y % Depth : y < 0 ? Depth + (y % Depth) : y),
-			z: (ushort)(z >= Height ? z % Height : z < 0 ? Height + (z % Height) : z)
-		);
-
-		return newChunk?.GetVoxel( voxelPosition.x, voxelPosition.y, voxelPosition.z );
+		return newChunk?.voxels[ 
+			(ushort)((x % Width + Width) % Width),
+			(ushort)((y % Depth + Depth) % Depth),
+			(ushort)((z % Height + Height) % Height)];
 	}
 
 	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null, bool generating = false )
