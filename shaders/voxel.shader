@@ -13,6 +13,7 @@ MODES
     Default();
     VrForward();
     ToolsVis( S_MODE_TOOLS_VIS );
+    Depth( "depth_only.shader" );
 }
 
 COMMON
@@ -52,14 +53,29 @@ PS
 {
     #include "common/pixel.hlsl"
 
+    //StaticCombo( S_MODE_DEPTH, 0..1, Sys( ALL ) );
+
     RenderState( CullMode, DEFAULT );
 
     float4 MainPs( PixelInput i ) : SV_Target0
 	{
-        float3 normal = i.vNormalWs.xyz;
-        float3 voxel = i.vColor.rgb;
-        float3 dir = (cross(normal.xyz, voxel) + 1) * 0.05f;
+        //float3 normal = i.vNormalWs.xyz;
+        //float3 voxel = i.vColor.rgb;
+        //float3 dir = (cross(normal.xyz, voxel) + 1) * 0.05f;
 
-	    return float4(voxel + dir, 1);
+	    //return float4(voxel + dir, 1);
+
+        Material m;
+		m.Albedo = i.vColor.rgb;
+		m.Normal = i.vNormalWs.xyz;
+		m.Roughness = 1;
+		m.Metalness = 0;
+		m.AmbientOcclusion = 1;
+		m.TintMask = 1;
+		m.Opacity = 1;
+		m.Emission = float3( 0, 0, 0 );
+		m.Transmission = 0;
+
+        return ShadingModelStandard::Shade( i, m );
     }
 }

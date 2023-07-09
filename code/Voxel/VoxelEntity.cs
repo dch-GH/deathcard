@@ -166,6 +166,7 @@ public partial class VoxelEntity : ModelEntity
 			.Create();
 
 		chunkEntity.Model = model;
+		chunkEntity.Tags.Set( "voxelChunk", true );
 		chunkEntity.Position = Position + new Vector3( chunk.x * chunk.Width, chunk.y * chunk.Depth, chunk.z * chunk.Height ) * VoxelScale + VoxelScale / 2f;
 		chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
 	}
@@ -250,6 +251,6 @@ public partial class VoxelEntity : ModelEntity
 			ent.Delete();
 		}
 
-		ent = new VoxelEntity( 550 );
+		ent = new VoxelEntity( 0 );
 	}
 }
