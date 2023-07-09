@@ -17,40 +17,21 @@ public partial class VoxelEntity : ModelEntity
 	public float VoxelScale { get; set; } = 1f / 0.0254f;
 
 	public Chunk[,,] Chunks { get; private set; }
-	public int Width { get; private set; }
-	public int Depth { get; private set; }
-	public int Height { get; private set; }
 
-	public VoxelEntity( Vector3? position = null )
-	{
-		Position = position ?? Vector3.Zero;
+	public Vector3I Size { get; private set; }
+	public Vector3I ChunkSize { get; private set; }
 
-		Chunks = new Chunk[4, 4, 4];
-
-		Width = Chunks.GetLength( 0 );
-		Depth = Chunks.GetLength( 1 );
-		Height = Chunks.GetLength( 2 );
-
-		for ( ushort x = 0; x < Chunks.GetLength( 0 ); x++ )
-		for ( ushort y = 0; y < Chunks.GetLength( 1 ); y++ )
-		for ( ushort z = 0; z < Chunks.GetLength( 2 ); z++ )
-			Chunks[x, y, z] = new( x, y, z, entity: this );
-
-		foreach ( var chunk in Chunks )
-			GenerateChunk( chunk );
-	}
-
-	public void OnChunkChanged( Chunk chunk, ushort x, ushort y, ushort z )
-	{
-		GenerateChunk( chunk );
-	}
+	public VoxelEntity() { }
 
 	public void GenerateChunk( Chunk chunk )
 	{
 		// Get our chunk's entity.
+		if ( chunk == null )
+			return;
+
 		ModelEntity chunkEntity;
 		if ( !Entities.TryGetValue( chunk, out chunkEntity ) )
-			Entities.Add( chunk, chunkEntity = new ModelEntity() );
+			Entities.Add( chunk, chunkEntity = new ChunkEntity() { Parent = this } );
 
 		var positions = new Vector3[]
 		{
@@ -171,16 +152,17 @@ public partial class VoxelEntity : ModelEntity
 		chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
 	}
 
-	public VoxelData? GetClosestVoxel( Vector3 position, ushort x = Chunk.DEFAULT_WIDTH, ushort y = Chunk.DEFAULT_DEPTH, ushort z = Chunk.DEFAULT_HEIGHT )
+	public VoxelData? GetClosestVoxel( Vector3 position )
 	{
+		var x = ChunkSize.x;
+		var y = ChunkSize.y;
+		var z = ChunkSize.z;
+		
 		var relative = position - Position;
 		var chunkPosition = new Vector3( relative.x / (x * VoxelScale), relative.y / (y * VoxelScale), relative.z / (z * VoxelScale) );
+
 		if ( chunkPosition.x < 0 || chunkPosition.y < 0 || chunkPosition.z < 0 )
 			return null;
-
-		var w = Chunks.GetLength( 0 );
-		var d = Chunks.GetLength( 1 );
-		var h = Chunks.GetLength( 2 );
 
 		var voxelIndex = (
 			x: (short)(chunkPosition.x * x).FloorToInt(), 
@@ -194,7 +176,7 @@ public partial class VoxelEntity : ModelEntity
 		);
 
 		if ( chunkIndex.x < 0 || chunkIndex.y < 0 || chunkIndex.z < 0
-		  || chunkIndex.x >= w || chunkIndex.y >= d || chunkIndex.z >= h ) return null;
+		  || chunkIndex.x >= Size.x || chunkIndex.y >= Size.y || chunkIndex.z >= Size.z ) return null;
 
 		var chunk = Chunks[chunkIndex.x, chunkIndex.y, chunkIndex.z];
 		var voxel = (
@@ -214,7 +196,7 @@ public partial class VoxelEntity : ModelEntity
 	}
 
 	[GameEvent.Client.Frame]
-	private void tick()
+	private static void tick()
 	{
 		if ( Game.LocalPawn is not Pawn pawn )
 			return;
@@ -227,9 +209,12 @@ public partial class VoxelEntity : ModelEntity
 
 		DebugOverlay.TraceResult( tr );
 
-		var voxelData = ent?.GetClosestVoxel( tr.EndPosition - tr.Normal * VoxelScale / 2f );
+		var parent = (tr.Entity as ChunkEntity)?.Parent;
+		var voxelData = parent?.GetClosestVoxel( tr.EndPosition - tr.Normal * parent.VoxelScale / 2f );
+		
 		if ( voxelData?.Voxel != null )
 		{
+			Log.Error( parent );
 			var data = voxelData.Value;
 			if ( Input.Down( "attack2" ) )
 				data.Chunk.TrySetVoxel( data.x, data.y, data.z, null );
@@ -238,19 +223,56 @@ public partial class VoxelEntity : ModelEntity
 		}
 	}
 
-	static VoxelEntity ent;
+	static VoxelEntity entity;
 
 	[ConCmd.Client( "testvox" )]
 	public static void Test()
 	{
-		if ( ent != null )
+		if ( entity != null )
 		{
-			foreach ( var child in ent.Entities.Values )
+			foreach ( var child in entity.Entities.Values )
 				child.Delete();
 
-			ent.Delete();
+			entity.Delete();
 		}
 
-		ent = new VoxelEntity( 0 );
+		entity = new VoxelEntity();
+		entity.ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
+
+		var chunks = new Chunk[4, 4, 4];
+		for ( ushort x = 0; x < chunks.GetLength( 0 ); x++ )
+		for ( ushort y = 0; y < chunks.GetLength( 1 ); y++ )
+		for ( ushort z = 0; z < chunks.GetLength( 2 ); z++ )
+		{
+			chunks[x, y, z] = new( x, y, z, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z, entity: entity );
+		}
+
+		entity.Chunks = chunks;
+		entity.Size = new( chunks.GetLength( 0 ), chunks.GetLength( 1 ), chunks.GetLength( 2 ) );
+
+		foreach ( var chunk in chunks )
+			entity.GenerateChunk( chunk );
+	}
+
+	[ConCmd.Client( "loadvox" )]
+	public static async void LoadModel( string path )
+	{
+		if ( entity != null )
+		{
+			foreach ( var child in entity.Entities.Values )
+				child.Delete();
+
+			entity.Delete();
+		}
+
+		entity = new VoxelEntity();
+		entity.ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
+
+		var chunks = await Importer.VoxImporter.Load( path, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z, entity: entity );
+		entity.Size = new( chunks.GetLength( 0 ), chunks.GetLength( 1 ), chunks.GetLength( 2 ) );
+		entity.Chunks = chunks;
+
+		foreach ( var chunk in entity.Chunks )
+			entity.GenerateChunk( chunk );
 	}
 }
