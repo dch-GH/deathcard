@@ -14,7 +14,7 @@ public class FogRenderer : RenderHook
 		get => color;
 		set 
 		{ 
-			color = value; 
+			color = value;
 			attributes.Set( "Color", color ); 
 		}
 	}
@@ -31,7 +31,7 @@ public class FogRenderer : RenderHook
 
 	public override void OnStage( SceneCamera target, Stage stage )
 	{
-		if ( stage != Stage.AfterSkybox )
+		if ( stage != Stage.BeforePostProcess )
 			return;
 
 		Graphics.GrabFrameTexture( "ColorBuffer", attributes );

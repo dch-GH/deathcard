@@ -25,20 +25,10 @@ public class Chunk
 
 		parent = entity;
 		voxels = new Voxel?[width, depth, height];
-
-		for ( x = 0; x < width; x++ )
-		for ( y = 0; y < depth; y++ )
-		for ( z = 0; z < height; z++ )
-		{
-			SetVoxel( x, y, z, new Voxel( Color.Random.ToColor32() ), true );
-		}
 	}
 
 	public Voxel? GetVoxel( ushort x, ushort y, ushort z )
 	{
-		if ( x < 0 || y < 0 || z < 0
-		  || x >= Width || y >= Depth || z >= Height ) return null;
-
 		return voxels[x, y, z];
 	}
 
@@ -62,9 +52,9 @@ public class Chunk
 		
 		// Are we out of chunk bounds?
 		var chunks = parent.Chunks;
-		if ( chunkPosition.x >= parent.Width 
-			|| chunkPosition.y >= parent.Depth
-			|| chunkPosition.z >= parent.Height ) return null;
+		if ( chunkPosition.x >= parent.Size.x
+			|| chunkPosition.y >= parent.Size.y
+			|| chunkPosition.z >= parent.Size.z ) return null;
 		var newChunk = chunks[chunkPosition.x, chunkPosition.y, chunkPosition.z];
 
 		// Calculate new voxel position.
@@ -74,16 +64,9 @@ public class Chunk
 			(ushort)((z % Height + Height) % Height)];
 	}
 
-	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null, bool generating = false )
+	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null )
 	{
-		if ( parent == null || x < 0 || y < 0 || z < 0
-		  || x >= Width || y >= Depth || z >= Height ) return;
-	
 		voxels[x, y, z] = voxel;
-
-		// TODO: Update neighbor chunk, if change happens on chunk border.
-		if ( !generating )
-			parent?.OnChunkChanged( this, x, y, z );
 	}
 
 	public IReadOnlyList<Chunk> TrySetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null, bool generating = false )
@@ -112,7 +95,7 @@ public class Chunk
 
 		if ( !generating )
 			foreach ( var chunk in chunks )
-				parent?.OnChunkChanged( chunk, z, y, z );
+				parent?.GenerateChunk( chunk );
 
 		return chunks;
 	}

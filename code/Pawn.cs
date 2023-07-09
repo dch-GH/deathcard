@@ -76,7 +76,7 @@ partial class Pawn : AnimatedEntity
 		Camera.Rotation = Rotation;
 
 		// Set field of view to whatever the user chose in options
-		Camera.FieldOfView = Screen.CreateVerticalFieldOfView( Game.Preferences.FieldOfView );
+		Camera.FieldOfView = Screen.CreateVerticalFieldOfView( 90f );
 
 		// Set the first person viewer to this, so it won't render our model
 		Camera.FirstPersonViewer = this;
