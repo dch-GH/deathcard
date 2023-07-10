@@ -146,25 +146,25 @@ public partial class VoxelEntity : ModelEntity
 
 	public VoxelData? GetClosestVoxel( Vector3 position )
 	{
-		var x = ChunkSize.x;
-		var y = ChunkSize.y;
-		var z = ChunkSize.z;
+		var width = ChunkSize.x;
+		var depth = ChunkSize.y;
+		var height = ChunkSize.z;
 		
 		var relative = position - Position;
-		var chunkPosition = new Vector3( relative.x / (x * VoxelScale), relative.y / (y * VoxelScale), relative.z / (z * VoxelScale) );
+		var chunkPosition = new Vector3( relative.x / (width * VoxelScale), relative.y / (depth * VoxelScale), relative.z / (height * VoxelScale) );
 
 		if ( chunkPosition.x < 0 || chunkPosition.y < 0 || chunkPosition.z < 0 )
 			return null;
 
 		var voxelIndex = (
-			x: (short)(chunkPosition.x * x).FloorToInt(), 
-			y: (short)(chunkPosition.y * y).FloorToInt(), 
-			z: (short)(chunkPosition.z * z).FloorToInt()
+			x: (short)(chunkPosition.x * width).FloorToInt(), 
+			y: (short)(chunkPosition.y * depth).FloorToInt(), 
+			z: (short)(chunkPosition.z * height).FloorToInt()
 		);
 		var chunkIndex = (
-			x: voxelIndex.x / x,
-			y: voxelIndex.y / y,
-			z: voxelIndex.z / z
+			x: voxelIndex.x / width,
+			y: voxelIndex.y / depth,
+			z: voxelIndex.z / height
 		);
 
 		if ( chunkIndex.x < 0 || chunkIndex.y < 0 || chunkIndex.z < 0
@@ -172,9 +172,9 @@ public partial class VoxelEntity : ModelEntity
 
 		var chunk = Chunks[chunkIndex.x, chunkIndex.y, chunkIndex.z];
 		var voxel = (
-			x: (ushort)(voxelIndex.x - chunkIndex.x * x),
-			y: (ushort)(voxelIndex.y - chunkIndex.y * y),
-			z: (ushort)(voxelIndex.z - chunkIndex.z * z)
+			x: (ushort)(voxelIndex.x - chunkIndex.x * width),
+			y: (ushort)(voxelIndex.y - chunkIndex.y * depth),
+			z: (ushort)(voxelIndex.z - chunkIndex.z * height)
 		);
 
 		return new VoxelData
@@ -237,7 +237,13 @@ public partial class VoxelEntity : ModelEntity
 		for ( ushort y = 0; y < chunks.GetLength( 1 ); y++ )
 		for ( ushort z = 0; z < chunks.GetLength( 2 ); z++ )
 		{
-			chunks[x, y, z] = new( x, y, z, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z, entity: entity );
+			var chunk = new Chunk( x, y, z, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z, entity: entity );
+			chunks[x, y, z] = chunk;
+
+			for ( ushort i = 0; i < entity.ChunkSize.x; i++ )
+			for ( ushort j = 0; j < entity.ChunkSize.y; j++ )
+			for ( ushort k = 0; k < entity.ChunkSize.z; k++ )
+				chunk.SetVoxel( i, j, k, new Voxel( Color.Random.ToColor32() ) );
 		}
 
 		entity.Chunks = chunks;

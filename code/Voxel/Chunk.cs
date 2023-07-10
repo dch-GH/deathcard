@@ -24,9 +24,10 @@ public class Chunk
 	}
 
 	public Voxel? GetVoxel( ushort x, ushort y, ushort z )
-	{
-		return voxels[x, y, z];
-	}
+		=> voxels[x, y, z];
+
+	public Voxel?[,,] GetVoxels()
+		=> voxels;
 
 	public Voxel? GetVoxelByOffset( int x, int y, int z )
 	{
@@ -57,9 +58,7 @@ public class Chunk
 	}
 
 	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null )
-	{
-		voxels[x, y, z] = voxel;
-	}
+		=> voxels[x, y, z] = voxel;
 
 	public IEnumerable<Chunk> TrySetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null, bool generating = false )
 	{
