@@ -79,6 +79,9 @@ public static class VoxImporter
 			chunks[position.x, position.y, position.z].SetVoxel( (ushort)(voxel.x % width), (ushort)(voxel.y % depth), (ushort)(voxel.z % height), new Voxel( color ) );
 		}
 
+		stream.Close();
+		stream.Dispose();
+		
 		return chunks;
 	}
 }

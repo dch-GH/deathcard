@@ -10,6 +10,11 @@ public struct VoxelData
 	public ushort z;
 }
 
+public class ChunkEntity : ModelEntity
+{
+	public new VoxelEntity Parent { get; set; }
+}
+
 public partial class VoxelEntity : ModelEntity
 {
 	public Dictionary<Chunk, ModelEntity> Entities = new();
@@ -55,65 +60,52 @@ public partial class VoxelEntity : ModelEntity
 			3, 7, 4, 0,
 		};
 
-		var uAxis = new Vector3[]
+		var normals = new Vector3[]
 		{
-			Vector3.Forward,
-			Vector3.Left,
+			Vector3.Up,
+			Vector3.Down,
+			Vector3.Backward,
 			Vector3.Left,
 			Vector3.Forward,
 			Vector3.Right,
-			Vector3.Backward,
 		};
 
-		var vAxis = new Vector3[]
+		var neighbors = new (short x, short y, short z)[]
 		{
-			Vector3.Left,
-			Vector3.Forward,
-			Vector3.Down,
-			Vector3.Down,
-			Vector3.Down,
-			Vector3.Down,
+			(0, 0, 1),
+			(0, 0, -1),
+			(-1, 0, 0),
+			(0, 1, 0),
+			(1, 0, 0),
+			(0, -1, 0),
 		};
 
 		// Let's create a mesh.
 		var material = Material.FromShader( "shaders/voxel.shader" );
 		var mesh = new Mesh( material );
 		var vertices = new List<VoxelVertex>();
+		var collision = new List<Vector3>();
 		var indices = new List<int>();
 		var offset = 0;
 
-		for ( ushort x = 0; x < chunk.Width; x++ )
-		for ( ushort y = 0; y < chunk.Depth; y++ )
-		for ( ushort z = 0; z < chunk.Height; z++ )
+		for ( ushort x = 0; x < ChunkSize.x; x++ )
+		for ( ushort y = 0; y < ChunkSize.y; y++ )
+		for ( ushort z = 0; z < ChunkSize.z; z++ )
 		{
 			var voxel = chunk.GetVoxel( x, y, z );
 			if ( voxel == null )
 				continue;
 
 			var faces = 6;
-			var shouldHide = new bool[faces];
-			var neighbors = new (short x, short y, short z)[]
-			{
-				(0, 0, 1),
-				(0, 0, -1),
-				(-1, 0, 0),
-				(0, 1, 0),
-				(1, 0, 0),
-				(0, -1, 0),
-			};
-
 			var drawCount = 0;
 			for ( var i = 0; i < faces; i++ )
 			{
 				var direction = neighbors[i];
-				var neighbour = chunk.GetVoxelByOffset( (short)(x + direction.x), (short)(y + direction.y), (short)(z + direction.z) );
+				var neighbour = chunk.GetVoxelByOffset( x + direction.x, y + direction.y, z + direction.z );
 				if ( neighbour != null )
 					continue;
 
-				var tangent = uAxis[i];
-				var binormal = vAxis[i];
-				var normal = Vector3.Cross( tangent, binormal );
-
+				var normal = normals[i];
 				for ( var j = 0; j < 4; ++j )
 				{
 					var vertexIndex = faceIndices[(i * 4) + j];
@@ -121,6 +113,7 @@ public partial class VoxelEntity : ModelEntity
 						+ new Vector3( x, y, z ) * VoxelScale;
 
 					vertices.Add( new VoxelVertex( pos, normal, voxel.Value.Color ) );
+					collision.Add( pos );
 				}
 
 				indices.Add( offset + drawCount * 4 + 0 );
@@ -143,12 +136,11 @@ public partial class VoxelEntity : ModelEntity
 		// Create a model for the mesh.
 		var model = Model.Builder
 			.AddMesh( mesh )
-			.AddCollisionMesh( vertices.Select( v => v.position ).ToArray(), ind )
+			.AddCollisionMesh( collision.ToArray(), ind )
 			.Create();
 
 		chunkEntity.Model = model;
-		chunkEntity.Tags.Set( "voxelChunk", true );
-		chunkEntity.Position = Position + new Vector3( chunk.x * chunk.Width, chunk.y * chunk.Depth, chunk.z * chunk.Height ) * VoxelScale + VoxelScale / 2f;
+		chunkEntity.Position = Position + new Vector3( chunk.x * ChunkSize.x, chunk.y * ChunkSize.y, chunk.z * ChunkSize.z ) * VoxelScale + VoxelScale / 2f;
 		chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
 	}
 
@@ -214,12 +206,13 @@ public partial class VoxelEntity : ModelEntity
 		
 		if ( voxelData?.Voxel != null )
 		{
-			Log.Error( parent );
 			var data = voxelData.Value;
 			if ( Input.Down( "attack2" ) )
-				data.Chunk.TrySetVoxel( data.x, data.y, data.z, null );
-			else if ( Input.Down( "attack1" ) )
-				data.Chunk.TrySetVoxel( data.x, data.y, data.z, new Voxel( Color32.Black ) );
+			{
+				var chunks = data.Chunk.TrySetVoxel( data.x, data.y, data.z, null );
+				foreach ( var chunk in chunks )
+					parent.GenerateChunk( chunk );
+			}
 		}
 	}
 
