@@ -28,7 +28,8 @@ public partial class VoxelEntity : ModelEntity
 
 	public VoxelEntity() { }
 
-	public void GenerateChunk( Chunk chunk )
+
+	public void GenerateChunk( Chunk chunk, bool withPhysics = true )
 	{
 		// Get our chunk's entity.
 		if ( chunk == null )
@@ -81,18 +82,50 @@ public partial class VoxelEntity : ModelEntity
 		};
 
 		// Let's create a mesh.
+		var builder = Model.Builder;
+
 		var material = Material.FromShader( "shaders/voxel.shader" );
 		var mesh = new Mesh( material );
 		var vertices = new List<VoxelVertex>();
-		var collision = new List<Vector3>();
 		var indices = new List<int>();
 		var offset = 0;
+
+		var tested = new bool[ChunkSize.x, ChunkSize.y, ChunkSize.z];
 
 		for ( ushort x = 0; x < ChunkSize.x; x++ )
 		for ( ushort y = 0; y < ChunkSize.y; y++ )
 		for ( ushort z = 0; z < ChunkSize.z; z++ )
 		{
 			var voxel = chunk.GetVoxel( x, y, z );
+
+			// Let's start checking for collisions.
+			if ( withPhysics && !tested[x, y, z] )
+			{
+				tested[x, y, z] = true;
+				if ( voxel != null )
+				{
+					var start = (x: x, y: y, z: z);
+					var size = (x: 1, y: 1, z: 1);
+					var canSpread = (x: true, y: true, z: true);
+
+					// Calculate how much we can fill.
+					while ( canSpread.x || canSpread.y || canSpread.z )
+					{
+						canSpread.x = trySpreadX( chunk, canSpread.x, ref tested, start, ref size );
+						canSpread.y = trySpreadY( chunk, canSpread.y, ref tested, start, ref size );
+						canSpread.z = trySpreadZ( chunk, canSpread.z, ref tested, start, ref size );
+					}
+
+					var extents = new Vector3( size.x, size.y, size.z ) * VoxelScale;
+					var pos = new Vector3( start.x, start.y, start.z ) * VoxelScale
+						+ extents / 2f
+						- VoxelScale / 2f;
+
+					// TODO: Convert to use actual vertices and indices instead.
+					builder.AddCollisionBox( extents / 2f, pos );
+				}
+			}
+
 			if ( voxel == null )
 				continue;
 
@@ -113,7 +146,7 @@ public partial class VoxelEntity : ModelEntity
 						+ new Vector3( x, y, z ) * VoxelScale;
 
 					vertices.Add( new VoxelVertex( pos, normal, voxel.Value.Color ) );
-					collision.Add( pos );
+					//cvertices.Add( pos );
 				}
 
 				indices.Add( offset + drawCount * 4 + 0 );
@@ -129,19 +162,17 @@ public partial class VoxelEntity : ModelEntity
 			offset += 4 * drawCount;
 		}
 
-		var ind = indices.ToArray();
 		mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
-		mesh.CreateIndexBuffer( indices.Count, ind );
+		mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
 
 		// Create a model for the mesh.
-		var model = Model.Builder
-			.AddMesh( mesh )
-			.AddCollisionMesh( collision.ToArray(), ind )
-			.Create();
+		builder.AddMesh( mesh );
 
-		chunkEntity.Model = model;
+		chunkEntity.Model = builder.Create();
 		chunkEntity.Position = Position + new Vector3( chunk.x * ChunkSize.x, chunk.y * ChunkSize.y, chunk.z * ChunkSize.z ) * VoxelScale + VoxelScale / 2f;
-		chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
+
+		if ( withPhysics )
+			chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
 	}
 
 	public VoxelData? GetClosestVoxel( Vector3 position )
