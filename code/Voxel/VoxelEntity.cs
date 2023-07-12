@@ -28,7 +28,6 @@ public partial class VoxelEntity : ModelEntity
 
 	public VoxelEntity() { }
 
-
 	public void GenerateChunk( Chunk chunk, bool withPhysics = true )
 	{
 		// Get our chunk's entity.
@@ -129,7 +128,7 @@ public partial class VoxelEntity : ModelEntity
 			if ( voxel == null )
 				continue;
 
-			var faces = 6;
+			const int faces = 6;
 			var drawCount = 0;
 			for ( var i = 0; i < faces; i++ )
 			{
@@ -145,8 +144,8 @@ public partial class VoxelEntity : ModelEntity
 					var pos = positions[vertexIndex]
 						+ new Vector3( x, y, z ) * VoxelScale;
 
-					vertices.Add( new VoxelVertex( pos, normal, voxel.Value.Color ) );
-					//cvertices.Add( pos );
+					var col = voxel.Value.Color;
+					vertices.Add( new VoxelVertex( pos, normal, col ) );
 				}
 
 				indices.Add( offset + drawCount * 4 + 0 );
@@ -238,11 +237,18 @@ public partial class VoxelEntity : ModelEntity
 		if ( voxelData?.Voxel != null )
 		{
 			var data = voxelData.Value;
-			if ( Input.Down( "attack2" ) )
+			var chunks = (IEnumerable<Chunk>)null;
+			var withPhysics = true;
+
+			if ( Input.Down( "attack1" ) )
+				chunks = data.Chunk.TrySetVoxel( data.x, data.y, data.z, null );
+			else if ( Input.Down( "attack2" ) )
+				chunks = data.Chunk.TrySetVoxel( data.x, data.y, data.z, new Voxel( Color32.Black ) );
+
+			if ( chunks != null )
 			{
-				var chunks = data.Chunk.TrySetVoxel( data.x, data.y, data.z, null );
 				foreach ( var chunk in chunks )
-					parent.GenerateChunk( chunk );
+					parent.GenerateChunk( chunk, withPhysics );
 			}
 		}
 	}
