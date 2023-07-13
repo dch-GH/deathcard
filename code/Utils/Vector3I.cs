@@ -2,13 +2,8 @@
 
 public struct Vector3I : IEquatable<Vector3I>
 {
-	/// <summary>The X component of this Vector.</summary>
 	public ushort x;
-
-	/// <summary>The Y component of this Vector.</summary>
 	public ushort y;
-
-	/// <summary>The Z component of this Vector.</summary>
 	public ushort z;
 
 	public Vector3I( int x, int y, int z )
@@ -24,6 +19,9 @@ public struct Vector3I : IEquatable<Vector3I>
 		this.y = y;
 		this.z = z;
 	}
+
+	public static implicit operator Vector3( Vector3I v )
+		=> new Vector3( v.x, v.y, v.z );
 
 	public bool Equals( Vector3I other )
 	{

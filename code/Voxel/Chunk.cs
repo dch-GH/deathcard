@@ -2,9 +2,9 @@
 
 public class Chunk
 {
-	public const ushort DEFAULT_WIDTH = 12;
-	public const ushort DEFAULT_DEPTH = 12;
-	public const ushort DEFAULT_HEIGHT = 12;
+	public const ushort DEFAULT_WIDTH = 16;
+	public const ushort DEFAULT_DEPTH = 16;
+	public const ushort DEFAULT_HEIGHT = 16;
 
 	private VoxelEntity parent;
 	private Voxel?[,,] voxels;
@@ -12,6 +12,8 @@ public class Chunk
 	public ushort x;
 	public ushort y;
 	public ushort z;
+
+	public Vector3I Position => new( x, y, z );
 
 	public Chunk( ushort x, ushort y, ushort z, ushort width = DEFAULT_WIDTH, ushort depth = DEFAULT_DEPTH, ushort height = DEFAULT_HEIGHT, VoxelEntity entity = null )
 	{

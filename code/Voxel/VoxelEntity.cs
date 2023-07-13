@@ -81,6 +81,7 @@ public partial class VoxelEntity : ModelEntity
 		};
 
 		// Let's create a mesh.
+		const int faces = 6;
 		var builder = Model.Builder;
 
 		var material = Material.FromShader( "shaders/voxel.shader" );
@@ -96,39 +97,36 @@ public partial class VoxelEntity : ModelEntity
 		for ( ushort z = 0; z < ChunkSize.z; z++ )
 		{
 			var voxel = chunk.GetVoxel( x, y, z );
+			if ( voxel == null )
+				continue;
 
 			// Let's start checking for collisions.
 			if ( withPhysics && !tested[x, y, z] )
 			{
 				tested[x, y, z] = true;
-				if ( voxel != null )
+
+				var start = (x: x, y: y, z: z);
+				var size = (x: 1, y: 1, z: 1);
+				var canSpread = (x: true, y: true, z: true);
+
+				// Calculate how much we can fill.
+				while ( canSpread.x || canSpread.y || canSpread.z )
 				{
-					var start = (x: x, y: y, z: z);
-					var size = (x: 1, y: 1, z: 1);
-					var canSpread = (x: true, y: true, z: true);
-
-					// Calculate how much we can fill.
-					while ( canSpread.x || canSpread.y || canSpread.z )
-					{
-						canSpread.x = trySpreadX( chunk, canSpread.x, ref tested, start, ref size );
-						canSpread.y = trySpreadY( chunk, canSpread.y, ref tested, start, ref size );
-						canSpread.z = trySpreadZ( chunk, canSpread.z, ref tested, start, ref size );
-					}
-
-					var extents = new Vector3( size.x, size.y, size.z ) * VoxelScale;
-					var pos = new Vector3( start.x, start.y, start.z ) * VoxelScale
-						+ extents / 2f
-						- VoxelScale / 2f;
-
-					// TODO: Convert to use actual vertices and indices instead.
-					builder.AddCollisionBox( extents / 2f, pos );
+					canSpread.x = trySpreadX( chunk, canSpread.x, ref tested, start, ref size );
+					canSpread.y = trySpreadY( chunk, canSpread.y, ref tested, start, ref size );
+					canSpread.z = trySpreadZ( chunk, canSpread.z, ref tested, start, ref size );
 				}
+
+				var extents = new Vector3( size.x, size.y, size.z ) * VoxelScale;
+				var pos = new Vector3( start.x, start.y, start.z ) * VoxelScale
+					+ extents / 2f
+					- VoxelScale / 2f;
+
+				// TODO: Convert to use actual vertices and indices instead.
+				builder.AddCollisionBox( extents / 2f, pos );
 			}
 
-			if ( voxel == null )
-				continue;
-
-			const int faces = 6;
+			// Generate all visible faces for our voxel.
 			var drawCount = 0;
 			for ( var i = 0; i < faces; i++ )
 			{
@@ -168,7 +166,9 @@ public partial class VoxelEntity : ModelEntity
 		builder.AddMesh( mesh );
 
 		chunkEntity.Model = builder.Create();
-		chunkEntity.Position = Position + new Vector3( chunk.x * ChunkSize.x, chunk.y * ChunkSize.y, chunk.z * ChunkSize.z ) * VoxelScale + VoxelScale / 2f;
+		chunkEntity.Position = Position 
+			+ (Vector3)chunk.Position * ChunkSize * VoxelScale
+			+ VoxelScale / 2f;
 
 		if ( withPhysics )
 			chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
@@ -269,7 +269,7 @@ public partial class VoxelEntity : ModelEntity
 		entity = new VoxelEntity();
 		entity.ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
 
-		var chunks = new Chunk[4, 4, 4];
+		var chunks = new Chunk[2, 2, 2];
 		for ( ushort x = 0; x < chunks.GetLength( 0 ); x++ )
 		for ( ushort y = 0; y < chunks.GetLength( 1 ); y++ )
 		for ( ushort z = 0; z < chunks.GetLength( 2 ); z++ )
