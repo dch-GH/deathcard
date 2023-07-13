@@ -165,6 +165,15 @@ public partial class VoxelEntity : ModelEntity
 		// Create a model for the mesh.
 		builder.AddMesh( mesh );
 
+		/*
+		// Build collisions.
+		if ( withPhysics )
+		{
+			var collision = buildCollisions( chunk );
+			builder.AddCollisionMesh( collision.vertices, collision.indices );
+		}
+		*/
+
 		chunkEntity.Model = builder.Create();
 		chunkEntity.Position = Position 
 			+ (Vector3)chunk.Position * ChunkSize * VoxelScale
