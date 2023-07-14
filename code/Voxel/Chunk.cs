@@ -71,12 +71,19 @@ public class Chunk
 		var depth = parent.ChunkSize.y;
 		var height = parent.ChunkSize.z;
 
-		if ( x < 0 || y < 0 || z < 0
+		// Check if we are within chunk bounds.
+		if ( (!voxels[x, y, z].HasValue && !voxel.HasValue) 
+		  || x < 0 || y < 0 || z < 0
 		  || x >= width || y >= depth || z >= height ) yield break;
 
 		voxels[x, y, z] = voxel;
 		yield return this;
 
+		// If we are just setting a new voxel, we don't have to update neighboring chunks.
+		if ( voxel != null )
+			yield break;
+
+		// Yield return affected neighbors.
 		if ( x >= width - 1 && this.x + 1 < parent.Size.x )
 			yield return parent.Chunks[this.x + 1, this.y, this.z];
 		else if ( x == 0 && this.x - 1 >= 0 )
