@@ -1,4 +1,6 @@
-﻿namespace DeathCard;
+﻿using DeathCard.Importer;
+
+namespace DeathCard;
 
 public struct VoxelData
 {
@@ -28,6 +30,11 @@ public partial class VoxelEntity : ModelEntity
 
 	public VoxelEntity() { }
 
+	/// <summary>
+	/// Generates a chunk.
+	/// </summary>
+	/// <param name="chunk"></param>
+	/// <param name="withPhysics"></param>
 	public void GenerateChunk( Chunk chunk, bool withPhysics = true )
 	{
 		// Get our chunk's entity.
@@ -91,6 +98,8 @@ public partial class VoxelEntity : ModelEntity
 		var offset = 0;
 
 		var tested = new bool[ChunkSize.x, ChunkSize.y, ChunkSize.z];
+		var buffer = new CollisionBuffer();
+		buffer.Init( true );
 
 		for ( ushort x = 0; x < ChunkSize.x; x++ )
 		for ( ushort y = 0; y < ChunkSize.y; y++ )
@@ -117,13 +126,12 @@ public partial class VoxelEntity : ModelEntity
 					canSpread.z = trySpreadZ( chunk, canSpread.z, ref tested, start, ref size );
 				}
 
-				var extents = new Vector3( size.x, size.y, size.z ) * VoxelScale;
+				var scale = new Vector3( size.x, size.y, size.z ) * VoxelScale;
 				var pos = new Vector3( start.x, start.y, start.z ) * VoxelScale
-					+ extents / 2f
+					+ scale / 2f
 					- VoxelScale / 2f;
 
-				// TODO: Convert to use actual vertices and indices instead.
-				builder.AddCollisionBox( extents / 2f, pos );
+				buffer.AddCube( pos, scale, Rotation.Identity );
 			}
 
 			// Generate all visible faces for our voxel.
@@ -165,14 +173,9 @@ public partial class VoxelEntity : ModelEntity
 		// Create a model for the mesh.
 		builder.AddMesh( mesh );
 
-		/*
 		// Build collisions.
 		if ( withPhysics )
-		{
-			var collision = buildCollisions( chunk );
-			builder.AddCollisionMesh( collision.vertices, collision.indices );
-		}
-		*/
+			builder.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
 
 		chunkEntity.Model = builder.Create();
 		chunkEntity.Position = Position 
@@ -183,6 +186,11 @@ public partial class VoxelEntity : ModelEntity
 			chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
 	}
 
+	/// <summary>
+	/// Attempts to get VoxelData from an absolute world position.
+	/// </summary>
+	/// <param name="position"></param>
+	/// <returns></returns>
 	public VoxelData? GetClosestVoxel( Vector3 position )
 	{
 		var width = ChunkSize.x;
@@ -264,8 +272,21 @@ public partial class VoxelEntity : ModelEntity
 
 	static VoxelEntity entity;
 
+	[Event.Hotload]
+	private static void refresh()
+	{
+		if ( Game.IsServer )
+			return;
+
+		if ( entity == null )
+			return;
+
+		foreach ( var chunk in entity.Chunks )
+			entity.GenerateChunk( chunk );
+	}
+
 	[ConCmd.Client( "testvox" )]
-	public static void Test()
+	public static void TestVoxel()
 	{
 		if ( entity != null )
 		{

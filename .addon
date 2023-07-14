@@ -31,6 +31,19 @@
       "NoWarn": "1701;1702;1591;",
       "References": [],
       "DistinctReferences": []
-    }
+    },
+    "TickRate": 50,
+    "LaunchConfigs": [
+      {
+        "Name": "dev",
+        "GameIdent": "local.deathcard#local",
+        "MapName": "aero.roblox_baseplate",
+        "MaxPlayers": 1,
+        "GameSettings": {},
+        "Addons": "",
+        "PreLaunchCommand": "",
+        "PostLaunchCommand": ""
+      }
+    ]
   }
 }
