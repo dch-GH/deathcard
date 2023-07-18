@@ -1,6 +1,4 @@
-﻿using DeathCard.Importer;
-
-namespace DeathCard;
+﻿namespace DeathCard;
 
 public struct VoxelData
 {
@@ -31,10 +29,10 @@ public partial class VoxelEntity : ModelEntity
 	public VoxelEntity() { }
 
 	/// <summary>
-	/// Generates a chunk.
-	/// </summary>
-	/// <param name="chunk"></param>
-	/// <param name="withPhysics"></param>
+		/// Generates a chunk.
+		/// </summary>
+		/// <param name="chunk"></param>
+		/// <param name="withPhysics"></param>
 	public void GenerateChunk( Chunk chunk, bool withPhysics = true )
 	{
 		// Get our chunk's entity.
@@ -109,6 +107,8 @@ public partial class VoxelEntity : ModelEntity
 			if ( voxel == null )
 				continue;
 
+			var position = new Vector3I( x, y, z );
+
 			// Let's start checking for collisions.
 			if ( withPhysics && !tested[x, y, z] )
 			{
@@ -150,7 +150,10 @@ public partial class VoxelEntity : ModelEntity
 					var pos = positions[vertexIndex]
 						+ new Vector3( x, y, z ) * VoxelScale;
 
-					var col = voxel.Value.Color;
+					var ao = buildAO( chunk, position, i, j );
+					var col = voxel.Value.Color.ToColor()
+						.Darken( 1 - ao )
+						.ToColor32();
 					vertices.Add( new VoxelVertex( pos, normal, col ) );
 				}
 
@@ -242,7 +245,7 @@ public partial class VoxelEntity : ModelEntity
 
 		var ray = new Ray( pawn.Position, pawn.ViewAngles.Forward );
 		var tr = Trace.Ray( ray, 10000f )
-			.StaticOnly()	
+			.StaticOnly()
 			.IncludeClientside()
 			.Run();
 
@@ -267,9 +270,24 @@ public partial class VoxelEntity : ModelEntity
 				foreach ( var chunk in chunks )
 					parent.GenerateChunk( chunk, withPhysics );
 			}
+
+			// Debug
+			DebugOverlay.ScreenText( $"{voxelData?.Voxel?.Color ?? default}" );
+			DebugOverlay.ScreenText( $"XYZ: {voxelData?.x}, {voxelData?.y} {voxelData?.z}", 1 );
+			DebugOverlay.ScreenText( $"Chunk: {voxelData?.Chunk.Position}", 2 );
+
+			var center = (Vector3)data.Chunk.Position * parent.ChunkSize * parent.VoxelScale
+				+ new Vector3( data.x, data.y, data.z ) * parent.VoxelScale
+				+ parent.VoxelScale / 2f
+				+ parent.Position;
+
+			Gizmo.Draw.Color = Color.Black;
+			Gizmo.Draw.LineThickness = 1;
+			Gizmo.Draw.LineBBox( new BBox( center, parent.VoxelScale ) );
 		}
 	}
 
+	#region DEBUG
 	static VoxelEntity entity;
 
 	[Event.Hotload]
@@ -341,4 +359,90 @@ public partial class VoxelEntity : ModelEntity
 		foreach ( var chunk in entity.Chunks )
 			entity.GenerateChunk( chunk );
 	}
+	#endregion
+
+	#region Ambient Occlusion
+	private static Dictionary<int, List<Vector3I[]>> aoNeighbors = new()
+	{
+		// +z
+		[0] = new() {
+			new Vector3I[3] { new( 0, 1, -1 ), new( -1, 1, 0 ), new( -1, 1, -1 ) },
+			new Vector3I[3] { new( 0, 1, -1 ), new( 1, 1, 0 ), new( 1, 1, -1 ) },
+			new Vector3I[3] { new( 0, 1, 1 ), new( -1, 1, 0 ), new( -1, 1, 1 ) },
+			new Vector3I[3] { new( 0, 1, 1 ), new( 1, 1, 0 ), new( 1, 1, 1 ) }
+		},
+
+		// -z
+		[1] = new()
+		{
+			new Vector3I[3] { new( 0, -1, -1 ), new( -1, -1, 0 ), new( -1, -1, -1 ) },
+			new Vector3I[3] { new( 0, -1, -1 ), new( 1, -1, 0 ), new( 1, -1, -1 ) },
+			new Vector3I[3] { new( 0, -1, 1 ), new( -1, -1, 0 ), new( -1, -1, 1 ) },
+			new Vector3I[3] { new( 0, -1, 1 ), new( 1, -1, 0 ), new( 1, -1, 1 ) }
+		},
+
+		// -x
+		[2] = new()
+		{
+			new Vector3I[3] { new( -1, 0, -1 ), new( -1, 1, 0 ), new( -1, 1, -1 ) },
+			new Vector3I[3] { new( -1, 0, 1 ), new( -1, 1, 0 ), new( -1, 1, 1 ) },
+			new Vector3I[3] { new( -1, 0, -1 ), new( -1, -1, 0 ), new( -1, -1, -1 ) },
+			new Vector3I[3] { new( -1, 0, 1 ), new( -1, -1, 0 ), new( -1, -1, 1 ) }
+		},
+
+		// +y
+		[3] = new()
+		{
+			new Vector3I[3] { new( -1, 0, 1 ), new( 0, 1, 1 ), new( -1, 1, 1 ) },
+			new Vector3I[3] { new( 1, 0, 1 ), new( 0, 1, 1 ), new( 1, 1, 1 ) },
+			new Vector3I[3] { new( -1, 0, 1 ), new( 0, -1, 1 ), new( -1, -1, 1 ) },
+			new Vector3I[3] { new( 1, 0, 1 ), new( 0, -1, 1 ), new( 1, -1, 1 ) }
+		},
+
+		// +x
+		[4] = new()
+		{
+			new Vector3I[3] { new( 1, 0, 1 ), new( 1, 1, 0 ), new( 1, 1, 1 ) },
+			new Vector3I[3] { new( 1, 0, -1 ), new( 1, 1, 0 ), new( 1, 1, -1 ) },
+			new Vector3I[3] { new( 1, 0, 1 ), new( 1, -1, 0 ), new( 1, -1, 1 ) },
+			new Vector3I[3] { new( 1, 0, -1 ), new( 1, -1, 0 ), new( 1, -1, -1 ) }
+		},
+
+		// -y
+		[5] = new()
+		{
+			new Vector3I[3] { new( 1, 0, -1 ), new( 0, 1, -1 ), new( 1, 1, -1 ) },
+			new Vector3I[3] { new( -1, 0, -1 ), new( 0, 1, -1 ), new( -1, 1, -1 ) },
+			new Vector3I[3] { new( 1, 0, -1 ), new( 0, -1, -1 ), new( 1, -1, -1 ) },
+			new Vector3I[3] { new( -1, 0, -1 ), new( 0, -1, -1 ), new( -1, -1, -1 ) }
+		}
+	};
+
+	private float occlusion( Chunk chunk, Vector3I pos, int x, int y, int z )
+	{
+		if ( chunk.GetVoxelByOffset( pos + new Vector3I( x, z, y ) ) != null )
+			return 0.75f;
+
+		return 1f;
+	}
+
+	private float buildAO( Chunk chunk, Vector3I pos, int face, int vertex )
+	{
+		if ( !aoNeighbors.TryGetValue( face, out var values ) )
+			return 1f;
+
+		var i = vertex switch
+		{
+			0 => 0,
+			1 => 2,
+			2 => 3,
+			3 => 1,
+		};
+		var table = values[i];
+		return occlusion( chunk, pos, table[0].x, table[0].y, table[0].z ) 
+			* occlusion( chunk, pos, table[1].x, table[1].y, table[1].z ) 
+			* occlusion( chunk, pos, table[2].x, table[2].y, table[2].z );
+	}
+
+	#endregion
 }

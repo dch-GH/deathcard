@@ -39,7 +39,7 @@ struct PixelInput
 VS
 {
 	#include "common/vertex.hlsl"
-    
+
     PixelInput MainVs( VertexInput i )
 	{
 		PixelInput o = ProcessVertex( i );
@@ -75,7 +75,7 @@ PS
 		m.Opacity = 1;
 		m.Emission = float3( 0, 0, 0 );
 		m.Transmission = 0;
-
+        
         return ShadingModelStandard::Shade( i, m );
     }
 }

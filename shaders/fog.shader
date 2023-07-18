@@ -56,7 +56,7 @@ PS
     };
 
 	float4 fogColor < Attribute( "Color" ); Default4( 0.3, 0.55, 0.85, 1 ); >;
-	float fogRadius < Attribute( "Radius" ); Default( 500 ); >;
+	float fogRadius < Attribute( "Radius" ); Default( 2500 ); >;
     
     CreateTexture2D( g_tColorBuffer ) < Attribute( "ColorBuffer" ); SrgbRead( true ); Filter( MIN_MAG_LINEAR_MIP_POINT ); AddressU( MIRROR ); AddressV( MIRROR ); >;
     CreateTexture2DMS( g_tDepthBuffer ) < Attribute( "DepthBuffer" ); SrgbRead( false ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); >;

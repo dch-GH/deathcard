@@ -59,6 +59,9 @@ public class Chunk
 			(ushort)((z % height + height) % height)];
 	}
 
+	public Voxel? GetVoxelByOffset( Vector3I vec )
+		=> GetVoxelByOffset( vec.x, vec.y, vec.z );
+
 	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null )
 		=> voxels[x, y, z] = voxel;
 
