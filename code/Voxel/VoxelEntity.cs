@@ -245,7 +245,6 @@ public partial class VoxelEntity : ModelEntity
 
 		var ray = new Ray( pawn.Position, pawn.ViewAngles.Forward );
 		var tr = Trace.Ray( ray, 10000f )
-			.StaticOnly()
 			.IncludeClientside()
 			.Run();
 
@@ -295,6 +294,8 @@ public partial class VoxelEntity : ModelEntity
 	{
 		if ( Game.IsServer )
 			return;
+
+		aoNeighbors = null;
 
 		if ( entity == null )
 			return;
@@ -362,65 +363,72 @@ public partial class VoxelEntity : ModelEntity
 	#endregion
 
 	#region Ambient Occlusion
-	private static Dictionary<int, List<Vector3I[]>> aoNeighbors = new()
+	private static IReadOnlyDictionary<int, List<(int x, int y, int z)[]>> getAOTable()
 	{
-		// +z
-		[0] = new() {
-			new Vector3I[3] { new( 0, 1, -1 ), new( -1, 1, 0 ), new( -1, 1, -1 ) },
-			new Vector3I[3] { new( 0, 1, -1 ), new( 1, 1, 0 ), new( 1, 1, -1 ) },
-			new Vector3I[3] { new( 0, 1, 1 ), new( -1, 1, 0 ), new( -1, 1, 1 ) },
-			new Vector3I[3] { new( 0, 1, 1 ), new( 1, 1, 0 ), new( 1, 1, 1 ) }
-		},
+		if ( aoNeighbors == null )
+			aoNeighbors = new Dictionary<int, List<(int x, int y, int z)[]>>()
+			{
+				// +z
+				[0] = new() {
+					new (int, int, int)[3] { (0, 1, -1), (-1, 1, 0), (-1, 1, -1) },
+					new (int, int, int)[3] { (0, 1, -1), (1, 1, 0), (1, 1, -1) },
+					new (int, int, int)[3] { (0, 1, 1), (-1, 1, 0), (-1, 1, 1) },
+					new (int, int, int)[3] { (0, 1, 1), (1, 1, 0), (1, 1, 1) }
+				},
 
-		// -z
-		[1] = new()
-		{
-			new Vector3I[3] { new( 0, -1, -1 ), new( -1, -1, 0 ), new( -1, -1, -1 ) },
-			new Vector3I[3] { new( 0, -1, -1 ), new( 1, -1, 0 ), new( 1, -1, -1 ) },
-			new Vector3I[3] { new( 0, -1, 1 ), new( -1, -1, 0 ), new( -1, -1, 1 ) },
-			new Vector3I[3] { new( 0, -1, 1 ), new( 1, -1, 0 ), new( 1, -1, 1 ) }
-		},
+				// -z
+				[1] = new()
+				{
+					new (int, int, int)[3] { (0, -1, -1), (-1, -1, 0), (-1, -1, -1) },
+					new (int, int, int)[3] { (0, -1, -1), (1, -1, 0), (1, -1, -1) },
+					new (int, int, int)[3] { (0, -1, 1), (-1, -1, 0), (-1, -1, 1) },
+					new (int, int, int)[3] { (0, -1, 1), (1, -1, 0), (1, -1, 1) }
+				},
 
-		// -x
-		[2] = new()
-		{
-			new Vector3I[3] { new( -1, 0, -1 ), new( -1, 1, 0 ), new( -1, 1, -1 ) },
-			new Vector3I[3] { new( -1, 0, 1 ), new( -1, 1, 0 ), new( -1, 1, 1 ) },
-			new Vector3I[3] { new( -1, 0, -1 ), new( -1, -1, 0 ), new( -1, -1, -1 ) },
-			new Vector3I[3] { new( -1, 0, 1 ), new( -1, -1, 0 ), new( -1, -1, 1 ) }
-		},
+				// -x
+				[2] = new()
+				{
+					new (int, int, int)[3] { (-1, 0, -1), (-1, 1, 0), (-1, 1, -1) },
+					new (int, int, int)[3] { (-1, 0, 1), (-1, 1, 0), (-1, 1, 1) },
+					new (int, int, int)[3] { (-1, 0, -1), (-1, -1, 0), (-1, -1, -1) },
+					new (int, int, int)[3] { (-1, 0, 1), (-1, -1, 0), (-1, -1, 1) }
+				},
 
-		// +y
-		[3] = new()
-		{
-			new Vector3I[3] { new( -1, 0, 1 ), new( 0, 1, 1 ), new( -1, 1, 1 ) },
-			new Vector3I[3] { new( 1, 0, 1 ), new( 0, 1, 1 ), new( 1, 1, 1 ) },
-			new Vector3I[3] { new( -1, 0, 1 ), new( 0, -1, 1 ), new( -1, -1, 1 ) },
-			new Vector3I[3] { new( 1, 0, 1 ), new( 0, -1, 1 ), new( 1, -1, 1 ) }
-		},
+				// +y
+				[3] = new()
+				{
+					new (int, int, int)[3] { (-1, 0, 1), (0, 1, 1), (-1, 1, 1) },
+					new (int, int, int)[3] { (1, 0, 1), (0, 1, 1), (1, 1, 1) },
+					new (int, int, int)[3] { (-1, 0, 1), (0, -1, 1), (-1, -1, 1) },
+					new (int, int, int)[3] { (1, 0, 1), (0, -1, 1), (1, -1, 1) }
+				},
 
-		// +x
-		[4] = new()
-		{
-			new Vector3I[3] { new( 1, 0, 1 ), new( 1, 1, 0 ), new( 1, 1, 1 ) },
-			new Vector3I[3] { new( 1, 0, -1 ), new( 1, 1, 0 ), new( 1, 1, -1 ) },
-			new Vector3I[3] { new( 1, 0, 1 ), new( 1, -1, 0 ), new( 1, -1, 1 ) },
-			new Vector3I[3] { new( 1, 0, -1 ), new( 1, -1, 0 ), new( 1, -1, -1 ) }
-		},
+				// +x
+				[4] = new()
+				{
+					new (int, int, int)[3] { (1, 0, 1), (1, 1, 0), (1, 1, 1) },
+					new (int, int, int)[3] { (1, 0, -1), (1, 1, 0), (1, 1, -1) },
+					new (int, int, int)[3] { (1, 0, 1), (1, -1, 0), (1, -1, 1) },
+					new (int, int, int)[3] { (1, 0, -1), (1, -1, 0), (1, -1, -1) }
+				},
 
-		// -y
-		[5] = new()
-		{
-			new Vector3I[3] { new( 1, 0, -1 ), new( 0, 1, -1 ), new( 1, 1, -1 ) },
-			new Vector3I[3] { new( -1, 0, -1 ), new( 0, 1, -1 ), new( -1, 1, -1 ) },
-			new Vector3I[3] { new( 1, 0, -1 ), new( 0, -1, -1 ), new( 1, -1, -1 ) },
-			new Vector3I[3] { new( -1, 0, -1 ), new( 0, -1, -1 ), new( -1, -1, -1 ) }
-		}
-	};
+				// -y
+				[5] = new()
+				{
+					new (int, int, int)[3] { (1, 0, -1), (0, 1, -1), (1, 1, -1) },
+					new (int, int, int)[3] { (-1, 0, -1), (0, 1, -1), (-1, 1, -1) },
+					new (int, int, int)[3] { (1, 0, -1), (0, -1, -1), (1, -1, -1) },
+					new (int, int, int)[3] { (-1, 0, -1), (0, -1, -1), (-1, -1, -1) }
+				}
+			};
+
+		return aoNeighbors;
+	}
+	private static IReadOnlyDictionary<int, List<(int x, int y, int z)[]>> aoNeighbors = null;
 
 	private float occlusion( Chunk chunk, Vector3I pos, int x, int y, int z )
 	{
-		if ( chunk.GetVoxelByOffset( pos + new Vector3I( x, z, y ) ) != null )
+		if ( chunk.GetVoxelByOffset( pos.x + x, pos.y + z, pos.z + y ) != null )
 			return 0.75f;
 
 		return 1f;
@@ -428,21 +436,21 @@ public partial class VoxelEntity : ModelEntity
 
 	private float buildAO( Chunk chunk, Vector3I pos, int face, int vertex )
 	{
-		if ( !aoNeighbors.TryGetValue( face, out var values ) )
+		if ( !getAOTable().TryGetValue( face, out var values ) )
 			return 1f;
 
-		var i = vertex switch
-		{
-			0 => 0,
-			1 => 2,
-			2 => 3,
-			3 => 1,
-		};
-		var table = values[i];
+		var table = values[
+			vertex switch
+			{
+				0 => 0,
+				1 => 2,
+				2 => 3,
+				3 => 1,
+				_ => 0
+			}];
 		return occlusion( chunk, pos, table[0].x, table[0].y, table[0].z ) 
 			* occlusion( chunk, pos, table[1].x, table[1].y, table[1].z ) 
 			* occlusion( chunk, pos, table[2].x, table[2].y, table[2].z );
 	}
-
 	#endregion
 }
