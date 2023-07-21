@@ -261,7 +261,31 @@ public partial class VoxelEntity : ModelEntity
 			var withPhysics = true;
 
 			if ( Input.Down( "attack1" ) )
-				chunks = data.Chunk.TrySetVoxel( data.x, data.y, data.z, null );
+			{
+				var size = 8;
+				var result = new List<Chunk>();
+
+				for ( int x = 0; x < size; x++ )
+				for ( int y = 0; y < size; y++ )
+				for ( int z = 0; z < size; z++ )
+				{
+					var center = new Vector3( data.x, data.y, data.z );
+					var position = center 
+						+ new Vector3( x, y, z ) 
+						- size / 2f;
+
+					if ( position.Distance( center ) >= size / 2f )
+						continue;
+
+					var res = data.Chunk.TrySetVoxel(
+						position.x.FloorToInt(),
+						position.y.FloorToInt(),
+						position.z.FloorToInt(), null );
+					result.AddRange( res.Except( result ) );
+				}
+
+				chunks = result;
+			}
 			else if ( Input.Down( "attack2" ) )
 				chunks = data.Chunk.TrySetVoxel( data.x, data.y, data.z, new Voxel( Color32.Black ) );
 
@@ -276,14 +300,14 @@ public partial class VoxelEntity : ModelEntity
 			DebugOverlay.ScreenText( $"XYZ: {voxelData?.x}, {voxelData?.y} {voxelData?.z}", 1 );
 			DebugOverlay.ScreenText( $"Chunk: {voxelData?.Chunk.Position}", 2 );
 
-			var center = (Vector3)data.Chunk.Position * parent.ChunkSize * parent.VoxelScale
+			var voxelCenter = (Vector3)data.Chunk.Position * parent.ChunkSize * parent.VoxelScale
 				+ new Vector3( data.x, data.y, data.z ) * parent.VoxelScale
 				+ parent.VoxelScale / 2f
 				+ parent.Position;
 
 			Gizmo.Draw.Color = Color.Black;
 			Gizmo.Draw.LineThickness = 1;
-			Gizmo.Draw.LineBBox( new BBox( center, parent.VoxelScale ) );
+			Gizmo.Draw.LineBBox( new BBox( voxelCenter, parent.VoxelScale ) );
 		}
 	}
 
