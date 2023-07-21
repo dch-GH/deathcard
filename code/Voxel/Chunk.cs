@@ -65,7 +65,7 @@ public class Chunk
 	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null )
 		=> voxels[x, y, z] = voxel;
 
-	public IEnumerable<Chunk> TrySetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null )
+	public IEnumerable<Chunk> TrySetVoxel( int x, int y, int z, Voxel? voxel = null )
 	{
 		if ( parent == null )
 			yield break;
@@ -74,12 +74,27 @@ public class Chunk
 		var depth = parent.ChunkSize.y;
 		var height = parent.ChunkSize.z;
 
-		// Check if we are within chunk bounds.
-		if ( (!voxels[x, y, z].HasValue && !voxel.HasValue) 
-		  || x < 0 || y < 0 || z < 0
-		  || x >= width || y >= depth || z >= height ) yield break;
+		// Get the new chunk's position based on the offset.
+		var position = (
+			x: (ushort)(this.x + ((x + 1) / (float)width - 1).CeilToInt()),
+			y: (ushort)(this.y + ((y + 1) / (float)depth - 1).CeilToInt()),
+			z: (ushort)(this.z + ((z + 1) / (float)height - 1).CeilToInt())
+		);
 
-		voxels[x, y, z] = voxel;
+		// Are we out of chunk bounds?
+		if ( position.x >= parent.Size.x
+			|| position.y >= parent.Size.y
+			|| position.z >= parent.Size.z ) yield break;
+
+		var chunk = parent.Chunks[position.x, position.y, position.z];
+		if ( chunk == null )
+			yield break;
+
+		chunk.voxels[
+			(ushort)((x % width + width) % width),
+			(ushort)((y % depth + depth) % depth),
+			(ushort)((z % height + height) % height)] = voxel;
+
 		yield return this;
 
 		// If we are just setting a new voxel, we don't have to update neighboring chunks.
@@ -87,20 +102,20 @@ public class Chunk
 			yield break;
 
 		// Yield return affected neighbors.
-		if ( x >= width - 1 && this.x + 1 < parent.Size.x )
-			yield return parent.Chunks[this.x + 1, this.y, this.z];
-		else if ( x == 0 && this.x - 1 >= 0 )
-			yield return parent.Chunks[this.x - 1, this.y, this.z];
+		if ( x >= width - 1 && chunk.x + 1 < parent.Size.x )
+			yield return parent.Chunks[chunk.x + 1, chunk.y, chunk.z];
+		else if ( x == 0 && chunk.x - 1 >= 0 )
+			yield return parent.Chunks[chunk.x - 1, chunk.y, chunk.z];
 
-		if ( y >= depth - 1 && this.y + 1 < parent.Size.y )
-			yield return parent.Chunks[this.x, this.y + 1, this.z];
-		else if ( y == 0 && this.y - 1 >= 0 )
-			yield return parent.Chunks[this.x, this.y - 1, this.z];
+		if ( y >= depth - 1 && chunk.y + 1 < parent.Size.y )
+			yield return parent.Chunks[chunk.x, chunk.y + 1, chunk.z];
+		else if ( y == 0 && chunk.y - 1 >= 0 )
+			yield return parent.Chunks[chunk.x, chunk.y - 1, chunk.z];
 
-		if ( z >= height - 1 && this.z + 1 < parent.Size.z )
-			yield return parent.Chunks[this.x, this.y, this.z + 1];
-		else if ( z == 0 && this.z - 1 >= 0 )
-			yield return parent.Chunks[this.x, this.y, this.z - 1];
+		if ( z >= height - 1 && chunk.z + 1 < parent.Size.z )
+			yield return parent.Chunks[chunk.x, chunk.y, chunk.z + 1];
+		else if ( z == 0 && chunk.z - 1 >= 0 )
+			yield return parent.Chunks[chunk.x, chunk.y, chunk.z - 1];
 	}
 
 	public void Bind( VoxelEntity ent )
