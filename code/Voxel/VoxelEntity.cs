@@ -43,19 +43,21 @@ public partial class VoxelEntity : ModelEntity
 		if ( !Entities.TryGetValue( chunk, out chunkEntity ) )
 			Entities.Add( chunk, chunkEntity = new ChunkEntity() { Parent = this } );
 
-		var positions = new Vector3[]
+		const int faces = 6;
+
+		var positions = new Vector3[8]
 		{
 			new Vector3( -0.5f, -0.5f, 0.5f ) * VoxelScale,
 			new Vector3( -0.5f, 0.5f, 0.5f ) * VoxelScale,
 			new Vector3( 0.5f, 0.5f, 0.5f ) * VoxelScale,
-			new Vector3( 0.5f, -0.5f, 0.5f ) * VoxelScale,
+			new Vector3( 0.5f, -0.5f, 0.5f ) * VoxelScale, 
 			new Vector3( -0.5f, -0.5f, -0.5f ) * VoxelScale,
 			new Vector3( -0.5f, 0.5f, -0.5f ) * VoxelScale,
 			new Vector3( 0.5f, 0.5f, -0.5f ) * VoxelScale,
-			new Vector3( 0.5f, -0.5f, -0.5f ) * VoxelScale,
+			new Vector3( 0.5f, -0.5f, -0.5f ) * VoxelScale
 		};
 
-		var faceIndices = new int[]
+		var faceIndices = new int[4 * faces]
 		{
 			0, 1, 2, 3,
 			7, 6, 5, 4,
@@ -65,7 +67,7 @@ public partial class VoxelEntity : ModelEntity
 			3, 7, 4, 0,
 		};
 
-		var normals = new Vector3[]
+		var normals = new Vector3[faces]
 		{
 			Vector3.Up,
 			Vector3.Down,
@@ -75,7 +77,7 @@ public partial class VoxelEntity : ModelEntity
 			Vector3.Right,
 		};
 
-		var neighbors = new (short x, short y, short z)[]
+		var neighbors = new (short x, short y, short z)[faces]
 		{
 			(0, 0, 1),
 			(0, 0, -1),
@@ -86,7 +88,6 @@ public partial class VoxelEntity : ModelEntity
 		};
 
 		// Let's create a mesh.
-		const int faces = 6;
 		var builder = Model.Builder;
 
 		var material = Material.FromShader( "shaders/voxel.shader" );
@@ -184,7 +185,7 @@ public partial class VoxelEntity : ModelEntity
 		chunkEntity.Position = Position 
 			+ (Vector3)chunk.Position * ChunkSize * VoxelScale
 			+ VoxelScale / 2f;
-
+		
 		if ( withPhysics )
 			chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
 	}
@@ -379,10 +380,10 @@ public partial class VoxelEntity : ModelEntity
 				// -z
 				[1] = new()
 				{
-					new (int, int, int)[3] { (0, -1, -1), (-1, -1, 0), (-1, -1, -1) },
 					new (int, int, int)[3] { (0, -1, -1), (1, -1, 0), (1, -1, -1) },
-					new (int, int, int)[3] { (0, -1, 1), (-1, -1, 0), (-1, -1, 1) },
-					new (int, int, int)[3] { (0, -1, 1), (1, -1, 0), (1, -1, 1) }
+					new (int, int, int)[3] { (0, -1, -1), (-1, -1, 0), (-1, -1, -1) },
+					new (int, int, int)[3] { (0, -1, 1), (1, -1, 0), (1, -1, 1) },
+					new (int, int, int)[3] { (0, -1, 1), (-1, -1, 0), (-1, -1, 1) }
 				},
 
 				// -x
