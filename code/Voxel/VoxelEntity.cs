@@ -22,7 +22,7 @@ public class ChunkEntity : ModelEntity
 
 public partial class VoxelEntity : ModelEntity
 {
-	public Dictionary<Chunk, ModelEntity> Entities = new();
+	private Dictionary<Chunk, ModelEntity> entities = new();
 
 	public float VoxelScale { get; set; } = 1f / 0.0254f;
 
@@ -33,11 +33,58 @@ public partial class VoxelEntity : ModelEntity
 
 	public VoxelEntity() { }
 
+	#region Fields
+	const int faces = 6;
+
+	static readonly Vector3[] 
+		positions = new Vector3[8]
+	{
+		new Vector3( -0.5f, -0.5f, 0.5f ),
+		new Vector3( -0.5f, 0.5f, 0.5f ),
+		new Vector3( 0.5f, 0.5f, 0.5f ),
+		new Vector3( 0.5f, -0.5f, 0.5f ),
+		new Vector3( -0.5f, -0.5f, -0.5f ),
+		new Vector3( -0.5f, 0.5f, -0.5f ),
+		new Vector3( 0.5f, 0.5f, -0.5f ),
+		new Vector3( 0.5f, -0.5f, -0.5f )
+	};
+
+	static readonly int[] 
+		faceIndices = new int[4 * faces]
+	{
+		0, 1, 2, 3,
+		7, 6, 5, 4,
+		0, 4, 5, 1,
+		1, 5, 6, 2,
+		2, 6, 7, 3,
+		3, 7, 4, 0,
+	};
+
+	static readonly float[] 
+		multiply = new float[faces]
+	{
+		1f, 1f,
+		0.85f, 0.7f,
+		0.85f, 0.7f
+	};
+
+	static readonly (short x, short y, short z)[] 
+		neighbors = new (short, short, short)[faces]
+	{
+		(0, 0, 1),
+		(0, 0, -1),
+		(-1, 0, 0),
+		(0, 1, 0),
+		(1, 0, 0),
+		(0, -1, 0),
+	};
+	#endregion
+
 	/// <summary>
-		/// Generates a chunk.
-		/// </summary>
-		/// <param name="chunk"></param>
-		/// <param name="withPhysics"></param>
+	/// Generates a chunk.
+	/// </summary>
+	/// <param name="chunk"></param>
+	/// <param name="withPhysics"></param>
 	public void GenerateChunk( Chunk chunk, bool withPhysics = true )
 	{
 		// Get our chunk's entity.
@@ -45,52 +92,8 @@ public partial class VoxelEntity : ModelEntity
 			return;
 
 		ModelEntity chunkEntity;
-		if ( !Entities.TryGetValue( chunk, out chunkEntity ) )
-			Entities.Add( chunk, chunkEntity = new ChunkEntity() { Parent = this } );
-
-		const int faces = 6;
-
-		var positions = new Vector3[8]
-		{
-			new Vector3( -0.5f, -0.5f, 0.5f ) * VoxelScale,
-			new Vector3( -0.5f, 0.5f, 0.5f ) * VoxelScale,
-			new Vector3( 0.5f, 0.5f, 0.5f ) * VoxelScale,
-			new Vector3( 0.5f, -0.5f, 0.5f ) * VoxelScale, 
-			new Vector3( -0.5f, -0.5f, -0.5f ) * VoxelScale,
-			new Vector3( -0.5f, 0.5f, -0.5f ) * VoxelScale,
-			new Vector3( 0.5f, 0.5f, -0.5f ) * VoxelScale,
-			new Vector3( 0.5f, -0.5f, -0.5f ) * VoxelScale
-		};
-
-		var faceIndices = new int[4 * faces]
-		{
-			0, 1, 2, 3,
-			7, 6, 5, 4,
-			0, 4, 5, 1,
-			1, 5, 6, 2,
-			2, 6, 7, 3,
-			3, 7, 4, 0,
-		};
-
-		var normals = new Vector3[faces]
-		{
-			Vector3.Up,
-			Vector3.Down,
-			Vector3.Backward,
-			Vector3.Left,
-			Vector3.Forward,
-			Vector3.Right,
-		};
-
-		var neighbors = new (short x, short y, short z)[faces]
-		{
-			(0, 0, 1),
-			(0, 0, -1),
-			(-1, 0, 0),
-			(0, 1, 0),
-			(1, 0, 0),
-			(0, -1, 0),
-		};
+		if ( !entities.TryGetValue( chunk, out chunkEntity ) )
+			entities.Add( chunk, chunkEntity = new ChunkEntity() { Parent = this } );
 
 		// Let's create a mesh.
 		var builder = Model.Builder;
@@ -153,18 +156,18 @@ public partial class VoxelEntity : ModelEntity
 				if ( neighbour != null )
 					continue;
 
-				var normal = normals[i];
+				var faceColor = multiply[i];
 				for ( var j = 0; j < 4; ++j )
 				{
 					var vertexIndex = faceIndices[(i * 4) + j];
-					var pos = positions[vertexIndex]
+					var pos = positions[vertexIndex] * VoxelScale
 						+ new Vector3( x, y, z ) * VoxelScale;
 
 					var ao = buildAO( chunk, position, i, j );
 					var col = voxel.Value.Color;
-					var color = (Color.FromBytes( col.r, col.g, col.b ) * ao)
+					var color = (Color.FromBytes( col.r, col.g, col.b ) * ao * faceColor)
 						.ToColor32();
-					vertices.Add( new VoxelVertex( pos, normal, color ) );
+					vertices.Add( new VoxelVertex( pos, color ) );
 				}
 
 				indices.Add( offset + drawCount * 4 + 0 );
@@ -343,7 +346,7 @@ public partial class VoxelEntity : ModelEntity
 	{
 		if ( entity != null )
 		{
-			foreach ( var child in entity.Entities.Values )
+			foreach ( var child in entity.entities.Values )
 				child.Delete();
 
 			entity.Delete();
@@ -378,7 +381,7 @@ public partial class VoxelEntity : ModelEntity
 	{
 		if ( entity != null )
 		{
-			foreach ( var child in entity.Entities.Values )
+			foreach ( var child in entity.entities.Values )
 				child.Delete();
 
 			entity.Delete();
