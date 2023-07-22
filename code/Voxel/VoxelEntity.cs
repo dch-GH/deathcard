@@ -13,6 +13,11 @@ public struct VoxelData
 public class ChunkEntity : ModelEntity
 {
 	public new VoxelEntity Parent { get; set; }
+
+	public override void Spawn()
+	{
+		Tags.Add( "chunk" );
+	}
 }
 
 public partial class VoxelEntity : ModelEntity
@@ -135,7 +140,11 @@ public partial class VoxelEntity : ModelEntity
 				buffer.AddCube( pos, scale, Rotation.Identity );
 			}
 
-			// Generate all visible faces for our voxel.
+			// Let's skip generating mesh for server, we only need collisions.
+			if ( Game.IsServer )
+				continue;
+
+			// Generate all visible faces for our vo	xel.
 			var drawCount = 0;
 			for ( var i = 0; i < faces; i++ )
 			{
@@ -152,10 +161,10 @@ public partial class VoxelEntity : ModelEntity
 						+ new Vector3( x, y, z ) * VoxelScale;
 
 					var ao = buildAO( chunk, position, i, j );
-					var col = voxel.Value.Color.ToColor()
-						.Darken( 1 - ao )
+					var col = voxel.Value.Color;
+					var color = (Color.FromBytes( col.r, col.g, col.b ) * ao)
 						.ToColor32();
-					vertices.Add( new VoxelVertex( pos, normal, col ) );
+					vertices.Add( new VoxelVertex( pos, normal, color ) );
 				}
 
 				indices.Add( offset + drawCount * 4 + 0 );
@@ -260,7 +269,7 @@ public partial class VoxelEntity : ModelEntity
 			var chunks = (IEnumerable<Chunk>)null;
 			var withPhysics = true;
 
-			if ( Input.Down( "attack1" ) )
+			if ( Input.Pressed( "attack1" ) )
 			{
 				var size = 8;
 				var result = new List<Chunk>();
