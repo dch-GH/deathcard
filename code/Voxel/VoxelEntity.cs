@@ -22,16 +22,21 @@ public class ChunkEntity : ModelEntity
 
 public partial class VoxelEntity : ModelEntity
 {
+	public const float SCALE = 1f / 0.0254f;
+
 	private Dictionary<Chunk, ModelEntity> entities = new();
 
-	public float VoxelScale { get; set; } = 1f / 0.0254f;
+	public float VoxelScale { get; set; } = SCALE;
 
 	public Chunk[,,] Chunks { get; private set; }
 
 	public Vector3I Size { get; private set; }
 	public Vector3I ChunkSize { get; private set; }
 
-	public VoxelEntity() { }
+	public VoxelEntity() 
+	{
+		ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
+	}
 
 	#region Fields
 	const int faces = 6;
@@ -93,7 +98,11 @@ public partial class VoxelEntity : ModelEntity
 
 		ModelEntity chunkEntity;
 		if ( !entities.TryGetValue( chunk, out chunkEntity ) )
+		{
 			entities.Add( chunk, chunkEntity = new ChunkEntity() { Parent = this } );
+			if ( !withPhysics )
+				chunkEntity.SetParent( this );
+		}
 
 		// Let's create a mesh.
 		var builder = Model.Builder;
@@ -147,7 +156,7 @@ public partial class VoxelEntity : ModelEntity
 			if ( Game.IsServer )
 				continue;
 
-			// Generate all visible faces for our vo	xel.
+			// Generate all visible faces for our voxel.
 			var drawCount = 0;
 			for ( var i = 0; i < faces; i++ )
 			{
@@ -194,10 +203,10 @@ public partial class VoxelEntity : ModelEntity
 			builder.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
 
 		chunkEntity.Model = builder.Create();
-		chunkEntity.Position = Position 
+		chunkEntity.Position = (chunkEntity.Parent == null ? Position : Vector3.Zero)
 			+ (Vector3)chunk.Position * ChunkSize * VoxelScale
 			+ VoxelScale / 2f;
-		
+
 		if ( withPhysics )
 			chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
 	}
@@ -353,7 +362,6 @@ public partial class VoxelEntity : ModelEntity
 		}
 
 		entity = new VoxelEntity();
-		entity.ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
 
 		var chunks = new Chunk[2, 2, 2];
 		for ( ushort x = 0; x < chunks.GetLength( 0 ); x++ )
@@ -388,7 +396,6 @@ public partial class VoxelEntity : ModelEntity
 		}
 
 		entity = new VoxelEntity();
-		entity.ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
 
 		var chunks = await Importer.VoxImporter.Load( path, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z, entity: entity );
 		entity.Size = new( chunks.GetLength( 0 ), chunks.GetLength( 1 ), chunks.GetLength( 2 ) );
