@@ -14,8 +14,6 @@ public class Bomb : ModelEntity
 
 	private const float size = 1f / 0.0254f;
 	private TimeSince sinceSpawn;
-	private Entity oldGround;
-	private bool bounced;
 
 	private static Vector2 Planar( Vector3 pos, Vector3 uAxis, Vector3 vAxis )
 	{
@@ -96,7 +94,6 @@ public class Bomb : ModelEntity
 				vertices.Add( new VoxelVertex()
 				{
 					position = pos,
-					normal = normal,
 					color = Color32.White
 				} );
 			}
@@ -168,22 +165,32 @@ public class Bomb : ModelEntity
 		// Remove voxels in a sphere.
 		var data = voxelData.Value;
 		var chunks = new List<Chunk>();
-		for ( int x = 0; x < Size; x++ )
-		for ( int y = 0; y < Size; y++ )
-		for ( int z = 0; z < Size; z++ )
+		for ( int x = 0; x <= Size; x++ )
+		for ( int y = 0; y <= Size; y++ )
+		for ( int z = 0; z <= Size; z++ )
 		{
 			var center = new Vector3( data.x, data.y, data.z );
 			var position = center
 				+ new Vector3( x, y, z )
 				- Size / 2f;
 
-			if ( position.Distance( center ) >= Size / 2f )
+			var dist = position.Distance( center );
+			if ( dist >= Size / 2f )
 				continue;
 
-			var res = data.Chunk.TrySetVoxel(
-				position.x.FloorToInt(),
-				position.y.FloorToInt(),
-				position.z.FloorToInt(), null );
+			var pos = (
+				x: (position.x + 0.5f).FloorToInt(),
+				y: (position.y + 0.5f).FloorToInt(),
+				z: (position.z + 0.5f).FloorToInt()
+			);
+			var old = data.Chunk.GetVoxelByOffset( pos.x, pos.y, pos.z );
+			var col = ((old?.Color ?? default)
+				.ToColor() * 0.05f).ToColor32();
+			var replace = dist >= Size / 2f - 1f && old != null
+				? new Voxel( new Color32( byte.Clamp( col.r, 20, 255 ), byte.Clamp( col.g, 20, 255 ), byte.Clamp( col.b, 20, 255 ) ) )
+				: (Voxel?)null;
+
+			var res = data.Chunk.TrySetVoxel( pos.x, pos.y, pos.z, replace );
 			chunks.AddRange( res.Except( chunks ) );
 		}
 
@@ -218,9 +225,12 @@ public class Bomb : ModelEntity
 		// Apply new helper values and bounce.
 		Position = helper.Position;
 
-		var velocity = helper.Velocity; 
+		var velocity = helper.Velocity;
 		if ( Velocity.z < helper.Velocity.z ) // Bounce
-			velocity += Vector3.Up * -Velocity.z * 0.25f; 
+		{
+			velocity *= 0.25f;
+			velocity += Vector3.Up * -Velocity.z * 0.5f;
+		}
 
 		Velocity = velocity;
 
