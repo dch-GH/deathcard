@@ -1,28 +1,19 @@
 ﻿namespace DeathCard;
 
-public class Bomb : ModelEntity
+public class Bomb : VoxelEntity
 {
 	/// <summary>
 	/// The size of the explosion.
 	/// </summary>
-	public float Size { get; set; } = 8f;
+	public new float Size { get; set; } = 8f;
 
 	/// <summary>
 	/// The time it takes for the bomb to explode.
 	/// </summary>
 	public float Delay { get; set; } = 5f;
 
-	private const float size = 1f / 0.0254f;
+	private float size = VoxelEntity.SCALE / 4f;
 	private TimeSince sinceSpawn;
-
-	private static Vector2 Planar( Vector3 pos, Vector3 uAxis, Vector3 vAxis )
-	{
-		return new Vector2()
-		{
-			x = Vector3.Dot( uAxis, pos ),
-			y = Vector3.Dot( vAxis, pos )
-		};
-	}
 
 	public override void Spawn()
 	{
@@ -39,14 +30,14 @@ public class Bomb : ModelEntity
 
 		var positions = new Vector3[8]
 		{
-			new Vector3( -0.5f, -0.5f, 0.5f ) * size,
-			new Vector3( -0.5f, 0.5f, 0.5f ) * size,
-			new Vector3( 0.5f, 0.5f, 0.5f ) * size,
-			new Vector3( 0.5f, -0.5f, 0.5f ) * size,
-			new Vector3( -0.5f, -0.5f, -0.5f ) * size,
-			new Vector3( -0.5f, 0.5f, -0.5f ) * size,
-			new Vector3( 0.5f, 0.5f, -0.5f ) * size,
-			new Vector3( 0.5f, -0.5f, -0.5f ) * size
+			new Vector3( -0.5f, -0.5f, 0.5f ),
+			new Vector3( -0.5f, 0.5f, 0.5f ),
+			new Vector3( 0.5f, 0.5f, 0.5f ),
+			new Vector3( 0.5f, -0.5f, 0.5f ),
+			new Vector3( -0.5f, -0.5f, -0.5f ),
+			new Vector3( -0.5f, 0.5f, -0.5f ),
+			new Vector3( 0.5f, 0.5f, -0.5f ),
+			new Vector3( 0.5f, -0.5f, -0.5f )
 		};
 
 		var faceIndices = new int[4 * faces]
@@ -89,7 +80,7 @@ public class Bomb : ModelEntity
 			for ( var j = 0; j < 4; ++j )
 			{
 				var vertexIndex = faceIndices[(i * 4) + j];
-				var pos = positions[vertexIndex];
+				var pos = positions[vertexIndex] * size;
 
 				vertices.Add( new VoxelVertex()
 				{
@@ -113,7 +104,7 @@ public class Bomb : ModelEntity
 
 		// Create a model for the mesh.
 		builder.AddMesh( mesh );
-		
+
 		Model = builder.Create();
 		SetupPhysicsFromOBB( PhysicsMotionType.Static, -size / 2f, size / 2f );
 	}
@@ -126,7 +117,7 @@ public class Bomb : ModelEntity
 	{
 		// Get all nearby bombs and apply a force to them.
 		var nearby = Entity.All.OfType<Bomb>()
-			.Where( bomb => bomb.Position.Distance( Position ) < Size * size / 2f );
+			.Where( bomb => bomb.Position.Distance( Position ) < Size * VoxelEntity.SCALE / 2f );
 
 		var force = 1000f;
 		foreach ( var entity in nearby )
@@ -136,7 +127,8 @@ public class Bomb : ModelEntity
 
 			var normal = (bomb.Position - Position).Normal;
 			bomb.GroundEntity = null;
-			bomb.Velocity += normal * force;
+			bomb.Velocity += normal * force 
+				+ Vector3.Up * force / 5f;
 		}
 
 		// Find our closest chunk.
@@ -204,6 +196,10 @@ public class Bomb : ModelEntity
 
 	private void Update()
 	{
+		// Set rotation.
+		if ( !Velocity.IsNearlyZero( 1f ) )
+			Rotation = Rotation.LookAt( Velocity.Normal );
+
 		// Apply Gravity.
 		if ( GroundEntity == null )
 			Velocity += Game.PhysicsWorld.Gravity * Time.Delta;
@@ -272,14 +268,13 @@ public class Bomb : ModelEntity
 		if ( !Input.Pressed( "use" ) )
 			return;
 
-		var force = Game.Random.Float( 500f, 2000f );
-
+		var force = 2000f;
 		_ = new Bomb()
 		{
 			Size = Game.Random.Int( 2, 12 ),
 			Delay = Game.Random.Float( 1, 5 ),
 			Position = pawn.Position + pawn.ViewAngles.Forward * 50f,
-			Velocity = pawn.ViewAngles.Forward * force
+			Velocity = force * pawn.ViewAngles.Forward
 		};
 	}
 }
