@@ -177,9 +177,9 @@ public class Bomb : VoxelEntity
 			);
 			var old = data.Chunk.GetVoxelByOffset( pos.x, pos.y, pos.z );
 			var col = ((old?.Color ?? default)
-				.ToColor() * 0.05f).ToColor32();
+				.ToColor() * 0.25f).ToColor32();
 			var replace = dist >= Size / 2f - 1f && old != null
-				? new Voxel( new Color32( byte.Clamp( col.r, 20, 255 ), byte.Clamp( col.g, 20, 255 ), byte.Clamp( col.b, 20, 255 ) ) )
+				? new Voxel( new Color32( byte.Clamp( col.r, 10, 255 ), byte.Clamp( col.g, 10, 255 ), byte.Clamp( col.b, 10, 255 ) ) )
 				: (Voxel?)null;
 
 			var res = data.Chunk.TrySetVoxel( pos.x, pos.y, pos.z, replace );
@@ -213,7 +213,7 @@ public class Bomb : VoxelEntity
 			.Ignore( this );
 
 		if ( GroundEntity != null )
-			helper.ApplyFriction( 10f, Time.Delta );
+			helper.ApplyFriction( 2f, Time.Delta );
 
 		helper.TryUnstuck();
 		helper.TryMove( Time.Delta );
@@ -221,13 +221,29 @@ public class Bomb : VoxelEntity
 		// Apply new helper values and bounce.
 		Position = helper.Position;
 
+		// Let's apply some bounce.
 		var velocity = helper.Velocity;
-		if ( Velocity.z < helper.Velocity.z ) // Bounce
+		var bounced = false;
+		if ( MathF.Abs( Velocity.z - velocity.z ) > 10 ) // Bounce on Z-axis.
 		{
-			velocity *= 0.25f;
-			velocity += Vector3.Up * -Velocity.z * 0.5f;
+			velocity += Vector3.Up * -Velocity.z * 0.4f;
+			velocity *= 0.5f;
+			bounced = true;
 		}
 
+		if ( MathF.Abs( Velocity.x - velocity.x ) > 10 && !bounced ) // Bounce on X-axis.
+		{
+			velocity += Vector3.Forward * -Velocity.x * 0.4f;
+			velocity *= 0.5f;
+		}
+
+		if ( MathF.Abs( Velocity.y - velocity.y ) > 10 && !bounced ) // Bounce on Y-axis.
+		{
+			velocity += Vector3.Left * -Velocity.y * 0.4f;
+			velocity *= 0.5f;
+		}
+
+		// Finally apply final velocity.
 		Velocity = velocity;
 
 		// Check for ground collision.
