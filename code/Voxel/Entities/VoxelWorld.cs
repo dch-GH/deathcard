@@ -12,7 +12,7 @@ public struct VoxelData
 
 public class ChunkEntity : ModelEntity
 {
-	public new VoxelEntity Parent { get; set; }
+	public new VoxelWorld Parent { get; set; }
 
 	public override void Spawn()
 	{
@@ -20,7 +20,7 @@ public class ChunkEntity : ModelEntity
 	}
 }
 
-public partial class VoxelEntity : ModelEntity
+public partial class VoxelWorld : ModelEntity
 {
 	public const float SCALE = 1f / 0.0254f;
 
@@ -33,7 +33,7 @@ public partial class VoxelEntity : ModelEntity
 	public Vector3I Size { get; private set; }
 	public Vector3I ChunkSize { get; private set; }
 
-	public VoxelEntity() 
+	public VoxelWorld() 
 	{
 		ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
 	}
@@ -98,11 +98,7 @@ public partial class VoxelEntity : ModelEntity
 
 		ModelEntity chunkEntity;
 		if ( !entities.TryGetValue( chunk, out chunkEntity ) )
-		{
 			entities.Add( chunk, chunkEntity = new ChunkEntity() { Parent = this } );
-			if ( !withPhysics )
-				chunkEntity.SetParent( this );
-		}
 
 		// Let's create a mesh.
 		var builder = Model.Builder;
@@ -172,7 +168,7 @@ public partial class VoxelEntity : ModelEntity
 					var pos = positions[vertexIndex] * VoxelScale
 						+ new Vector3( x, y, z ) * VoxelScale;
 
-					var ao = buildAO( chunk, position, i, j );
+					var ao = BuildAO( chunk, position, i, j );
 					var col = voxel.Value.Color;
 					var color = (Color.FromBytes( col.r, col.g, col.b ) * ao * faceColor)
 						.ToColor32();
@@ -203,7 +199,7 @@ public partial class VoxelEntity : ModelEntity
 			builder.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
 
 		chunkEntity.Model = builder.Create();
-		chunkEntity.Position = (chunkEntity.Parent == null ? Position : Vector3.Zero)
+		chunkEntity.Position = Position
 			+ (Vector3)chunk.Position * ChunkSize * VoxelScale
 			+ VoxelScale / 2f;
 
@@ -333,7 +329,7 @@ public partial class VoxelEntity : ModelEntity
 	}
 
 	#region DEBUG
-	static VoxelEntity entity;
+	static VoxelWorld entity;
 
 	[Event.Hotload]
 	private static void refresh()
@@ -361,14 +357,14 @@ public partial class VoxelEntity : ModelEntity
 			entity.Delete();
 		}
 
-		entity = new VoxelEntity();
+		entity = new VoxelWorld();
 
 		var chunks = new Chunk[2, 2, 2];
 		for ( ushort x = 0; x < chunks.GetLength( 0 ); x++ )
 		for ( ushort y = 0; y < chunks.GetLength( 1 ); y++ )
 		for ( ushort z = 0; z < chunks.GetLength( 2 ); z++ )
 		{
-			var chunk = new Chunk( x, y, z, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z, entity: entity );
+			var chunk = new Chunk( x, y, z, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z, chunks );
 			chunks[x, y, z] = chunk;
 
 			for ( ushort i = 0; i < entity.ChunkSize.x; i++ )
@@ -395,9 +391,9 @@ public partial class VoxelEntity : ModelEntity
 			entity.Delete();
 		}
 
-		entity = new VoxelEntity();
+		entity = new VoxelWorld();
 
-		var chunks = await Importer.VoxImporter.Load( path, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z, entity: entity );
+		var chunks = await Importer.VoxImporter.Load( path, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z );
 		entity.Size = new( chunks.GetLength( 0 ), chunks.GetLength( 1 ), chunks.GetLength( 2 ) );
 		entity.Chunks = chunks;
 
@@ -470,7 +466,7 @@ public partial class VoxelEntity : ModelEntity
 	}
 	private static IReadOnlyDictionary<int, List<(int x, int y, int z)[]>> aoNeighbors = null;
 
-	private float occlusion( Chunk chunk, Vector3I pos, int x, int y, int z )
+	private static float occlusion( Chunk chunk, Vector3I pos, int x, int y, int z )
 	{
 		if ( chunk.GetVoxelByOffset( pos.x + x, pos.y + z, pos.z + y ) != null )
 			return 0.75f;
@@ -478,7 +474,7 @@ public partial class VoxelEntity : ModelEntity
 		return 1f;
 	}
 
-	private float buildAO( Chunk chunk, Vector3I pos, int face, int vertex )
+	public static float BuildAO( Chunk chunk, Vector3I pos, int face, int vertex )
 	{
 		if ( !getAOTable().TryGetValue( face, out var values ) )
 			return 1f;

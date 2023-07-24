@@ -1,18 +1,18 @@
 ﻿namespace DeathCard;
 
-public class Bomb : VoxelEntity
+public class Bomb : ModelEntity
 {
 	/// <summary>
 	/// The size of the explosion.
 	/// </summary>
-	public new float Size { get; set; } = 8f;
+	public float Size { get; set; } = 8f;
 
 	/// <summary>
 	/// The time it takes for the bomb to explode.
 	/// </summary>
 	public float Delay { get; set; } = 5f;
 
-	private float size = VoxelEntity.SCALE / 4f;
+	private float size = VoxelWorld.SCALE / 4f;
 	private TimeSince sinceSpawn;
 
 	public override void Spawn()
@@ -20,92 +20,7 @@ public class Bomb : VoxelEntity
 		Tags.Add( "bomb" );
 		sinceSpawn = 0f;
 
-		const int faces = 6;
-		var builder = Model.Builder;
-
-		var material = Material.FromShader( "shaders/voxel.vmat" );
-		var mesh = new Mesh( material );
-		var vertices = new List<VoxelVertex>();
-		var indices = new List<int>();
-
-		var positions = new Vector3[8]
-		{
-			new Vector3( -0.5f, -0.5f, 0.5f ),
-			new Vector3( -0.5f, 0.5f, 0.5f ),
-			new Vector3( 0.5f, 0.5f, 0.5f ),
-			new Vector3( 0.5f, -0.5f, 0.5f ),
-			new Vector3( -0.5f, -0.5f, -0.5f ),
-			new Vector3( -0.5f, 0.5f, -0.5f ),
-			new Vector3( 0.5f, 0.5f, -0.5f ),
-			new Vector3( 0.5f, -0.5f, -0.5f )
-		};
-
-		var faceIndices = new int[4 * faces]
-		{
-			0, 1, 2, 3,
-			7, 6, 5, 4,
-			0, 4, 5, 1,
-			1, 5, 6, 2,
-			2, 6, 7, 3,
-			3, 7, 4, 0,
-		};
-
-		var uAxis = new Vector3[]
-		{
-			Vector3.Forward,
-			Vector3.Left,
-			Vector3.Left,
-			Vector3.Forward,
-			Vector3.Right,
-			Vector3.Backward,
-		};
-
-		var vAxis = new Vector3[]
-		{
-			Vector3.Left,
-			Vector3.Forward,
-			Vector3.Down,
-			Vector3.Down,
-			Vector3.Down,
-			Vector3.Down,
-		};
-
-		var offset = 0;
-		for ( var i = 0; i < faces; i++ )
-		{
-			var tangent = uAxis[i];
-			var binormal = vAxis[i];
-			var normal = Vector3.Cross( tangent, binormal );
-
-			for ( var j = 0; j < 4; ++j )
-			{
-				var vertexIndex = faceIndices[(i * 4) + j];
-				var pos = positions[vertexIndex] * size;
-
-				vertices.Add( new VoxelVertex()
-				{
-					position = pos,
-					color = Color32.White
-				} );
-			}
-
-			indices.Add( offset + 0 );
-			indices.Add( offset + 2 );
-			indices.Add( offset + 1 );
-			indices.Add( offset + 2 );
-			indices.Add( offset + 0 );
-			indices.Add( offset + 3 );
-
-			offset += 4;
-		}
-
-		mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
-		mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
-
-		// Create a model for the mesh.
-		builder.AddMesh( mesh );
-
-		Model = builder.Create();
+		this.SetVoxelModel( "vox/grenade.vox", 1f );
 		SetupPhysicsFromOBB( PhysicsMotionType.Static, -size / 2f, size / 2f );
 	}
 
@@ -117,7 +32,7 @@ public class Bomb : VoxelEntity
 	{
 		// Get all nearby bombs and apply a force to them.
 		var nearby = Entity.All.OfType<Bomb>()
-			.Where( bomb => bomb.Position.Distance( Position ) < Size * VoxelEntity.SCALE / 2f );
+			.Where( bomb => bomb.Position.Distance( Position ) < Size * VoxelWorld.SCALE / 2f );
 
 		var force = 1000f;
 		foreach ( var entity in nearby )

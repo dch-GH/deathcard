@@ -44,7 +44,7 @@ public static class VoxImporter
 		return chunk;
 	}
 
-	public static async Task<Chunk[,,]> Load( string file, ushort width = Chunk.DEFAULT_WIDTH, ushort depth = Chunk.DEFAULT_DEPTH, ushort height = Chunk.DEFAULT_WIDTH, VoxelEntity? entity = null )
+	public static async Task<Chunk[,,]> Load( string file, ushort width = Chunk.DEFAULT_WIDTH, ushort depth = Chunk.DEFAULT_DEPTH, ushort height = Chunk.DEFAULT_WIDTH )
 	{
 		var data = await FileSystem.Mounted.ReadAllBytesAsync( file );
 
@@ -75,7 +75,7 @@ public static class VoxImporter
 				z: voxel.z / height
 			);
 
-			chunks[position.x, position.y, position.z] ??= new Chunk( (ushort)position.x, (ushort)position.y, (ushort)position.z, width, depth, height, entity );
+			chunks[position.x, position.y, position.z] ??= new Chunk( (ushort)position.x, (ushort)position.y, (ushort)position.z, width, depth, height, chunks );
 			chunks[position.x, position.y, position.z].SetVoxel( (ushort)(voxel.x % width), (ushort)(voxel.y % depth), (ushort)(voxel.z % height), new Voxel( color ) );
 		}
 

@@ -1,6 +1,6 @@
 ﻿namespace DeathCard;
 
-partial class VoxelEntity
+partial class VoxelWorld
 {
 	private bool trySpreadX( Chunk chunk, bool canSpreadX, ref bool[,,] tested, (ushort x, ushort y, ushort z) start, ref (int x, int y, int z) size )
 	{
