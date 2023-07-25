@@ -8,6 +8,6 @@ public class VoxFormat : BaseFormat
 
 	public override async Task<Chunk[,,]> Build( string path )
 	{
-		return await VoxImporter.Load( path );
+		return await VoxImporter.Load( path, single: true );
 	}
 }

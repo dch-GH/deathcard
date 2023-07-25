@@ -44,7 +44,7 @@ public static class VoxImporter
 		return chunk;
 	}
 
-	public static async Task<Chunk[,,]> Load( string file, ushort width = Chunk.DEFAULT_WIDTH, ushort depth = Chunk.DEFAULT_DEPTH, ushort height = Chunk.DEFAULT_WIDTH )
+	public static async Task<Chunk[,,]> Load( string file, ushort width = Chunk.DEFAULT_WIDTH, ushort depth = Chunk.DEFAULT_DEPTH, ushort height = Chunk.DEFAULT_WIDTH, bool single = false )
 	{
 		var data = await FileSystem.Mounted.ReadAllBytesAsync( file );
 
@@ -62,18 +62,22 @@ public static class VoxImporter
 		var palette = main.GetChild<RGBAChunk>().Palette // We might not have a palette.
 			?? RGBAChunk.Default;
 
-		var chunks = new Chunk[(size.x - 1) / width + 1, (size.y - 1) / depth + 1, (size.z - 1) / height + 1];
+		var chunks = !single
+			? new Chunk[(size.x - 1) / width + 1, (size.y - 1) / depth + 1, (size.z - 1) / height + 1]
+			: new Chunk[1, 1, 1];
 		var length = voxelData.Values.Length;
 
 		for ( int i = 0; i < length; i++ )
 		{
 			var voxel = voxelData.Values[i];
 			var color = palette[voxel.i];
-			var position = (
-				x: voxel.x / width,
-				y: voxel.y / depth,
-				z: voxel.z / height
-			);
+			var position = !single
+				? (
+					x: voxel.x / width,
+					y: voxel.y / depth,
+					z: voxel.z / height
+				)
+				: ( x: 0, y: 0, z: 0 );
 
 			chunks[position.x, position.y, position.z] ??= new Chunk( (ushort)position.x, (ushort)position.y, (ushort)position.z, width, depth, height, chunks );
 			chunks[position.x, position.y, position.z].SetVoxel( (ushort)(voxel.x % width), (ushort)(voxel.y % depth), (ushort)(voxel.z % height), new Voxel( color ) );
