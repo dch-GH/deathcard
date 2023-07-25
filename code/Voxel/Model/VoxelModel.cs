@@ -10,6 +10,7 @@ public struct VoxelModel
 	private bool physics;
 	private float scale;
 	private bool built;
+	private float? depth;
 
 	private static Dictionary<string, Model> modelCache = new();
 	private static Dictionary<string, BaseFormat> cache = TypeLibrary
@@ -39,6 +40,14 @@ public struct VoxelModel
 		};
 	}
 
+	public VoxelModel WithDepth( float? depth = VoxelWorld.SCALE )
+	{
+		return this with
+		{
+			depth = depth
+		};
+	}
+
 	public VoxelModel WithScale( float scale )
 	{
 		return this with
@@ -63,6 +72,8 @@ public struct VoxelModel
 
 		// Build the voxel chunks.
 		var chunks = await format.Build( file );
+		if ( chunks == null )
+			return null;
 
 		// Build our model.
 		var builder = Model.Builder;
@@ -124,7 +135,7 @@ public struct VoxelModel
 						var col = voxel.Value.Color;
 						var color = (Color.FromBytes( col.r, col.g, col.b ) * ao * faceColor)
 							.ToColor32();
-						vertices.Add( new VoxelVertex( pos, color ) );
+						vertices.Add( new VoxelVertex( pos * new Vector3( 1, depth ?? 1, 1 ), color ) );
 					}
 
 					indices.Add( offset + drawCount * 4 + 0 );
