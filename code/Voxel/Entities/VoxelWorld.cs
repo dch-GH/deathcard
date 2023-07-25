@@ -22,11 +22,9 @@ public class ChunkEntity : ModelEntity
 
 public partial class VoxelWorld : ModelEntity
 {
-	public const float SCALE = 1f / 0.0254f;
-
 	private Dictionary<Chunk, ModelEntity> entities = new();
 
-	public float VoxelScale { get; set; } = SCALE;
+	public float VoxelScale { get; set; } = Utility.Scale;
 
 	public Chunk[,,] Chunks { get; private set; }
 
@@ -37,53 +35,6 @@ public partial class VoxelWorld : ModelEntity
 	{
 		ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
 	}
-
-	#region Fields
-	const int faces = 6;
-
-	static readonly Vector3[] 
-		positions = new Vector3[8]
-	{
-		new Vector3( -0.5f, -0.5f, 0.5f ),
-		new Vector3( -0.5f, 0.5f, 0.5f ),
-		new Vector3( 0.5f, 0.5f, 0.5f ),
-		new Vector3( 0.5f, -0.5f, 0.5f ),
-		new Vector3( -0.5f, -0.5f, -0.5f ),
-		new Vector3( -0.5f, 0.5f, -0.5f ),
-		new Vector3( 0.5f, 0.5f, -0.5f ),
-		new Vector3( 0.5f, -0.5f, -0.5f )
-	};
-
-	static readonly int[] 
-		faceIndices = new int[4 * faces]
-	{
-		0, 1, 2, 3,
-		7, 6, 5, 4,
-		0, 4, 5, 1,
-		1, 5, 6, 2,
-		2, 6, 7, 3,
-		3, 7, 4, 0,
-	};
-
-	static readonly float[] 
-		multiply = new float[faces]
-	{
-		1f, 1f,
-		0.85f, 0.7f,
-		0.85f, 0.7f
-	};
-
-	static readonly (short x, short y, short z)[] 
-		neighbors = new (short, short, short)[faces]
-	{
-		(0, 0, 1),
-		(0, 0, -1),
-		(-1, 0, 0),
-		(0, 1, 0),
-		(1, 0, 0),
-		(0, -1, 0),
-	};
-	#endregion
 
 	/// <summary>
 	/// Generates a chunk.
@@ -154,21 +105,21 @@ public partial class VoxelWorld : ModelEntity
 
 			// Generate all visible faces for our voxel.
 			var drawCount = 0;
-			for ( var i = 0; i < faces; i++ )
+			for ( var i = 0; i < Utility.Faces; i++ )
 			{
-				var direction = neighbors[i];
+				var direction = Utility.Neighbors[i];
 				var neighbour = chunk.GetVoxelByOffset( x + direction.x, y + direction.y, z + direction.z );
 				if ( neighbour != null )
 					continue;
 
-				var faceColor = multiply[i];
+				var faceColor = Utility.FaceMultiply[i];
 				for ( var j = 0; j < 4; ++j )
 				{
-					var vertexIndex = faceIndices[(i * 4) + j];
-					var pos = positions[vertexIndex] * VoxelScale
+					var vertexIndex = Utility.FaceIndices[(i * 4) + j];
+					var pos = Utility.Positions[vertexIndex] * VoxelScale
 						+ new Vector3( x, y, z ) * VoxelScale;
 
-					var ao = BuildAO( chunk, position, i, j );
+					var ao = Utility.BuildAO( chunk, position, i, j );
 					var col = voxel.Value.Color;
 					var color = (Color.FromBytes( col.r, col.g, col.b ) * ao * faceColor)
 						.ToColor32();
@@ -256,7 +207,7 @@ public partial class VoxelWorld : ModelEntity
 	}
 
 	[GameEvent.Client.Frame]
-	private static void tick()
+	private static void destruction()
 	{
 		if ( Game.LocalPawn is not Pawn pawn )
 			return;
@@ -264,9 +215,8 @@ public partial class VoxelWorld : ModelEntity
 		var ray = new Ray( pawn.Position, pawn.ViewAngles.Forward );
 		var tr = Trace.Ray( ray, 10000f )
 			.IncludeClientside()
+			.WithTag( "chunk" )
 			.Run();
-
-		DebugOverlay.TraceResult( tr );
 
 		var parent = (tr.Entity as ChunkEntity)?.Parent;
 		var voxelData = parent?.GetClosestVoxel( tr.EndPosition - tr.Normal * parent.VoxelScale / 2f );
@@ -311,24 +261,11 @@ public partial class VoxelWorld : ModelEntity
 				foreach ( var chunk in chunks )
 					parent.GenerateChunk( chunk, withPhysics );
 			}
-
-			// Debug
-			DebugOverlay.ScreenText( $"{voxelData?.Voxel?.Color ?? default}" );
-			DebugOverlay.ScreenText( $"XYZ: {voxelData?.x}, {voxelData?.y} {voxelData?.z}", 1 );
-			DebugOverlay.ScreenText( $"Chunk: {voxelData?.Chunk.Position}", 2 );
-
-			var voxelCenter = (Vector3)data.Chunk.Position * parent.ChunkSize * parent.VoxelScale
-				+ new Vector3( data.x, data.y, data.z ) * parent.VoxelScale
-				+ parent.VoxelScale / 2f
-				+ parent.Position;
-
-			Gizmo.Draw.Color = Color.Black;
-			Gizmo.Draw.LineThickness = 1;
-			Gizmo.Draw.LineBBox( new BBox( voxelCenter, parent.VoxelScale ) );
 		}
 	}
 
 	#region DEBUG
+	static bool debugMode = false;
 	static VoxelWorld entity;
 
 	[Event.Hotload]
@@ -336,8 +273,6 @@ public partial class VoxelWorld : ModelEntity
 	{
 		if ( Game.IsServer )
 			return;
-
-		aoNeighbors = null;
 
 		if ( entity == null )
 			return;
@@ -400,97 +335,64 @@ public partial class VoxelWorld : ModelEntity
 		foreach ( var chunk in entity.Chunks )
 			entity.GenerateChunk( chunk );
 	}
-	#endregion
 
-	#region Ambient Occlusion
-	private static IReadOnlyDictionary<int, List<(int x, int y, int z)[]>> getAOTable()
+	[GameEvent.Client.Frame]
+	private static void debug()
 	{
-		if ( aoNeighbors == null )
-			aoNeighbors = new Dictionary<int, List<(int x, int y, int z)[]>>()
+		if ( Input.Pressed( "score" ) )
+			debugMode = !debugMode;
+
+		if ( Game.LocalPawn is not Pawn pawn || !debugMode )
+			return;
+
+		// Display all chunks.
+		foreach ( var world in Entity.All.OfType<VoxelWorld>() )
+		{
+			if ( world?.Chunks == null )
+				continue;
+
+			foreach ( var chunk in world.Chunks )
 			{
-				// +z
-				[0] = new() {
-					new (int, int, int)[3] { (0, 1, -1), (-1, 1, 0), (-1, 1, -1) },
-					new (int, int, int)[3] { (0, 1, -1), (1, 1, 0), (1, 1, -1) },
-					new (int, int, int)[3] { (0, 1, 1), (-1, 1, 0), (-1, 1, 1) },
-					new (int, int, int)[3] { (0, 1, 1), (1, 1, 0), (1, 1, 1) }
-				},
+				if ( chunk == null )
+					continue;
 
-				// -z
-				[1] = new()
-				{
-					new (int, int, int)[3] { (0, -1, -1), (1, -1, 0), (1, -1, -1) },
-					new (int, int, int)[3] { (0, -1, -1), (-1, -1, 0), (-1, -1, -1) },
-					new (int, int, int)[3] { (0, -1, 1), (1, -1, 0), (1, -1, 1) },
-					new (int, int, int)[3] { (0, -1, 1), (-1, -1, 0), (-1, -1, 1) }
-				},
+				var pos = world.Position
+					+ (Vector3)chunk.Position * world.VoxelScale * world.ChunkSize;
 
-				// -x
-				[2] = new()
-				{
-					new (int, int, int)[3] { (-1, 0, -1), (-1, 1, 0), (-1, 1, -1) },
-					new (int, int, int)[3] { (-1, 0, 1), (-1, 1, 0), (-1, 1, 1) },
-					new (int, int, int)[3] { (-1, 0, -1), (-1, -1, 0), (-1, -1, -1) },
-					new (int, int, int)[3] { (-1, 0, 1), (-1, -1, 0), (-1, -1, 1) }
-				},
+				Gizmo.Draw.Color = Color.Yellow;
+				Gizmo.Draw.LineThickness = 1;
+				Gizmo.Draw.LineBBox( new BBox( pos, pos + (Vector3)world.ChunkSize * world.VoxelScale ) );
+			}
+		}
 
-				// +y
-				[3] = new()
-				{
-					new (int, int, int)[3] { (-1, 0, 1), (0, 1, 1), (-1, 1, 1) },
-					new (int, int, int)[3] { (1, 0, 1), (0, 1, 1), (1, 1, 1) },
-					new (int, int, int)[3] { (-1, 0, 1), (0, -1, 1), (-1, -1, 1) },
-					new (int, int, int)[3] { (1, 0, 1), (0, -1, 1), (1, -1, 1) }
-				},
+		// Focus on hovered VoxelWorld.
+		var ray = new Ray( pawn.Position, pawn.ViewAngles.Forward );
+		var tr = Trace.Ray( ray, 10000f )
+			.IncludeClientside()
+			.WithTag( "chunk" )
+			.Run();
 
-				// +x
-				[4] = new()
-				{
-					new (int, int, int)[3] { (1, 0, 1), (1, 1, 0), (1, 1, 1) },
-					new (int, int, int)[3] { (1, 0, -1), (1, 1, 0), (1, 1, -1) },
-					new (int, int, int)[3] { (1, 0, 1), (1, -1, 0), (1, -1, 1) },
-					new (int, int, int)[3] { (1, 0, -1), (1, -1, 0), (1, -1, -1) }
-				},
+		var parent = (tr.Entity as ChunkEntity)?.Parent;
+		var voxelData = parent?.GetClosestVoxel( tr.EndPosition - tr.Normal * parent.VoxelScale / 2f );
 
-				// -y
-				[5] = new()
-				{
-					new (int, int, int)[3] { (1, 0, -1), (0, 1, -1), (1, 1, -1) },
-					new (int, int, int)[3] { (-1, 0, -1), (0, 1, -1), (-1, 1, -1) },
-					new (int, int, int)[3] { (1, 0, -1), (0, -1, -1), (1, -1, -1) },
-					new (int, int, int)[3] { (-1, 0, -1), (0, -1, -1), (-1, -1, -1) }
-				}
-			};
+		if ( voxelData?.Voxel != null )
+		{
+			var data = voxelData.Value;
 
-		return aoNeighbors;
-	}
-	private static IReadOnlyDictionary<int, List<(int x, int y, int z)[]>> aoNeighbors = null;
+			// Debug
+			DebugOverlay.ScreenText( $"{voxelData?.Voxel?.Color ?? default}" );
+			DebugOverlay.ScreenText( $"XYZ: {voxelData?.x}, {voxelData?.y} {voxelData?.z}", 1 );
+			DebugOverlay.ScreenText( $"Chunk: {voxelData?.Chunk.Position}", 2 );
 
-	private static float occlusion( Chunk chunk, Vector3I pos, int x, int y, int z )
-	{
-		if ( chunk.GetVoxelByOffset( pos.x + x, pos.y + z, pos.z + y ) != null )
-			return 0.75f;
+			var voxelCenter = (Vector3)data.Chunk.Position * parent.ChunkSize * parent.VoxelScale
+				+ new Vector3( data.x, data.y, data.z ) * parent.VoxelScale
+				+ parent.VoxelScale / 2f
+				+ parent.Position;
 
-		return 1f;
-	}
-
-	public static float BuildAO( Chunk chunk, Vector3I pos, int face, int vertex )
-	{
-		if ( !getAOTable().TryGetValue( face, out var values ) )
-			return 1f;
-
-		var table = values[
-			vertex switch
-			{
-				0 => 0,
-				1 => 2,
-				2 => 3,
-				3 => 1,
-				_ => 0
-			}];
-		return occlusion( chunk, pos, table[0].x, table[0].y, table[0].z ) 
-			* occlusion( chunk, pos, table[1].x, table[1].y, table[1].z ) 
-			* occlusion( chunk, pos, table[2].x, table[2].y, table[2].z );
+			Gizmo.Draw.Color = Color.Black;
+			Gizmo.Draw.LineThickness = 1;
+			Gizmo.Draw.LineBBox( new BBox( voxelCenter, parent.VoxelScale ) );
+		}
 	}
 	#endregion
 }

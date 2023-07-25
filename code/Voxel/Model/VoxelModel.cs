@@ -26,7 +26,7 @@ public struct VoxelModel
 		return new VoxelModel()
 		{
 			file = file,
-			scale = VoxelWorld.SCALE,
+			scale = Utility.Scale,
 			built = contains,
 			Model = model
 		};
@@ -40,7 +40,7 @@ public struct VoxelModel
 		};
 	}
 
-	public VoxelModel WithDepth( float? depth = VoxelWorld.SCALE )
+	public VoxelModel WithDepth( float? depth = Utility.Scale )
 	{
 		return this with
 		{
@@ -56,7 +56,7 @@ public struct VoxelModel
 		};
 	}
 
-	public async Task<Model> Build( bool occlusion = true, bool center = true )
+	public async Task<Model> BuildAsync( bool occlusion = true, bool center = true )
 	{
 		// We already have the model.
 		if ( built )
@@ -82,7 +82,6 @@ public struct VoxelModel
 		var mesh = new Mesh( material );
 		var vertices = new List<VoxelVertex>();
 		var indices = new List<int>();
-		var chunkPosition = Vector3.Zero;
 		var offset = 0;
 
 		var count = new Vector3(
@@ -97,7 +96,7 @@ public struct VoxelModel
 			var centerOffset = center 
 				? chunkSize * count * scale / 2f
 				: 0;
-			chunkPosition = (Vector3)chunk.Position
+			var chunkPosition = (Vector3)chunk.Position
 				* scale
 				* chunkSize;
 
@@ -113,24 +112,24 @@ public struct VoxelModel
 
 				// Generate all visible faces for our voxel.
 				var drawCount = 0;
-				for ( var i = 0; i < faces; i++ )
+				for ( var i = 0; i < Utility.Faces; i++ )
 				{
-					var direction = neighbors[i];
+					var direction = Utility.Neighbors[i];
 					var neighbour = chunk.GetVoxelByOffset( x + direction.x, y + direction.y, z + direction.z );
 					if ( neighbour != null )
 						continue;
 
-					var faceColor = multiply[i];
+					var faceColor = Utility.FaceMultiply[i];
 					for ( var j = 0; j < 4; ++j )
 					{
-						var vertexIndex = faceIndices[(i * 4) + j];
-						var pos = positions[vertexIndex] * scale
+						var vertexIndex = Utility.FaceIndices[(i * 4) + j];
+						var pos = Utility.Positions[vertexIndex] * scale
 							+ new Vector3( x, y, z ) * scale
 							+ chunkPosition
 							- centerOffset;
 
 						var ao = occlusion 
-							? VoxelWorld.BuildAO( chunk, position, i, j )
+							? Utility.BuildAO( chunk, position, i, j )
 							: 1;
 						var col = voxel.Value.Color;
 						var color = (Color.FromBytes( col.r, col.g, col.b ) * ao * faceColor)
@@ -163,51 +162,4 @@ public struct VoxelModel
 
 		return Model;
 	}
-
-	#region Fields
-	const int faces = 6;
-
-	static readonly Vector3[]
-		positions = new Vector3[8]
-	{
-		new Vector3( -0.5f, -0.5f, 0.5f ),
-		new Vector3( -0.5f, 0.5f, 0.5f ),
-		new Vector3( 0.5f, 0.5f, 0.5f ),
-		new Vector3( 0.5f, -0.5f, 0.5f ),
-		new Vector3( -0.5f, -0.5f, -0.5f ),
-		new Vector3( -0.5f, 0.5f, -0.5f ),
-		new Vector3( 0.5f, 0.5f, -0.5f ),
-		new Vector3( 0.5f, -0.5f, -0.5f )
-	};
-
-	static readonly int[]
-		faceIndices = new int[4 * faces]
-	{
-		0, 1, 2, 3,
-		7, 6, 5, 4,
-		0, 4, 5, 1,
-		1, 5, 6, 2,
-		2, 6, 7, 3,
-		3, 7, 4, 0,
-	};
-
-	static readonly float[]
-		multiply = new float[faces]
-	{
-		1f, 1f,
-		0.85f, 0.7f,
-		0.85f, 0.7f
-	};
-
-	static readonly (short x, short y, short z)[]
-		neighbors = new (short, short, short)[faces]
-	{
-		(0, 0, 1),
-		(0, 0, -1),
-		(-1, 0, 0),
-		(0, 1, 0),
-		(1, 0, 0),
-		(0, -1, 0),
-	};
-	#endregion
 }

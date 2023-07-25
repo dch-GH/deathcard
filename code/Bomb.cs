@@ -12,7 +12,7 @@ public class Bomb : ModelEntity
 	/// </summary>
 	public float Delay { get; set; } = 5f;
 
-	private float size = VoxelWorld.SCALE / 4f;
+	private float size = Utility.Scale / 4f;
 	private TimeSince sinceSpawn;
 
 	public override void Spawn()
@@ -32,7 +32,7 @@ public class Bomb : ModelEntity
 	{
 		// Get all nearby bombs and apply a force to them.
 		var nearby = Entity.All.OfType<Bomb>()
-			.Where( bomb => bomb.Position.Distance( Position ) < Size * VoxelWorld.SCALE / 2f );
+			.Where( bomb => bomb.Position.Distance( Position ) < Size * Utility.Scale / 2f );
 
 		var force = 1000f;
 		foreach ( var entity in nearby )
@@ -48,7 +48,7 @@ public class Bomb : ModelEntity
 
 		// Find our closest chunk.
 		var ray = new Ray( Position, Vector3.Down );
-		var results = Trace.Box( Size * size / 2f, ray, 0f )
+		var results = Trace.Box( Size * Utility.Scale / 2f, ray, 0f )
 			.Ignore( this )
 			.WithTag( "chunk" )
 			.IncludeClientside()

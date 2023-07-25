@@ -1,6 +1,6 @@
 ﻿namespace DeathCard;
 
-[SceneCamera.AutomaticRenderHook]
+//[SceneCamera.AutomaticRenderHook]
 public class FogRenderer : RenderHook
 {
 	private Material material => Material.FromShader( "shaders/fog.shader" );
