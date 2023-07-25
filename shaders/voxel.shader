@@ -57,6 +57,11 @@ PS
 
     float4 MainPs( PixelInput i ) : SV_Target0
 	{   
+        /*Material m = Material::From( i );
+        m.Albedo = i.vColor.rgb;
+        m.Normal = 1;
+
+        float4 result = ShadingModelStandard::Shade( i, m );*/
         return float4( i.vColor.rgb, 1 );
     }
 }
