@@ -1,6 +1,6 @@
 ﻿namespace DeathCard;
 
-public static class Utility
+public static partial class Utility
 {
 	#region Ambient Occlusion
 	private static IReadOnlyDictionary<int, List<(int x, int y, int z)[]>> aoNeighbors = new Dictionary<int, List<(int x, int y, int z)[]>>()
@@ -145,21 +145,49 @@ public static class Utility
 	#endregion
 
 	/// <summary>
-	/// Sets the voxel model of an entity using the VoxelModel formats.
+	/// Sets the voxel model of an entity if there is an existing VoxelResource model for it.
 	/// </summary>
 	/// <param name="entity"></param>
-	/// <param name="file"></param>
-	/// <param name="scale"></param>
-	/// <param name="depth"></param>
-	/// <param name="occlusion"></param>
-	public static async Task<Model> SetVoxelModel( this ModelEntity entity, string file, float scale = Utility.Scale, float? depth = null, bool occlusion = true )
+	/// <param name="path"></param>
+	public static void SetVoxelModel( this ModelEntity entity, string path )
 	{
-		var mdl = await VoxelModel.FromFile( file )
-			.WithScale( scale )
-			.WithDepth( depth )
-			.BuildAsync( occlusion );
+		if ( Game.IsServer )
+			SetVoxelModelRPC( To.Everyone, entity.NetworkIdent, path );
 
-		return entity.Model = mdl;
+		SetModel( entity, path );
 	}
 
+	[ClientRpc]
+	public static void SetVoxelModelRPC( int ident, string path )
+	{
+		if ( Entity.FindByIndex( ident ) is not ModelEntity entity )
+			return;
+
+		SetModel( entity, path );
+	}
+
+	private static async void SetModel( ModelEntity entity, string path )
+	{
+		var resource = VoxelResource.Get( path );
+		if ( resource == null )
+		{
+			Log.Error( $"VoxelResource doesn't exist at '{path}'." );
+			return;
+		}
+
+		if ( resource.Loaded )
+		{
+			entity.Model = resource.Model;
+			return;
+		}
+
+		var mdl = await VoxelModel.FromFile( resource.Path )
+			.WithScale( resource.Scale )
+			.WithDepth( resource.Depth != default
+				? resource.Depth
+				: null )
+			.BuildAsync( center: resource.Center );
+
+		entity.Model = mdl;
+	}
 }

@@ -20,7 +20,7 @@ public class Bomb : ModelEntity
 		Tags.Add( "bomb" );
 		sinceSpawn = 0f;
 
-		this.SetVoxelModel( "vox/grenade.vox", 1f );
+		this.SetVoxelModel( "resources/grenade.vxmdl" );
 		SetupPhysicsFromOBB( PhysicsMotionType.Static, -size / 2f, size / 2f );
 	}
 
@@ -65,7 +65,7 @@ public class Bomb : ModelEntity
 
 		// Get position in voxel space.
 		var parent = chunk?.Parent;
-		var voxelData = parent?.GetClosestVoxel( Position + Vector3.Down * (parent.VoxelScale + size) / 2f );
+		var voxelData = parent?.GetClosestVoxel( Position + Vector3.Down * parent.VoxelScale / 2f );
 		if ( voxelData?.Chunk == null )
 			return false;
 
@@ -196,7 +196,7 @@ public class Bomb : ModelEntity
 		if ( Game.LocalPawn is not Pawn pawn )
 			return;
 
-		if ( !Input.Pressed( "use" ) )
+		if ( !Input.Down( "use" ) )
 			return;
 
 		var force = 2000f;
