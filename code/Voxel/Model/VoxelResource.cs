@@ -54,7 +54,7 @@ public class VoxelResource : GameResource
 					? Depth 
 					: null )
 				.BuildAsync( center: Center );
-			Log.Error( $"Generated {ResourcePath} model {Path}." );
+
 			Loaded = true;
 			Model = mdl;
 		} ).Invoke();
