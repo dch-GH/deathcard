@@ -91,10 +91,10 @@ public class Bomb : ModelEntity
 				z: (position.z + 0.5f).FloorToInt()
 			);
 			var old = data.Chunk.GetVoxelByOffset( pos.x, pos.y, pos.z );
-			var col = ((old?.Color ?? default)
-				.ToColor() * 0.25f).ToColor32();
+
+			var col = (old?.Color ?? default).Multiply( 0.25f );
 			var replace = dist >= Size / 2f - 1f && old != null
-				? new Voxel( new Color32( byte.Clamp( col.r, 10, 255 ), byte.Clamp( col.g, 10, 255 ), byte.Clamp( col.b, 10, 255 ) ) )
+				? new Voxel( col.Clamp( 10 ) )
 				: (Voxel?)null;
 
 			var res = data.Chunk.TrySetVoxel( pos.x, pos.y, pos.z, replace );
@@ -128,7 +128,7 @@ public class Bomb : ModelEntity
 			.Ignore( this );
 
 		if ( GroundEntity != null )
-			helper.ApplyFriction( 2f, Time.Delta );
+			helper.Velocity *= 0.9f;
 
 		helper.TryUnstuck();
 		helper.TryMove( Time.Delta );
@@ -196,7 +196,7 @@ public class Bomb : ModelEntity
 		if ( Game.LocalPawn is not Pawn pawn )
 			return;
 
-		if ( !Input.Down( "use" ) )
+		if ( !Input.Pressed( "use" ) )
 			return;
 
 		var force = 2000f;

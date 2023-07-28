@@ -120,9 +120,8 @@ public partial class VoxelWorld : ModelEntity
 						+ new Vector3( x, y, z ) * VoxelScale;
 
 					var ao = Utility.BuildAO( chunk, position, i, j );
-					var col = voxel.Value.Color;
-					var color = (Color.FromBytes( col.r, col.g, col.b ) * ao * faceColor)
-						.ToColor32();
+					var color = voxel.Value.Color
+						.Multiply( ao * faceColor );
 					vertices.Add( new VoxelVertex( pos, color ) );
 				}
 
