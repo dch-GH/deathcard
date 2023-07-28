@@ -1,7 +1,7 @@
 {
-  "Model": null,
   "Path": "vox/grenade.vox",
   "Scale": 1,
+  "HasDepth": false,
   "Depth": 0,
   "Center": true
 }

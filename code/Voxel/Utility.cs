@@ -183,7 +183,7 @@ public static partial class Utility
 
 		var mdl = await VoxelModel.FromFile( resource.Path )
 			.WithScale( resource.Scale )
-			.WithDepth( resource.Depth != default
+			.WithDepth( resource.HasDepth
 				? resource.Depth
 				: null )
 			.BuildAsync( center: resource.Center );

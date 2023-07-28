@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 
 namespace DeathCard;
 
@@ -10,13 +11,13 @@ public class VoxelResource : GameResource
 	/// <summary>
 	/// The generated model of this resource.
 	/// </summary>
-	[HideInEditor]
+	[HideInEditor, JsonIgnore]
 	public Model Model { get; private set; }
 
 	/// <summary>
 	/// Is the model loaded already?
 	/// </summary>
-	[HideInEditor]
+	[HideInEditor, JsonIgnore]
 	public bool Loaded { get; private set; }
 
 	/// <summary>
@@ -30,9 +31,15 @@ public class VoxelResource : GameResource
 	public float Scale { get; set; } = Utility.Scale;
 
 	/// <summary>
+	/// Should the model use a fixed depth value?
+	/// </summary>
+	public bool HasDepth { get; set; }
+
+	/// <summary>
 	/// Depth of this voxel model, used only for image formats.
 	/// </summary>
-	public float Depth { get; set; } = default;
+	[ShowIf( "HasDepth", true )]
+	public float Depth { get; set; } = 1f;
 
 	/// <summary>
 	/// Should the model be centered on every axis?
@@ -50,7 +57,7 @@ public class VoxelResource : GameResource
 		{
 			var mdl = await VoxelModel.FromFile( Path )
 				.WithScale( Scale )
-				.WithDepth( Depth != default 
+				.WithDepth( HasDepth
 					? Depth 
 					: null )
 				.BuildAsync( center: Center );
