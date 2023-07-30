@@ -39,10 +39,10 @@ public class Chunk
 	public Voxel?[,,] GetVoxels()
 		=> voxels;
 
-	public Voxel? GetVoxelByOffset( int x, int y, int z )
+	public (Chunk Chunk, Voxel? Voxel) GetDataByOffset( int x, int y, int z )
 	{
 		if ( chunks == null )
-			return null;
+			return (null, null);
 
 		// Get the new chunk's position based on the offset.
 		var position = (
@@ -60,17 +60,18 @@ public class Chunk
 		// Are we out of chunk bounds?
 		if ( position.x >= size.x
 			|| position.y >= size.y
-			|| position.z >= size.z ) return null;
+			|| position.z >= size.z ) return (null, null);
 
 		// Calculate new voxel position.
-		return chunks[position.x, position.y, position.z]?.voxels[ 
-			(ushort)((x % Width + Width) % Width),
-			(ushort)((y % Depth + Depth) % Depth),
-			(ushort)((z % Height + Height) % Height)];
+		var chunk = chunks[position.x, position.y, position.z];
+		return (
+			Chunk: chunk,
+			Voxel: chunk?.voxels[ 
+				(ushort)((x % Width + Width) % Width),
+				(ushort)((y % Depth + Depth) % Depth),
+				(ushort)((z % Height + Height) % Height)] 
+		);
 	}
-
-	public Voxel? GetVoxelByOffset( Vector3I vec )
-		=> GetVoxelByOffset( vec.x, vec.y, vec.z );
 
 	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null )
 		=> voxels[x, y, z] = voxel;
@@ -102,31 +103,34 @@ public class Chunk
 		if ( chunk == null )
 			yield break;
 
-		chunk.voxels[
-			(ushort)((x % Width + Width) % Width),
-			(ushort)((y % Depth + Depth) % Depth),
-			(ushort)((z % Height + Height) % Height)] = voxel;
+		var vox = (
+			x: (ushort)((x % Width + Width) % Width),
+			y: (ushort)((y % Depth + Depth) % Depth),
+			z: (ushort)((z % Height + Height) % Height)
+		);
 
-		yield return this;
+		chunk.voxels[vox.x, vox.y, vox.z] = voxel;
+
+		yield return chunk;
 
 		// If we are just setting a new voxel, we don't have to update neighboring chunks.
 		if ( voxel != null )
 			yield break;
 
 		// Yield return affected neighbors.
-		if ( x >= Width - 1 && chunk.x + 1 < size.x )
-			yield return chunks[chunk.x + 1, chunk.y, chunk.z];
-		else if ( x == 0 && chunk.x - 1 >= 0 )
-			yield return chunks[chunk.x - 1, chunk.y, chunk.z];
+		if ( vox.x >= Width - 1 && position.x + 1 < size.x )
+			yield return chunks[position.x + 1, position.y, position.z];
+		else if ( vox.x == 0 && position.x - 1 >= 0 )
+			yield return chunks[position.x - 1, position.y, position.z];
 
-		if ( y >= Depth - 1 && chunk.y + 1 < size.y )
-			yield return chunks[chunk.x, chunk.y + 1, chunk.z];
-		else if ( y == 0 && chunk.y - 1 >= 0 )
-			yield return chunks[chunk.x, chunk.y - 1, chunk.z];
+		if ( vox.y >= Depth - 1 && position.y + 1 < size.y )
+			yield return chunks[position.x, position.y + 1, position.z];
+		else if ( vox.y == 0 && position.y - 1 >= 0 )
+			yield return chunks[position.x, position.y - 1, position.z];
 
-		if ( z >= Height - 1 && chunk.z + 1 < size.z )
-			yield return chunks[chunk.x, chunk.y, chunk.z + 1];
-		else if ( z == 0 && chunk.z - 1 >= 0 )
-			yield return chunks[chunk.x, chunk.y, chunk.z - 1];
+		if ( vox.z >= Height - 1 && position.z + 1 < size.z )
+			yield return chunks[position.x, position.y, position.z + 1];
+		else if ( vox.z == 0 && position.z - 1 >= 0 )
+			yield return chunks[position.x, position.y, position.z - 1];
 	}
 }

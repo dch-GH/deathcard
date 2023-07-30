@@ -62,7 +62,7 @@ public static partial class Utility
 
 	private static float occlusion( Chunk chunk, Vector3I pos, int x, int y, int z )
 	{
-		if ( chunk.GetVoxelByOffset( pos.x + x, pos.y + z, pos.z + y ) != null )
+		if ( chunk.GetDataByOffset( pos.x + x, pos.y + z, pos.z + y ).Voxel != null )
 			return 0.75f;
 
 		return 1f;

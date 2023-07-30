@@ -35,9 +35,9 @@ public class Bomb : ModelEntity
 			.Where( bomb => bomb.Position.Distance( Position ) < Size * Utility.Scale / 2f );
 
 		var force = 1000f;
-		foreach ( var entity in nearby )
+		foreach ( var ent in nearby )
 		{
-			if ( entity == this || entity is not Bomb bomb || !bomb.IsValid )
+			if ( ent == this || ent is not Bomb bomb || !bomb.IsValid )
 				continue;
 
 			var normal = (bomb.Position - Position).Normal;
@@ -55,49 +55,53 @@ public class Bomb : ModelEntity
 			.RunAll();
 
 		// Check if our bomb is near a chunk.
-		var result = results?.FirstOrDefault( tr => tr.Entity is ChunkEntity chunk );
+		var result = results?.FirstOrDefault( tr => tr.Entity is ChunkEntity entity );
 		if ( results == null )
 			return false;
 
 		var tr = result.Value;
-		if ( tr.Entity is not ChunkEntity chunk )
+		if ( tr.Entity is not ChunkEntity entity )
 			return false;
 
 		// Get position in voxel space.
-		var parent = chunk?.Parent;
-		var voxelData = parent?.GetClosestVoxel( Position + Vector3.Down * parent.VoxelScale / 2f );
-		if ( voxelData?.Chunk == null )
+		var parent = entity?.Parent;
+		if ( parent == null )
+			return false;
+
+		var position = parent.GetVoxelSpace( Position + Vector3.Down * parent.VoxelScale / 2f );
+		var chunk = parent.Chunks[0, 0, 0];
+		if ( chunk == null )
 			return false;
 
 		// Remove voxels in a sphere.
-		var data = voxelData.Value;
 		var chunks = new List<Chunk>();
+		var center = new Vector3( position.x, position.y, position.z );
+
 		for ( int x = 0; x <= Size; x++ )
 		for ( int y = 0; y <= Size; y++ )
 		for ( int z = 0; z <= Size; z++ )
 		{
-			var center = (Vector3)data.Position;
-			var position = center
+			var pos = center
 				+ new Vector3( x, y, z )
 				- Size / 2f;
 
-			var dist = position.Distance( center );
+			var dist = pos.Distance( center );
 			if ( dist >= Size / 2f )
 				continue;
 
-			var pos = (
-				x: (position.x + 0.5f).FloorToInt(),
-				y: (position.y + 0.5f).FloorToInt(),
-				z: (position.z + 0.5f).FloorToInt()
+			var target = (
+				x: (pos.x + 0.5f).FloorToInt(),
+				y: (pos.y + 0.5f).FloorToInt(),
+				z: (pos.z + 0.5f).FloorToInt()
 			);
-			var old = data.Chunk.GetVoxelByOffset( pos.x, pos.y, pos.z );
+			var data = chunk.GetDataByOffset( target.x, target.y, target.z );
 
-			var col = (old?.Color ?? default).Multiply( 0.25f );
-			var replace = dist >= Size / 2f - 1f && old != null
+			var col = (data.Voxel?.Color ?? default).Multiply( 0.25f );
+			var replace = dist >= Size / 2f - 1f && data.Voxel != null
 				? new Voxel( col.Clamp( 10 ) )
 				: (Voxel?)null;
 
-			var res = data.Chunk.TrySetVoxel( pos.x, pos.y, pos.z, replace );
+			var res = chunk.TrySetVoxel( target.x, target.y, target.z, replace );
 			chunks.AddRange( res.Except( chunks ) );
 		}
 
@@ -194,7 +198,7 @@ public class Bomb : ModelEntity
 		if ( Game.LocalPawn is not Pawn pawn )
 			return;
 
-		if ( !Input.Pressed( "use" ) )
+		if ( !Input.Down( "use" ) )
 			return;
 
 		var force = 2000f;

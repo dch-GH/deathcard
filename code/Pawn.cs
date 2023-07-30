@@ -17,6 +17,7 @@ partial class Pawn : AnimatedEntity
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
+		Position = new Vector3( 1000, 2000, 1500 );
 	}
 
 	// An example BuildInput method within a player's Pawn class.

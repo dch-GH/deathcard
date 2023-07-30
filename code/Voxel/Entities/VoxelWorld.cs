@@ -118,7 +118,7 @@ public partial class VoxelWorld : ModelEntity
 			for ( var i = 0; i < Utility.Faces; i++ )
 			{
 				var direction = Utility.Neighbors[i];
-				var neighbour = chunk.GetVoxelByOffset( x + direction.x, y + direction.y, z + direction.z );
+				var neighbour = chunk.GetDataByOffset( x + direction.x, y + direction.y, z + direction.z ).Voxel;
 				if ( neighbour != null )
 					continue;
 
@@ -211,6 +211,29 @@ public partial class VoxelWorld : ModelEntity
 			Voxel = chunk?.GetVoxel( voxel.x, voxel.y, voxel.z ),
 			Position = voxel
 		};
+	}
+
+	/// <summary>
+	/// Converts worldspace coordinates to voxel space.
+	/// </summary>
+	/// <param name="position"></param>
+	/// <returns></returns>
+	public (int x, int y, int z) GetVoxelSpace( Vector3 position )
+	{
+		var width = ChunkSize.x;
+		var depth = ChunkSize.y;
+		var height = ChunkSize.z;
+
+		var relative = position - Position;
+		var chunkPosition = new Vector3( relative.x / (width * VoxelScale), relative.y / (depth * VoxelScale), relative.z / (height * VoxelScale) );
+
+		var voxelIndex = (
+			x: (chunkPosition.x * width).FloorToInt(),
+			y: (chunkPosition.y * depth).FloorToInt(),
+			z: (chunkPosition.z * height).FloorToInt()
+		);
+
+		return voxelIndex;
 	}
 
 	[GameEvent.Client.Frame]

@@ -105,7 +105,7 @@ public struct VoxelModel
 				for ( var i = 0; i < Utility.Faces; i++ )
 				{
 					var direction = Utility.Neighbors[i];
-					var neighbour = chunk.GetVoxelByOffset( x + direction.x, y + direction.y, z + direction.z );
+					var neighbour = chunk.GetDataByOffset( x + direction.x, y + direction.y, z + direction.z ).Voxel;
 					if ( neighbour != null )
 						continue;
 
