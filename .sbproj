@@ -37,7 +37,7 @@
       {
         "Name": "dev",
         "GameIdent": "local.deathcard#local",
-        "MapName": "aero.roblox_baseplate",
+        "MapName": "voximity.flat_plane",
         "MaxPlayers": 1,
         "GameSettings": {},
         "Addons": "",

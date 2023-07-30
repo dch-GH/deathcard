@@ -1,13 +1,23 @@
 ﻿namespace DeathCard;
 
+/*
+if ( voxel != null )
+{
+	var col = voxel.Value.Color.ToColor();
+	var pos = parent.Position 
+		+ position * parent.VoxelScale 
+		+ (Vector3)data.Chunk.Position * parent.ChunkSize * parent.VoxelScale
+		+ parent.VoxelScale / 2f;
+	var particle = Particles.Create( "particles/voxel_break.vpcf", pos );
+	particle.SetPosition( 2, col );
+}
+*/
+
 public struct VoxelData
 {
 	public Voxel? Voxel;
 	public Chunk Chunk;
-
-	public ushort x;
-	public ushort y;
-	public ushort z;
+	public Vector3I Position;
 }
 
 public class ChunkEntity : ModelEntity
@@ -199,9 +209,7 @@ public partial class VoxelWorld : ModelEntity
 		{
 			Chunk = chunk,
 			Voxel = chunk?.GetVoxel( voxel.x, voxel.y, voxel.z ),
-			x = voxel.x,
-			y = voxel.y,
-			z = voxel.z
+			Position = voxel
 		};
 	}
 
@@ -235,7 +243,7 @@ public partial class VoxelWorld : ModelEntity
 				for ( int y = 0; y < size; y++ )
 				for ( int z = 0; z < size; z++ )
 				{
-					var center = new Vector3( data.x, data.y, data.z );
+					var center = (Vector3)data.Position;
 					var position = center 
 						+ new Vector3( x, y, z ) 
 						- size / 2f;
@@ -253,7 +261,7 @@ public partial class VoxelWorld : ModelEntity
 				chunks = result;
 			}
 			else if ( Input.Down( "attack2" ) )
-				chunks = data.Chunk.TrySetVoxel( data.x, data.y, data.z, new Voxel( Color32.Black ) );
+				chunks = data.Chunk.TrySetVoxel( data.Position.x, data.Position.y, data.Position.z, new Voxel( Color32.Black ) );
 
 			if ( chunks != null )
 			{
@@ -380,11 +388,11 @@ public partial class VoxelWorld : ModelEntity
 
 			// Debug
 			DebugOverlay.ScreenText( $"{voxelData?.Voxel?.Color ?? default}" );
-			DebugOverlay.ScreenText( $"XYZ: {voxelData?.x}, {voxelData?.y} {voxelData?.z}", 1 );
+			DebugOverlay.ScreenText( $"XYZ: {voxelData?.Position}", 1 );
 			DebugOverlay.ScreenText( $"Chunk: {voxelData?.Chunk.Position}", 2 );
 
 			var voxelCenter = (Vector3)data.Chunk.Position * parent.ChunkSize * parent.VoxelScale
-				+ new Vector3( data.x, data.y, data.z ) * parent.VoxelScale
+				+ (Vector3)data.Position * parent.VoxelScale
 				+ parent.VoxelScale / 2f
 				+ parent.Position;
 

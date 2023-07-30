@@ -9,10 +9,8 @@ public struct VoxelModel
 	private string file;
 	private bool physics;
 	private float scale;
-	private bool built;
 	private float? depth;
 
-	private static Dictionary<string, Model> modelCache = new();
 	private static Dictionary<string, BaseFormat> cache = TypeLibrary
 		.GetTypes<BaseFormat>()
 		.Where( type => !type.IsAbstract )
@@ -21,14 +19,10 @@ public struct VoxelModel
 
 	public static VoxelModel FromFile( string file )
 	{
-		var contains = modelCache.TryGetValue( file, out var model );
-
 		return new VoxelModel()
 		{
 			file = file,
-			scale = Utility.Scale,
-			built = contains,
-			Model = model
+			scale = Utility.Scale
 		};
 	}
 
@@ -58,10 +52,6 @@ public struct VoxelModel
 
 	public async Task<Model> BuildAsync( bool occlusion = true, bool center = true )
 	{
-		// We already have the model.
-		if ( built )
-			return Model;
-
 		// Get our format if it's supported.
 		var extension = Path.GetExtension( file );
 		if ( !cache.TryGetValue( extension, out var format ) )
@@ -131,9 +121,7 @@ public struct VoxelModel
 						var ao = occlusion 
 							? Utility.BuildAO( chunk, position, i, j )
 							: 1;
-						var col = voxel.Value.Color;
-						var color = (Color.FromBytes( col.r, col.g, col.b ) * ao * faceColor)
-							.ToColor32();
+						var color = voxel.Value.Color.Multiply( ao * faceColor );
 						vertices.Add( new VoxelVertex( pos * new Vector3( 1, depth ?? 1, 1 ), color ) );
 					}
 
@@ -155,11 +143,8 @@ public struct VoxelModel
 		mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
 
 		// Create a model for the mesh.
-		modelCache.Add( file, 
-			Model = builder
-				.AddMesh( mesh )
-				.Create() );
-
-		return Model;
+		return Model = builder
+			.AddMesh( mesh )
+			.Create();
 	}
 }

@@ -51,6 +51,9 @@ public struct Vector3I : IEquatable<Vector3I>
 	public static implicit operator Vector3( Vector3I v )
 		=> new Vector3( v.x, v.y, v.z );
 
+	public static implicit operator Vector3I( (ushort x, ushort y, ushort z) v )
+		=> new Vector3I( v.x, v.y, v.z );
+
 	public static Vector3I operator +( Vector3I a, Vector3I b )
 		=> new Vector3I( a.x + b.x, a.y + b.y, a.z + b.z );
 

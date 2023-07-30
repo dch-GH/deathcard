@@ -76,7 +76,7 @@ public class Bomb : ModelEntity
 		for ( int y = 0; y <= Size; y++ )
 		for ( int z = 0; z <= Size; z++ )
 		{
-			var center = new Vector3( data.x, data.y, data.z );
+			var center = (Vector3)data.Position;
 			var position = center
 				+ new Vector3( x, y, z )
 				- Size / 2f;
@@ -162,13 +162,11 @@ public class Bomb : ModelEntity
 		Velocity = velocity;
 
 		// Check for ground collision.
-		if ( Velocity.z <= size / 2f )
-		{
-			var tr = helper.TraceDirection( Vector3.Down * 2f );
-			GroundEntity = tr.Entity;
-		}
-		else
-			GroundEntity = null;
+		GroundEntity = Velocity.z <= size / 2f
+			? helper
+				.TraceDirection( Vector3.Down * 2f )
+				.Entity
+			: null;
 	}
 
 	[GameEvent.Tick.Client]
