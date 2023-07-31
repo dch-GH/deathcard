@@ -1,6 +1,6 @@
 ﻿namespace DeathCard;
 
-public class Chunk
+public class Chunk : IEquatable<Chunk>
 {
 	public const ushort DEFAULT_WIDTH = 16;
 	public const ushort DEFAULT_DEPTH = 16;
@@ -132,5 +132,16 @@ public class Chunk
 			yield return chunks[position.x, position.y, position.z + 1];
 		else if ( vox.z == 0 && position.z - 1 >= 0 )
 			yield return chunks[position.x, position.y, position.z - 1];
+	}
+
+	public bool Equals( Chunk other )
+	{
+		return other.Position.Equals( Position );
+	}
+
+	public override bool Equals( object obj )
+	{
+		return obj is Chunk other
+			&& Equals ( other );
 	}
 }
