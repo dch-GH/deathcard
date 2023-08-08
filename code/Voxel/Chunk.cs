@@ -76,12 +76,9 @@ public class Chunk : IEquatable<Chunk>
 	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null )
 		=> voxels[x, y, z] = voxel;
 
-	public IEnumerable<Chunk> TrySetVoxel( int x, int y, int z, Voxel? voxel = null )
+	public IEnumerable<Chunk> GetNeighbors( int x, int y, int z, bool includeSelf = true )
 	{
-		if ( chunks == null )
-			yield break;
-
-		// Get the new chunk's position based on the offset.
+		// Calculate position of chunk.
 		var position = (
 			x: (ushort)(this.x + ((x + 1) / (float)Width - 1).CeilToInt()),
 			y: (ushort)(this.y + ((y + 1) / (float)Depth - 1).CeilToInt()),
@@ -96,8 +93,8 @@ public class Chunk : IEquatable<Chunk>
 
 		// Are we out of chunk bounds?
 		if ( position.x >= size.x
-			|| position.y >= size.y
-			|| position.z >= size.z ) yield break;
+		  || position.y >= size.y
+		  || position.z >= size.z ) yield break;
 
 		var chunk = chunks[position.x, position.y, position.z];
 		if ( chunk == null )
@@ -109,13 +106,8 @@ public class Chunk : IEquatable<Chunk>
 			z: (ushort)((z % Height + Height) % Height)
 		);
 
-		chunk.voxels[vox.x, vox.y, vox.z] = voxel;
-
-		yield return chunk;
-
-		// If we are just setting a new voxel, we don't have to update neighboring chunks.
-		if ( voxel != null )
-			yield break;
+		if ( includeSelf )
+			yield return chunk;
 
 		// Yield return affected neighbors.
 		if ( vox.x >= Width - 1 && position.x + 1 < size.x )
@@ -136,7 +128,9 @@ public class Chunk : IEquatable<Chunk>
 
 	public bool Equals( Chunk other )
 	{
-		return other.Position.Equals( Position );
+		return other.x == Position.x
+			&& other.y == Position.y
+			&& other.z == Position.z;
 	}
 
 	public override bool Equals( object obj )
