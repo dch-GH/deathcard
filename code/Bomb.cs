@@ -1,15 +1,17 @@
 ﻿namespace DeathCard;
 
-public class Bomb : ModelEntity
+public partial class Bomb : ModelEntity
 {
 	/// <summary>
 	/// The size of the explosion.
 	/// </summary>
+	[Net] 
 	public float Size { get; set; } = 8f;
 
 	/// <summary>
 	/// The time it takes for the bomb to explode.
 	/// </summary>
+	[Net]
 	public float Delay { get; set; } = 5f;
 
 	private float size = Utility.Scale / 4f;
@@ -19,6 +21,7 @@ public class Bomb : ModelEntity
 	{
 		Tags.Add( "bomb" );
 		sinceSpawn = 0f;
+		Predictable = true;
 
 		this.SetVoxelModel( "resources/grenade.vxmdl" );
 		SetupPhysicsFromOBB( PhysicsMotionType.Static, -size / 2f, size / 2f );
@@ -37,7 +40,7 @@ public class Bomb : ModelEntity
 		var force = 1000f;
 		foreach ( var ent in nearby )
 		{
-			if ( ent == this || ent is not Bomb bomb || !bomb.IsValid )
+			if ( ent == this || ent is not Bomb bomb || !bomb.IsValid || !IsAuthority )
 				continue;
 
 			var normal = (bomb.Position - Position).Normal;
@@ -68,13 +71,9 @@ public class Bomb : ModelEntity
 		if ( parent == null )
 			return false;
 
-		var position = parent.GetVoxelSpace( Position + Vector3.Down * parent.VoxelScale / 2f );
-		var chunk = parent.Chunks[0, 0, 0];
-		if ( chunk == null )
-			return false;
+		var position = parent.WorldToVoxel( Position + Vector3.Down * parent.VoxelScale / 2f );
 
 		// Remove voxels in a sphere.
-		var chunks = new List<Chunk>();
 		var center = new Vector3( position.x, position.y, position.z );
 
 		for ( int x = 0; x <= Size; x++ )
@@ -94,27 +93,29 @@ public class Bomb : ModelEntity
 				y: (pos.y + 0.5f).FloorToInt(),
 				z: (pos.z + 0.5f).FloorToInt()
 			);
-			var data = chunk.GetDataByOffset( target.x, target.y, target.z );
 
-			var col = (data.Voxel?.Color ?? default).Multiply( 0.25f );
-			var replace = dist >= Size / 2f - 1f && data.Voxel != null
+			var local = parent.GetLocalSpace( target.x, target.y, target.z, out var chunk );
+			var data = chunk?.GetDataByOffset( local.x, local.y, local.z );
+
+			var col = (data?.Voxel?.Color ?? default).Multiply( 0.25f );
+			var replace = dist >= Size / 2f - 1f && data?.Voxel != null
 				? new Voxel( col.Clamp( 10 ) )
 				: (Voxel?)null;
 
-			var res = chunk.TrySetVoxel( target.x, target.y, target.z, replace );
-			chunks.AddRange( res.Except( chunks ) );
+			// TODO: This should ideally be done on both,
+			// fixing incorrect changes is broken at the moment.
+			if ( Game.IsServer )
+				parent.SetVoxel( target.x, target.y, target.z, replace );
 		}
 
-		// Rebuild affected chunks.
-		foreach ( var c in chunks )
-			parent.GenerateChunk( c );
-
-		Delete();
 		return true;
 	}
 
 	private void Update()
 	{
+		if ( !IsAuthority )
+			return;
+
 		// Set rotation.
 		if ( !Velocity.IsNearlyZero( 1f ) )
 			Rotation = Rotation.LookAt( Velocity.Normal );
@@ -173,7 +174,7 @@ public class Bomb : ModelEntity
 			: null;
 	}
 
-	[GameEvent.Tick.Client]
+	[GameEvent.Tick]
 	private void Tick()
 	{
 		if ( !IsValid )
@@ -186,28 +187,10 @@ public class Bomb : ModelEntity
 		if ( sinceSpawn < Delay )
 			return;
 
-		if ( !Explode() )
+		var exploded = Explode();
+		if ( IsAuthority )
 			Delete();
 
 		sinceSpawn = 0;
-	}
-
-	[GameEvent.Tick.Client]
-	private static void SpawnBomb()
-	{
-		if ( Game.LocalPawn is not Pawn pawn )
-			return;
-
-		if ( !Input.Down( "use" ) )
-			return;
-
-		var force = 2000f;
-		_ = new Bomb()
-		{
-			Size = Game.Random.Int( 2, 12 ),
-			Delay = Game.Random.Float( 1, 5 ),
-			Position = pawn.Position + pawn.ViewAngles.Forward * 50f,
-			Velocity = force * pawn.ViewAngles.Forward
-		};
 	}
 }
