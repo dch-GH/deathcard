@@ -59,12 +59,15 @@ public struct Vector3I : IEquatable<Vector3I>
 
 	public bool Equals( Vector3I other )
 	{
-		return x == other.x && y == other.y && z == other.z;
+		return x == other.x 
+			&& y == other.y 
+			&& z == other.z;
 	}
 
 	public override bool Equals( object obj )
 	{
-		return obj is Vector3I other && Equals( other );
+		return obj is Vector3I other
+			&& other.Equals( this );
 	}
 
 	public override int GetHashCode()
