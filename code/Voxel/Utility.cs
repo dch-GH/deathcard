@@ -152,7 +152,10 @@ public static partial class Utility
 	public static void SetVoxelModel( this ModelEntity entity, string path )
 	{
 		if ( Game.IsServer )
+		{
 			SetVoxelModelRPC( To.Everyone, entity.NetworkIdent, path );
+			return;
+		}
 
 		SetModel( entity, path );
 	}
