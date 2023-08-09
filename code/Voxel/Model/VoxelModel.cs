@@ -11,8 +11,8 @@ public struct VoxelModel
 	private float scale;
 	private float? depth;
 
-	private static Dictionary<string, BaseFormat> cache = TypeLibrary
-		.GetTypes<BaseFormat>()
+	private static Dictionary<string, BaseFormat> cache = TypeLibrary?
+		.GetTypes<BaseFormat>()?
 		.Where( type => !type.IsAbstract )
 		.Select( type => type.Create<BaseFormat>() )
 		.ToDictionary( instance => instance.Extension );
