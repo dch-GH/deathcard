@@ -102,10 +102,7 @@ public partial class Bomb : ModelEntity
 				? new Voxel( col.Clamp( 10 ) )
 				: (Voxel?)null;
 
-			// TODO: This should ideally be done on both,
-			// fixing incorrect changes is broken at the moment.
-			if ( Game.IsServer )
-				parent.SetVoxel( target.x, target.y, target.z, replace );
+			parent.SetVoxel( target.x, target.y, target.z, replace );
 		}
 
 		return true;

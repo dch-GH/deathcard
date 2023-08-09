@@ -90,7 +90,7 @@ partial class Pawn : AnimatedEntity
 		var value = position.Value;
 		var chunk = (Chunk)null;
 		var pos = parent?.GetLocalSpace( value.x, value.y, value.z, out chunk );
-
+		
 		if ( Input.Pressed( "attack1" ) )
 		{
 			var size = 8;
@@ -105,7 +105,7 @@ partial class Pawn : AnimatedEntity
 
 				if ( target.Distance( center ) >= size / 2f )
 					continue;
-
+				
 				parent.SetVoxel(
 					target.x.FloorToInt(),
 					target.y.FloorToInt(),

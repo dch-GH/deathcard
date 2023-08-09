@@ -4,7 +4,7 @@ partial class VoxelWorld
 {
 	#region Fields
 	private static VoxelWorld instance;
-	private Dictionary<Vector3I, Change> changes = new();
+	private Dictionary<Vector3I, Change?> changes = new();
 	#endregion
 
 	/// <summary>
@@ -30,6 +30,8 @@ partial class VoxelWorld
 		// Send the map to all clients.
 		world.LoadAsMap( To.Everyone, world.NetworkIdent, map ?? string.Empty );
 
+		world.Loaded = true;
+
 		return world;
 	}
 
@@ -42,7 +44,7 @@ partial class VoxelWorld
 			Log.Error( $"Failed to find VoxelWorld[{ident}]." );
 			return;
 		}
-
+		
 		// Create same map as server.
 		var chunks = await Importer.VoxImporter.Load( map, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z );
 		entity.Chunks = chunks;
@@ -53,13 +55,15 @@ partial class VoxelWorld
 		// Initial chunk generation.
 		foreach ( var chunk in entity.Chunks )
 			entity.GenerateChunk( chunk );
+
+		entity.Loaded = true;
 	}
 
 	[ConCmd.Server( "loadmap" )]
-	public static async void LoadMap( string map = "vox/monument.vox" )
+	public static async void LoadMap( string map = "vox/maps/monument.vox" )
 	{
 		instance?.Delete();
-		instance = await VoxelWorld.Create( "vox/monument.vox" );
+		instance = await VoxelWorld.Create( map );
 	}
 
 	#region Networking
@@ -73,7 +77,7 @@ partial class VoxelWorld
 	{
 		public VoxelState State;
 		public Voxel? Voxel;
-		public Voxel? Previous;
+		public Voxel? Revert;
 	}
 
 	private bool RegisterChange( Chunk chunk, Vector3I pos, Voxel? voxel )
@@ -89,19 +93,22 @@ partial class VoxelWorld
 		var position = GetGlobalSpace( pos.x, pos.y, pos.z, chunk );
 		if ( changes.TryGetValue( position, out var change ) )
 		{
-			change.Previous = previous;
-			change.Voxel = voxel;
-			change.State = voxel == null
-				? VoxelState.Invalid
-				: VoxelState.Valid;
-
+			changes[position] = new Change()
+			{
+				Revert = change?.Voxel,
+				Voxel = voxel,
+				State = voxel == null
+					? VoxelState.Invalid
+					: VoxelState.Valid
+			};
+			
 			return true;
 		}
 
 		changes.Add( position, new Change()
 		{
 			Voxel = voxel,
-			Previous = previous,
+			Revert = previous,
 			State = voxel == null
 				? VoxelState.Invalid
 				: VoxelState.Valid
@@ -140,7 +147,7 @@ partial class VoxelWorld
 		var pos = GetLocalSpace( x, y, z, out var chunk, relative );
 		if ( chunk == null )
 			return;
-
+		
 		// Set voxel.
 		SetVoxel( chunk, pos.x, pos.y, pos.z, voxel );
 	}
@@ -154,22 +161,23 @@ partial class VoxelWorld
 		// Let's keep track of all the chunks that we need to update.
 		var chunks = new Collection<Chunk>();
 
+		// TODO: Chunk sent data, send data in smaller payloads.
 		// Start writing data.
 		var count = changes.Count;
 		writer.Write( count );
 
-		foreach ( var (position, change) in changes )
+		foreach ( var (position, nullChange) in changes )
 		{
+			var change = nullChange.Value; // This shouldn't fail ever or something...
+
 			writer.Write( (byte)change.State );
 			writer.Write( position.x );
 			writer.Write( position.y );
 			writer.Write( position.z );
 
 			var pos = GetLocalSpace( position.x, position.y, position.z, out var chunk );
-			var neighbors = chunk.GetNeighbors( pos.x, pos.y, pos.z );
-			foreach ( var neighbor in neighbors )
-				if ( neighbor != null && !chunks.Contains( neighbor ) )
-					chunks.Add( neighbor );
+			if ( chunk != null && !chunks.Contains( chunk ) )
+				chunks.Add( chunk );
 
 			if ( change.State == VoxelState.Invalid )
 				continue;
@@ -221,19 +229,27 @@ partial class VoxelWorld
 					chunks.Add( neighbor );
 
 			// Check if our Voxel matches on client & server.
-			if ( changes.TryGetValue( position, out var change ) && change.State == state && change.Voxel?.Color == voxel?.Color )
+			/*var condition = changes.TryGetValue( position, out var change )
+				&& change?.State == state
+				&& change?.Voxel?.Color == voxel?.Color;
+
+			if ( condition || (voxel == null && change?.Voxel == null) )
 				changes.Remove( position );
+			else if ( change != null )
+				changes[position] = change.Value with { 
+					Revert = voxel,
+				};*/
 		}
 
-		// TODO: Go through all client changes, revert.
-		// This doesn't work properly yet.
+		// Revert failed changes.
+		// TODO: Implement this properly.
 		/*foreach ( var (pos, change) in changes )
 		{
 			var position = GetLocalSpace( pos.x, pos.y, pos.z, out var chunk );
 			if ( chunk == null )
 				continue;
-			Log.Error( $"Voxel mismatch at {pos}!" );
-			chunk.SetVoxel( position.x, position.y, position.z, change.Previous );
+
+			chunk.SetVoxel( position.x, position.y, position.z, change?.Revert );
 		}*/
 
 		changes.Clear();
@@ -247,7 +263,7 @@ partial class VoxelWorld
 	private void Tick()
 	{
 		// Let's apply existing changes on server and network them.
-		if ( Game.IsServer && changes.Count > 0 )
+		if ( changes.Count > 0 && Game.IsServer )
 		{
 			Update();
 			changes.Clear();
