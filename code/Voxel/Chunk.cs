@@ -76,54 +76,58 @@ public class Chunk : IEquatable<Chunk>
 	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null )
 		=> voxels[x, y, z] = voxel;
 
-	public IEnumerable<Chunk> GetNeighbors( int x, int y, int z, bool includeSelf = true )
+	public IEnumerable<Chunk> GetNeighbors( ushort x, ushort y, ushort z, bool includeSelf = true )
 	{
-		// Calculate position of chunk.
-		var position = (
-			x: (ushort)(this.x + ((x + 1) / (float)Width - 1).CeilToInt()),
-			y: (ushort)(this.y + ((y + 1) / (float)Depth - 1).CeilToInt()),
-			z: (ushort)(this.z + ((z + 1) / (float)Height - 1).CeilToInt())
-		);
-
+		// Find all neighbors.
 		var size = (
 			x: chunks.GetLength( 0 ),
 			y: chunks.GetLength( 1 ),
 			z: chunks.GetLength( 2 )
 		);
 
-		// Are we out of chunk bounds?
-		if ( position.x >= size.x
-		  || position.y >= size.y
-		  || position.z >= size.z ) yield break;
+		var corner = new int[3] { this.x, this.y, this.z };
 
-		var chunk = chunks[position.x, position.y, position.z];
-		if ( chunk == null )
-			yield break;
-
-		var vox = (
-			x: (ushort)((x % Width + Width) % Width),
-			y: (ushort)((y % Depth + Depth) % Depth),
-			z: (ushort)((z % Height + Height) % Height)
-		);
-
+		// Let's include this chunk too if we want.
 		if ( includeSelf )
-			yield return chunk;
+			yield return this;
 
 		// Yield return affected neighbors.
-		if ( vox.x >= Width - 1 && position.x + 1 < size.x )
-			yield return chunks[position.x + 1, position.y, position.z];
-		else if ( vox.x == 0 && position.x - 1 >= 0 )
-			yield return chunks[position.x - 1, position.y, position.z];
+		if ( x >= Width - 1 && this.x + 1 < size.x )
+		{
+			corner[0] = this.x + 1;
+			yield return chunks[this.x + 1, this.y, this.z];
+		}
+		else if ( x == 0 && this.x - 1 >= 0 )
+		{
+			corner[0] = this.x - 1;
+			yield return chunks[this.x - 1, this.y, this.z];
+		}
 
-		if ( vox.y >= Depth - 1 && position.y + 1 < size.y )
-			yield return chunks[position.x, position.y + 1, position.z];
-		else if ( vox.y == 0 && position.y - 1 >= 0 )
-			yield return chunks[position.x, position.y - 1, position.z];
+		if ( y >= Depth - 1 && this.y + 1 < size.y )
+		{
+			corner[1] = corner[0] != this.x ? this.y : this.y + 1;
+			yield return chunks[this.x, this.y + 1, this.z];
+		}
+		else if ( y == 0 && this.y - 1 >= 0 )
+		{
+			corner[1] = corner[0] != this.x ? this.y : this.y - 1;
+			yield return chunks[this.x, this.y - 1, this.z];
+		}
 
-		if ( vox.z >= Height - 1 && position.z + 1 < size.z )
-			yield return chunks[position.x, position.y, position.z + 1];
-		else if ( vox.z == 0 && position.z - 1 >= 0 )
-			yield return chunks[position.x, position.y, position.z - 1];
+		if ( z >= Height - 1 && this.z + 1 < size.z )
+		{
+			corner[2] = corner[1] != this.y ? this.z : this.z + 1;
+			yield return chunks[this.x, this.y, this.z + 1];
+		}
+		else if ( z == 0 && this.z - 1 >= 0 )
+		{
+			corner[2] = corner[1] != this.y ? this.z : this.z - 1;
+			yield return chunks[this.x, this.y, this.z - 1];
+		}
+
+		// Check last corner.
+		if ( corner[0] < size.x && corner[1] < size.y && corner[2] < size.z
+		  && corner[0] >= 0 && corner[1] >= 0 && corner[2] >= 0 ) yield return chunks?[corner[0], corner[1], corner[2]];
 	}
 
 	public bool Equals( Chunk other )
@@ -137,5 +141,10 @@ public class Chunk : IEquatable<Chunk>
 	{
 		return obj is Chunk other
 			&& Equals ( other );
+	}
+
+	public override int GetHashCode()
+	{
+		return Position.GetHashCode();
 	}
 }
