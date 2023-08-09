@@ -12,9 +12,9 @@ partial class VoxelWorld
 		var relative = position - Position;
 
 		return new(
-			(ushort)(relative.x / VoxelScale).FloorToInt(),
-			(ushort)(relative.y / VoxelScale).FloorToInt(),
-			(ushort)(relative.z / VoxelScale).FloorToInt() );
+			(ushort)MathF.Max( relative.x / VoxelScale, 0 ).FloorToInt(),
+			(ushort)MathF.Max( relative.y / VoxelScale, 0 ).FloorToInt(),
+			(ushort)MathF.Max( relative.z / VoxelScale, 0 ).FloorToInt() );
 	}
 
 	/// <summary>
@@ -38,7 +38,7 @@ partial class VoxelWorld
 		if ( position.x >= 0 && position.y >= 0 && position.z >= 0
 		  && position.x < ChunkSize.x
 		  && position.y < ChunkSize.y
-		  && position.z < ChunkSize.z ) chunk = Chunks[position.x, position.y, position.z];
+		  && position.z < ChunkSize.z ) chunk = Chunks?[position.x, position.y, position.z];
 
 		return new Vector3I(
 			(ushort)((x % ChunkSize.x + ChunkSize.x) % ChunkSize.x),
