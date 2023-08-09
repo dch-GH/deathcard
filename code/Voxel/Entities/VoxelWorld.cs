@@ -19,15 +19,16 @@ public class ChunkEntity : ModelEntity
 	public override void Spawn()
 	{
 		Tags.Add( "chunk" );
+		Transmit = TransmitType.Never;
 	}
 }
 
 public partial class VoxelWorld : ModelEntity
 {
-	private Dictionary<Chunk, ModelEntity> entities = new();
+	private Dictionary<Vector3I, ChunkEntity> entities = new();
 
 	public float VoxelScale { get; set; } = Utility.Scale;
-
+	public bool Loaded { get; set; } = false;
 	public Chunk[,,] Chunks { get; private set; }
 
 	[Net] public Vector3I Size { get; private set; }
@@ -55,14 +56,13 @@ public partial class VoxelWorld : ModelEntity
 		// Get our chunk's entity.
 		if ( chunk == null )
 			return;
-		
-		ModelEntity chunkEntity;
-		if ( !entities.TryGetValue( chunk, out chunkEntity ) )
-			entities.Add( chunk, chunkEntity = new ChunkEntity() { Parent = this } );
+
+		ChunkEntity chunkEntity;
+		if ( !entities.TryGetValue( chunk.Position, out chunkEntity ) )
+			entities.Add( chunk.Position, chunkEntity = new ChunkEntity() { Parent = this } );
 
 		// Let's create a mesh.
 		var builder = Model.Builder;
-
 		var material = Material.FromShader( "shaders/voxel.shader" );
 		var mesh = new Mesh( material );
 		var vertices = new List<VoxelVertex>();
