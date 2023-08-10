@@ -144,6 +144,8 @@ public static partial class Utility
 	};
 	#endregion
 
+	private static Dictionary<ModelEntity, string> models = new();
+
 	/// <summary>
 	/// Sets the voxel model of an entity if there is an existing VoxelResource model for it.
 	/// </summary>
@@ -154,6 +156,12 @@ public static partial class Utility
 		if ( Game.IsServer )
 		{
 			SetVoxelModelRPC( To.Everyone, entity.NetworkIdent, path );
+
+			if ( !models.ContainsKey( entity) )
+				models.Add( entity, path );
+			else 
+				models[entity] = path;
+
 			return;
 		}
 
@@ -178,19 +186,31 @@ public static partial class Utility
 			return;
 		}
 
-		if ( resource.Loaded )
-		{
-			entity.Model = resource.Model;
+		if ( !resource.Loaded )
+			resource.Model = await VoxelModel.FromFile( resource.Path )
+				.WithScale( resource.Scale )
+				.WithDepth( resource.HasDepth
+					? resource.Depth
+					: null )
+				.BuildAsync( center: resource.Center );
+
+		resource.Loaded = true;
+		entity.Model = resource.Model;
+	}
+
+	[GameEvent.Server.ClientJoined]
+	private static void ClientJoined( ClientJoinedEvent @event )
+	{
+		if ( Game.IsClient )
 			return;
+
+		// Send all current ModelEntities that use VoxelModels.
+		foreach ( var (entity, path) in models )
+		{
+			if ( entity == null )
+				continue;
+			
+			SetVoxelModelRPC( To.Single( @event.Client ), entity.NetworkIdent, path );
 		}
-
-		var mdl = await VoxelModel.FromFile( resource.Path )
-			.WithScale( resource.Scale )
-			.WithDepth( resource.HasDepth
-				? resource.Depth
-				: null )
-			.BuildAsync( center: resource.Center );
-
-		entity.Model = mdl;
 	}
 }
