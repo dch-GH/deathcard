@@ -11,13 +11,13 @@ public class VoxelResource : GameResource
 	/// The generated model of this resource.
 	/// </summary>
 	[HideInEditor, JsonIgnore]
-	public Model Model { get; private set; }
+	public Model Model { get; set; }
 
 	/// <summary>
 	/// Is the model loaded already?
 	/// </summary>
 	[HideInEditor, JsonIgnore]
-	public bool Loaded { get; private set; }
+	public bool Loaded { get; set; } = false;
 
 	/// <summary>
 	/// Path to the file that this model is created from.
@@ -51,7 +51,7 @@ public class VoxelResource : GameResource
 			return;
 
 		all.Add( ResourcePath, this );
-		
+
 		new Action( async () => 
 		{
 			var mdl = await VoxelModel.FromFile( Path )
@@ -61,8 +61,8 @@ public class VoxelResource : GameResource
 					: null )
 				.BuildAsync( center: Center );
 
-			Loaded = true;
 			Model = mdl;
+			Loaded = true;
 		} ).Invoke();
 	}
 
