@@ -28,7 +28,6 @@ public partial class VoxelWorld : ModelEntity
 	private Dictionary<Vector3I, ChunkEntity> entities = new();
 
 	public float VoxelScale { get; set; } = Utility.Scale;
-	public bool Loaded { get; set; } = false;
 	public Chunk[,,] Chunks { get; private set; }
 
 	[Net] public Vector3I Size { get; private set; }
@@ -37,6 +36,7 @@ public partial class VoxelWorld : ModelEntity
 	public VoxelWorld() 
 	{
 		ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
+		Transmit = TransmitType.Always;
 	}
 
 	protected override void OnDestroy()
@@ -173,7 +173,7 @@ public partial class VoxelWorld : ModelEntity
 		if ( Input.Pressed( "score" ) )
 			debugMode = !debugMode;
 
-		if ( Game.LocalPawn is not Pawn pawn || !debugMode )
+		if ( !debugMode )
 			return;
 
 		// Display all chunks.
@@ -197,7 +197,7 @@ public partial class VoxelWorld : ModelEntity
 		}
 
 		// Focus on hovered VoxelWorld.
-		var ray = new Ray( pawn.Position, pawn.ViewAngles.Forward );
+		var ray = new Ray( Camera.Position, Camera.Rotation.Forward );
 		var tr = Trace.Ray( ray, 10000f )
 			.IncludeClientside()
 			.WithTag( "chunk" )
@@ -211,8 +211,6 @@ public partial class VoxelWorld : ModelEntity
 
 		var position = parent.WorldToVoxel( tr.EndPosition - tr.Normal * parent.VoxelScale / 2f );
 		var data = parent.GetByOffset( position.x, position.y, position.z );
-		if ( data.Voxel == null )
-			return;
 
 		// Debug
 		DebugOverlay.ScreenText( $"{data.Voxel?.Color ?? default}" );
