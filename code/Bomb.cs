@@ -40,12 +40,12 @@ public partial class Bomb : ModelEntity
 		var force = 1000f;
 		foreach ( var ent in nearby )
 		{
-			if ( ent == this || ent is not Bomb bomb || !bomb.IsValid || !IsAuthority )
+			if ( ent == this || !ent.IsValid || !IsAuthority )
 				continue;
 
-			var normal = (bomb.Position - Position).Normal;
-			bomb.GroundEntity = null;
-			bomb.Velocity += normal * force 
+			var normal = (ent.Position - Position).Normal;
+			ent.GroundEntity = null;
+			ent.Velocity += normal * force 
 				+ Vector3.Up * force / 5f;
 		}
 
@@ -124,7 +124,7 @@ public partial class Bomb : ModelEntity
 		// Use move helper to advance.
 		var helper = new MoveHelper( Position, Velocity );
 		helper.Trace = helper.Trace
-			.WithAnyTags( "chunk", "world", "bomb" )
+			.WithAnyTags( "chunk", "world", "bomb", "player" )
 			.IncludeClientside()
 			.Size( size )
 			.Ignore( this );
