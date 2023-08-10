@@ -27,7 +27,7 @@ public class VoxelResource : GameResource
 	/// <summary>
 	/// Scale of this voxel model.
 	/// </summary>
-	public float Scale { get; set; } = Utility.Scale;
+	public Vector3 Scale { get; set; } = new Vector3( Utility.Scale );
 
 	/// <summary>
 	/// Should the model use a fixed depth value?
@@ -41,9 +41,9 @@ public class VoxelResource : GameResource
 	public float Depth { get; set; } = 1f;
 
 	/// <summary>
-	/// Should the model be centered on every axis?
+	/// Centers a model based on this Vector3, 1 is centered, 0 is not.
 	/// </summary>
-	public bool Center { get; set; } = true;
+	public Vector3 Center { get; set; } = Vector3.One;
 
 	protected override void PostLoad()
 	{

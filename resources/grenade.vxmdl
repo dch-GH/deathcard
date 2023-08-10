@@ -1,7 +1,7 @@
 {
   "Path": "vox/grenade.vox",
-  "Scale": 1,
+  "Scale": "1,1,1",
   "HasDepth": false,
   "Depth": 0,
-  "Center": true
+  "Center": "1,1,1"
 }

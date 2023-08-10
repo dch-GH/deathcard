@@ -8,7 +8,7 @@ public struct VoxelModel
 	
 	private string file;
 	private bool physics;
-	private float scale;
+	private Vector3 scale;
 	private float? depth;
 
 	private static Dictionary<string, BaseFormat> cache = TypeLibrary?
@@ -42,7 +42,7 @@ public struct VoxelModel
 		};
 	}
 
-	public VoxelModel WithScale( float scale )
+	public VoxelModel WithScale( Vector3 scale )
 	{
 		return this with
 		{
@@ -50,7 +50,7 @@ public struct VoxelModel
 		};
 	}
 
-	public async Task<Model> BuildAsync( bool occlusion = true, bool center = true )
+	public async Task<Model> BuildAsync( bool occlusion = true, Vector3? center = null )
 	{
 		// Get our format if it's supported.
 		var extension = Path.GetExtension( file );
@@ -74,21 +74,18 @@ public struct VoxelModel
 		var indices = new List<int>();
 		var offset = 0;
 
-		var count = new Vector3(
-			chunks.GetLength( 0 ),
-			chunks.GetLength( 1 ),
-			chunks.GetLength( 2 )
-		);
-
 		foreach ( var chunk in chunks )
 		{
+			if ( chunk == null )
+				continue;
+
+			var c = center ?? Vector3.One;
 			var chunkSize = new Vector3( chunk.Width, chunk.Depth, chunk.Height );
-			var centerOffset = center 
-				? chunkSize * count * scale / 2f
-				: 0;
+			var centerOffset = c * chunkSize * (scale / 2f) / 2f;
 			var chunkPosition = (Vector3)chunk.Position
 				* scale
-				* chunkSize;
+				+ scale / 2f
+				- centerOffset;
 
 			for ( ushort x = 0; x < chunk.Width; x++ )
 			for ( ushort y = 0; y < chunk.Depth; y++ )
@@ -115,8 +112,7 @@ public struct VoxelModel
 						var vertexIndex = Utility.FaceIndices[(i * 4) + j];
 						var pos = Utility.Positions[vertexIndex] * scale
 							+ new Vector3( x, y, z ) * scale
-							+ chunkPosition
-							- centerOffset;
+							+ chunkPosition;
 
 						var ao = occlusion 
 							? Utility.BuildAO( chunk, position, i, j )
@@ -141,7 +137,7 @@ public struct VoxelModel
 
 		mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
 		mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
-
+		
 		// Create a model for the mesh.
 		return Model = builder
 			.AddMesh( mesh )
