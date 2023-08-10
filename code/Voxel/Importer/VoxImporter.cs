@@ -67,6 +67,25 @@ public static class VoxImporter
 			: new Chunk[1, 1, 1];
 		var length = voxelData.Values.Length;
 
+		// Calculate chunk size.
+		var chunkSize = new Vector3I( width, depth, height );
+		if ( single )
+		{
+			for ( int i = 0; i < length; i++ )
+			{
+				var voxel = voxelData.Values[i];
+				if ( voxel.x > chunkSize.x )
+					chunkSize.x = voxel.x;
+
+				if ( voxel.y > chunkSize.y )
+					chunkSize.y = voxel.y;
+
+				if ( voxel.z > chunkSize.z )
+					chunkSize.z = voxel.z;
+			}
+		}
+
+		// Go through all voxels.
 		for ( int i = 0; i < length; i++ )
 		{
 			var voxel = voxelData.Values[i];
@@ -79,8 +98,8 @@ public static class VoxImporter
 				)
 				: ( x: 0, y: 0, z: 0 );
 
-			chunks[position.x, position.y, position.z] ??= new Chunk( (ushort)position.x, (ushort)position.y, (ushort)position.z, width, depth, height, chunks );
-			chunks[position.x, position.y, position.z].SetVoxel( (ushort)(voxel.x % width), (ushort)(voxel.y % depth), (ushort)(voxel.z % height), new Voxel( color ) );
+			chunks[position.x, position.y, position.z] ??= new Chunk( (ushort)position.x, (ushort)position.y, (ushort)position.z, chunkSize.x, chunkSize.y, chunkSize.z, chunks );
+			chunks[position.x, position.y, position.z].SetVoxel( (ushort)(voxel.x % chunkSize.x), (ushort)(voxel.y % chunkSize.y), (ushort)(voxel.z % chunkSize.z), new Voxel( color ) );
 		}
 
 		stream.Close();
