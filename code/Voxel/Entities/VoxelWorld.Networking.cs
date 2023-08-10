@@ -2,6 +2,8 @@
 
 partial class VoxelWorld
 {
+	public string Map { get; private set; }
+
 	#region Fields
 	private static VoxelWorld instance;
 	private Dictionary<Vector3I, Change?> changes = new();
@@ -17,6 +19,7 @@ partial class VoxelWorld
 		var world = new VoxelWorld()
 		{
 			ChunkSize = chunkSize ?? new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT ),
+			Map = map
 		};
 
 		var chunks = await Importer.VoxImporter.Load( map, world.ChunkSize.x, world.ChunkSize.y, world.ChunkSize.z );
@@ -28,26 +31,25 @@ partial class VoxelWorld
 			world.GenerateChunk( chunk );
 
 		// Send the map to all clients.
-		world.LoadAsMap( To.Everyone, world.NetworkIdent, map ?? string.Empty );
-
-		world.Loaded = true;
+		world.LoadAsMap( To.Everyone, map ?? string.Empty );
 
 		return world;
 	}
 
 	[ClientRpc]
-	public async void LoadAsMap( int ident, string map )
+	public async void LoadAsMap( string map )
 	{
 		// Make sure we have a valid VoxelWorld.
-		if ( Entity.FindByIndex( ident ) is not VoxelWorld entity )
+		if ( this is not VoxelWorld entity )
 		{
-			Log.Error( $"Failed to find VoxelWorld[{ident}]." );
+			Log.Error( $"Failed to find VoxelWorld[{NetworkIdent}]." );
 			return;
 		}
 		
 		// Create same map as server.
 		var chunks = await Importer.VoxImporter.Load( map, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z );
 		entity.Chunks = chunks;
+		entity.Map = map;
 
 		// TODO: Apply server's changes here.
 		// Maybe multithread?
@@ -55,8 +57,6 @@ partial class VoxelWorld
 		// Initial chunk generation.
 		foreach ( var chunk in entity.Chunks )
 			entity.GenerateChunk( chunk );
-
-		entity.Loaded = true;
 	}
 
 	[ConCmd.Server( "loadmap" )]
@@ -229,7 +229,7 @@ partial class VoxelWorld
 					chunks.Add( neighbor );
 
 			// Check if our Voxel matches on client & server.
-			/*var condition = changes.TryGetValue( position, out var change )
+			var condition = changes.TryGetValue( position, out var change )
 				&& change?.State == state
 				&& change?.Voxel?.Color == voxel?.Color;
 
@@ -238,25 +238,36 @@ partial class VoxelWorld
 			else if ( change != null )
 				changes[position] = change.Value with { 
 					Revert = voxel,
-				};*/
+				};
 		}
 
 		// Revert failed changes.
 		// TODO: Implement this properly.
-		/*foreach ( var (pos, change) in changes )
+		foreach ( var (pos, change) in changes )
 		{
 			var position = GetLocalSpace( pos.x, pos.y, pos.z, out var chunk );
 			if ( chunk == null )
 				continue;
 
 			chunk.SetVoxel( position.x, position.y, position.z, change?.Revert );
-		}*/
+		}
 
 		changes.Clear();
 
 		// Update changed chunks.
 		foreach ( var chunk in chunks )
 			GenerateChunk( chunk );
+	}
+
+	[GameEvent.Server.ClientJoined]
+	private void ClientJoined( ClientJoinedEvent @event )
+	{
+		if ( !@event.Client.IsValid )
+			return;
+
+		// TODO: Also send all changes.
+		// Begin sending VoxelWorld data.
+		LoadAsMap( Map );
 	}
 
 	[GameEvent.Tick]
