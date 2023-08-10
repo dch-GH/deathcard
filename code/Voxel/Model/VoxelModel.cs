@@ -79,13 +79,13 @@ public struct VoxelModel
 			if ( chunk == null )
 				continue;
 
-			var c = center ?? Vector3.One;
 			var chunkSize = new Vector3( chunk.Width, chunk.Depth, chunk.Height );
-			var centerOffset = c * chunkSize * (scale / 2f) / 2f;
+			var size = chunkSize * (scale / 2f);
+			var c = center ?? Vector3.One;
+			var centerOffset = c * size / 2f;
 			var chunkPosition = (Vector3)chunk.Position
 				* scale
-				+ scale / 2f
-				- centerOffset;
+				+ scale / 2f;
 
 			for ( ushort x = 0; x < chunk.Width; x++ )
 			for ( ushort y = 0; y < chunk.Depth; y++ )
@@ -112,6 +112,7 @@ public struct VoxelModel
 						var vertexIndex = Utility.FaceIndices[(i * 4) + j];
 						var pos = Utility.Positions[vertexIndex] * scale
 							+ new Vector3( x, y, z ) * scale
+							- centerOffset
 							+ chunkPosition;
 
 						var ao = occlusion 
