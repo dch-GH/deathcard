@@ -34,13 +34,10 @@ public partial class Bomb : ModelEntity
 	public bool Explode()
 	{
 		// Get all nearby bombs and apply a force to them.
-		var nearby = Entity.All.OfType<Bomb>()
-			.Where( bomb => bomb.Position.Distance( Position ) < Size * Utility.Scale / 2f );
-
 		var force = 1000f;
-		foreach ( var ent in nearby )
+		foreach ( var ent in Entity.FindInSphere( Position, Size * Utility.Scale ) )
 		{
-			if ( ent == this || !ent.IsValid || !IsAuthority )
+			if ( ent == this || ent.Tags.Has( "chunk" ) || !ent.IsValid || !IsAuthority )
 				continue;
 
 			var normal = (ent.Position - Position).Normal;
