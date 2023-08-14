@@ -15,7 +15,7 @@ public partial class Bomb : ModelEntity
 	public float Delay { get; set; } = 5f;
 
 	private float size = Utility.Scale / 4f;
-	private TimeSince sinceSpawn;
+	[Net] private TimeSince sinceSpawn { get; set; }
 
 	public override void Spawn()
 	{
@@ -91,11 +91,10 @@ public partial class Bomb : ModelEntity
 				z: (pos.z + 0.5f).FloorToInt()
 			);
 
-			var local = parent.GetLocalSpace( target.x, target.y, target.z, out var chunk );
-			var data = chunk?.GetDataByOffset( local.x, local.y, local.z );
+			var data =  parent.GetByOffset( target.x, target.y, target.z );
 
-			var col = (data?.Voxel?.Color ?? default).Multiply( 0.25f );
-			var replace = dist >= Size / 2f - 1f && data?.Voxel != null
+			var col = (data.Voxel?.Color ?? default).Multiply( 0.25f );
+			var replace = dist >= Size / 2f - 1f && data.Voxel != null
 				? new Voxel( col.Clamp( 10 ) )
 				: (Voxel?)null;
 
