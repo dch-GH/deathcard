@@ -67,22 +67,19 @@ public static class VoxImporter
 			: new Chunk[1, 1, 1];
 		var length = voxelData.Values.Length;
 
-		// Calculate chunk size.
+		// Calculate chunk size if needed.
 		var chunkSize = new Vector3I( width, depth, height );
-		if ( single )
+		for ( int i = 0; i < length && single; i++ )
 		{
-			for ( int i = 0; i < length; i++ )
-			{
-				var voxel = voxelData.Values[i];
-				if ( voxel.x > chunkSize.x )
-					chunkSize.x = voxel.x;
+			var voxel = voxelData.Values[i];
+			if ( voxel.x > chunkSize.x )
+				chunkSize.x = voxel.x;
 
-				if ( voxel.y > chunkSize.y )
-					chunkSize.y = voxel.y;
+			if ( voxel.y > chunkSize.y )
+				chunkSize.y = voxel.y;
 
-				if ( voxel.z > chunkSize.z )
-					chunkSize.z = voxel.z;
-			}
+			if ( voxel.z > chunkSize.z )
+				chunkSize.z = voxel.z;
 		}
 
 		// Go through all voxels.
