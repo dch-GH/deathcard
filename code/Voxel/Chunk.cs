@@ -46,9 +46,9 @@ public class Chunk : IEquatable<Chunk>
 
 		// Get the new chunk's position based on the offset.
 		var position = (
-			x: (ushort)(this.x + ((x + 1) / (float)Width - 1).CeilToInt()),
-			y: (ushort)(this.y + ((y + 1) / (float)Depth - 1).CeilToInt()),
-			z: (ushort)(this.z + ((z + 1) / (float)Height - 1).CeilToInt())
+			x: this.x + ((x + 1) / (float)Width - 1).CeilToInt(),
+			y: this.y + ((y + 1) / (float)Depth - 1).CeilToInt(),
+			z: this.z + ((z + 1) / (float)Height - 1).CeilToInt()
 		);
 
 		var size = (
@@ -58,9 +58,8 @@ public class Chunk : IEquatable<Chunk>
 		);
 
 		// Are we out of chunk bounds?
-		if ( position.x >= size.x
-			|| position.y >= size.y
-			|| position.z >= size.z ) return (null, null);
+		if ( position.x >= size.x || position.y >= size.y || position.z >= size.z
+		  || position.x < 0 || position.y < 0 || position.z < 0 ) return (null, null);
 
 		// Calculate new voxel position.
 		var chunk = chunks[position.x, position.y, position.z];
