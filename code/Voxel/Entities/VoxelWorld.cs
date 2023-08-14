@@ -16,7 +16,7 @@ public class ChunkEntity : ModelEntity
 {
 	public new VoxelWorld Parent { get; set; }
 
-	public override void Spawn()
+	public ChunkEntity()
 	{
 		Tags.Add( "chunk" );
 		Transmit = TransmitType.Never;
@@ -41,7 +41,7 @@ public partial class VoxelWorld : ModelEntity
 
 	protected override void OnDestroy()
 	{
-		foreach ( var child in entities.Values )
+		foreach ( var (_, child) in entities )
 			child.Delete();
 
 		Chunks = null;
@@ -147,20 +147,23 @@ public partial class VoxelWorld : ModelEntity
 			offset += 4 * drawCount;
 		}
 
-		mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
-		mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
-
-		// Create a model for the mesh.
-		builder.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
-
-		if ( Game.IsClient )
-			builder.AddMesh( mesh );
-
-		chunkEntity.Model = builder.Create();
 		chunkEntity.Position = Position
 			+ (Vector3)chunk.Position * ChunkSize * VoxelScale
 			+ VoxelScale / 2f;
 
+		// Check if we actually end up with vertices.
+		if ( Game.IsClient )
+		{
+			mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
+			mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
+
+			builder.AddMesh( mesh );
+		}
+
+		// Create a model for the mesh.
+		builder.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
+
+		chunkEntity.Model = builder.Create();
 		chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
 	}
 

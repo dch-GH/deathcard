@@ -2,29 +2,54 @@
 
 partial class VoxelWorld
 {
+	/// <summary>
+	/// The current map file used for this VoxelWorld.
+	/// </summary>
 	public string Map { get; private set; }
 
+	/// <summary>
+	/// The total amount of payloads we need to finish.
+	/// </summary>
+	public int Payloads { get; private set; } = 0;
+
+	/// <summary>
+	/// The amount of payloads we have loaded.
+	/// </summary>
+	public int Loaded { get; private set; } = 0;
+
+	/// <summary>
+	/// Are we finished loading the map?
+	/// </summary>
+	public bool Finished { get; private set; } = false;
+
 	#region Fields
-	private static VoxelWorld instance;
 	private Dictionary<Vector3I, Change?> changes = new();
+	private Dictionary<Vector3I, Voxel?> totalChanges = new();
+	private Collection<IClient> clients = new();
 	#endregion
 
 	/// <summary>
 	/// Initializes a VoxelWorld, should be called on server.
 	/// </summary>
 	/// <returns></returns>
-	public static async Task<VoxelWorld> Create( string map = null, Vector3I? chunkSize = null )
+	public static async Task<VoxelWorld> Create( string map, Vector3I? chunkSize = null )
 	{
+		Game.AssertServer();
+
+		// Delete earlier instances.
+		foreach ( var old in Entity.All.OfType<VoxelWorld>() )
+			old.Delete();
+
 		// Create a VoxelWorld and load a map for it.
+		var size = chunkSize ?? new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
 		var world = new VoxelWorld()
 		{
-			ChunkSize = chunkSize ?? new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT ),
+			ChunkSize = size,
 			Map = map
 		};
 
-		var chunks = await Importer.VoxImporter.Load( map, world.ChunkSize.x, world.ChunkSize.y, world.ChunkSize.z );
-		world.Size = new Vector3I( chunks.GetLength( 0 ), chunks.GetLength( 0 ), chunks.GetLength( 0 ) );
-		world.Chunks = chunks;
+		world.Chunks = await Importer.VoxImporter.Load( map, size.x, size.y, size.z );
+		world.Size = new Vector3I( world.Chunks.GetLength( 0 ), world.Chunks.GetLength( 1 ), world.Chunks.GetLength( 2 ) );
 
 		// Initial chunk generation.
 		foreach ( var chunk in world.Chunks )
@@ -32,40 +57,15 @@ partial class VoxelWorld
 
 		// Send the map to all clients.
 		world.LoadAsMap( To.Everyone, map ?? string.Empty );
+		world.Finished = true;
 
 		return world;
 	}
 
-	[ClientRpc]
-	public async void LoadAsMap( string map )
-	{
-		// Make sure we have a valid VoxelWorld.
-		if ( this is not VoxelWorld entity )
-		{
-			Log.Error( $"Failed to find VoxelWorld[{NetworkIdent}]." );
-			return;
-		}
-		
-		// Create same map as server.
-		var chunks = await Importer.VoxImporter.Load( map, entity.ChunkSize.x, entity.ChunkSize.y, entity.ChunkSize.z );
-		entity.Chunks = chunks;
-		entity.Map = map;
-
-		// TODO: Apply server's changes here.
-		// Maybe multithread?
-
-		// Initial chunk generation.
-		foreach ( var chunk in entity.Chunks )
-			entity.GenerateChunk( chunk );
-	}
-
-	[ConCmd.Server( "loadmap" )]
+	[ConCmd.Server( "load_map" )]
 	public static async void LoadMap( string map = "vox/maps/monument.vox" )
-	{
-		instance?.Delete();
-		instance = await VoxelWorld.Create( map );
-	}
-
+		=> await VoxelWorld.Create( map );
+	
 	#region Networking
 	public enum VoxelState
 	{
@@ -91,6 +91,14 @@ partial class VoxelWorld
 			return false;
 
 		var position = GetGlobalSpace( pos.x, pos.y, pos.z, chunk );
+
+		// Keep track of all changes.
+		if ( totalChanges.ContainsKey( position ) )
+			totalChanges[position] = voxel;
+		else
+			totalChanges.Add( position, voxel );
+
+		// Keep track of changes in 1 tick.
 		if ( changes.TryGetValue( position, out var change ) )
 		{
 			changes[position] = new Change()
@@ -259,15 +267,185 @@ partial class VoxelWorld
 			GenerateChunk( chunk );
 	}
 
+	[ClientRpc]
+	public async void LoadAsMap( string map )
+	{
+		// Create same map as server.
+		var chunks = await Importer.VoxImporter.Load( map, ChunkSize.x, ChunkSize.y, ChunkSize.z );
+		Chunks = chunks;
+		Map = map;
+
+		// Request all changes.
+		RequestChanges( NetworkIdent );
+	}
+
+	[ClientRpc]
+	public void ApplyChanges( byte[] data )
+	{
+		// Start reading data in chunks.
+		using var stream = new MemoryStream( data );
+		using var reader = new BinaryReader( stream );
+
+		Payloads = reader.ReadUInt16();
+		Loaded = reader.ReadUInt16();
+
+		// Just generate chunks if we don't have any changes.
+		if ( Payloads == 0 && Loaded == 0 )
+		{
+			Finished = true;
+
+			foreach ( var chunk in Chunks )
+				GenerateChunk( chunk );
+
+			return;
+		}
+
+		// Go through all of this payload's changes.
+		var count = reader.ReadInt32();
+		Log.Info( $"Payload {Loaded}/{Payloads} contained {count} changes!" );
+		for ( int i = 0; i < count; i++ )
+		{
+			// Read a few variables from the MemoryStream.
+			var position = new Vector3I( reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16() );
+			var pos = GetLocalSpace( position.x, position.y, position.z, out var chunk );
+			var state = (VoxelState)reader.ReadByte();
+			var voxel = state == VoxelState.Valid
+				? new Voxel( new Color32( reader.ReadByte(), reader.ReadByte(), reader.ReadByte() ) )
+				: (Voxel?)null;
+
+			// Skip newly assigned voxels.
+			if ( totalChanges.ContainsKey( position ) )
+				continue;
+
+			chunk?.SetVoxel( pos.x, pos.y, pos.z, voxel );
+		}
+
+		// Check if we are finished and can load the chunks.
+		if ( Loaded >= Payloads )
+		{
+			Finished = true;
+
+			foreach ( var chunk in Chunks )
+				GenerateChunk( chunk );
+		}
+	}
+
+	[ConCmd.Server( "request_changes" )]
+	public static async void RequestChanges( int ident )
+	{
+		// Check if we have map.
+		if ( Entity.FindByIndex( ident ) is not VoxelWorld world )
+			return;
+
+		// Check if client already has map.
+		var cl = ConsoleSystem.Caller;
+		if ( world.clients.Contains( cl ) )
+			return;
+
+		world.clients.Add( cl );
+
+		// Initialize our MemoryStream and name a few variables.
+		var stream = new MemoryStream();
+		var writer = new BinaryWriter( stream );
+
+		var delay = 200;
+
+		var maxPerChunk = 500;
+		var payloads = (ushort)(world.totalChanges.Count / (float)maxPerChunk).CeilToInt();
+		var count = 0;
+		var sent = (ushort)0;
+
+		// If we have no changes, let's just tell the client to build the map.
+		if ( payloads == 0 )
+		{
+			writer.Write( payloads );
+			writer.Write( sent );
+
+			world.ApplyChanges( To.Single( cl ), stream.ToArray() );
+
+			return;
+		}
+
+		Log.Info( $"{cl.Name} is requesting {payloads} payloads!" );
+
+		// Let's assign this function so we can use it many times.
+		void sendPayload()
+		{
+			sent++;
+
+			using var _stream = new MemoryStream();
+			using var _writer = new BinaryWriter( _stream );
+			_writer.Write( payloads );
+			_writer.Write( sent );
+			_writer.Write( count );
+			_writer.Write( stream.ToArray() );
+
+			Log.Info( $"Sent payload {sent}/{payloads} to {cl.Name}!" );
+			world.ApplyChanges( To.Single( cl ), _stream.ToArray() );
+
+			// Clear current stream and make a new one.
+			var buffer = stream.GetBuffer();
+			Array.Clear( buffer, 0, buffer.Length );
+			stream.Position = 0;
+			stream.SetLength( 0 );
+			stream.Capacity = 0;
+
+			count = 0;
+		}
+
+		// Go through all changes.
+		foreach ( var (position, voxel) in world.totalChanges )
+		{
+			// Start new chunk and send current data to client..
+			if ( count >= maxPerChunk )
+			{
+				sendPayload();
+				await GameTask.Delay( delay );
+			}
+
+			// Append count.
+			count++;
+
+			// Write current voxel's information.
+			writer.Write( position.x );
+			writer.Write( position.y );
+			writer.Write( position.z );
+
+			var state = voxel == null
+				? VoxelState.Invalid
+				: VoxelState.Valid;
+			writer.Write( (byte)state );
+
+			if ( state != VoxelState.Valid )
+				continue;
+
+			writer.Write( voxel.Value.R );
+			writer.Write( voxel.Value.G );
+			writer.Write( voxel.Value.B );
+		}
+
+		await GameTask.Delay( delay );
+
+		// Send last bit of data.
+		if ( stream.Length > 0 )
+			sendPayload();
+
+		// Dispose unused shit.
+		writer.Dispose();
+		writer.Flush();
+
+		stream.Dispose();
+		stream.Flush();
+	}
+
 	[GameEvent.Server.ClientJoined]
 	private void ClientJoined( ClientJoinedEvent @event )
 	{
 		if ( !@event.Client.IsValid )
 			return;
 
-		// TODO: Also send all changes.
-		// Begin sending VoxelWorld data.
-		LoadAsMap( Map );
+		// Load map information first.
+		LoadAsMap( To.Single( @event.Client ), Map );
 	}
 
 	[GameEvent.Tick]
