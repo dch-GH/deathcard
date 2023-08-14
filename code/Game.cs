@@ -25,6 +25,9 @@ public partial class MyGame : GameManager
 {
 	public MyGame()
 	{
+		// Load a map.
+		if ( Game.IsServer )
+			VoxelWorld.Create( "vox/maps/monument.vox" );
 	}
 
 	/// <summary>
@@ -38,5 +41,19 @@ public partial class MyGame : GameManager
 		var pawn = new Player();
 		client.Pawn = pawn;
 		pawn.Position = new Vector3( 2020f, 1991f, 3835f );
+	}
+
+	public override void RenderHud()
+	{
+		base.RenderHud();
+
+		// TODO: Implement this better.
+		foreach ( var world in Entity.All.OfType<VoxelWorld>() )
+		{
+			if ( world.Finished )
+				continue;
+
+			Graphics.DrawText( new Rect( 50, 50, 1000, 200 ), $"Loading map... ({world.Loaded}/{world.Payloads})", Color.White, "Poppins-Medium", 50, flags: TextFlag.LeftTop );
+		}
 	}
 }
