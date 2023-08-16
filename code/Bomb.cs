@@ -15,7 +15,7 @@ public partial class Bomb : ModelEntity
 	public float Delay { get; set; } = 5f;
 
 	private float size = Utility.Scale / 4f;
-	[Net] private TimeSince sinceSpawn { get; set; }
+	[Net, Predicted] private TimeSince sinceSpawn { get; set; }
 
 	public override void Spawn()
 	{
@@ -34,7 +34,7 @@ public partial class Bomb : ModelEntity
 	public bool Explode()
 	{
 		// Get all nearby bombs and apply a force to them.
-		var force = 1000f;
+		var force = 100f;
 		foreach ( var ent in Entity.FindInSphere( Position, Size * Utility.Scale ) )
 		{
 			if ( ent == this || ent.Tags.Has( "chunk" ) || !ent.IsValid || !IsAuthority )
@@ -42,8 +42,7 @@ public partial class Bomb : ModelEntity
 
 			var normal = (ent.Position - Position).Normal;
 			ent.GroundEntity = null;
-			ent.Velocity += normal * force 
-				+ Vector3.Up * force / 5f;
+			ent.ApplyAbsoluteImpulse( normal * force );
 		}
 
 		// Find our closest chunk.
@@ -91,7 +90,7 @@ public partial class Bomb : ModelEntity
 				z: (pos.z + 0.5f).FloorToInt()
 			);
 
-			var data =  parent.GetByOffset( target.x, target.y, target.z );
+			var data = parent.GetByOffset( target.x, target.y, target.z );
 
 			var col = (data.Voxel?.Color ?? default).Multiply( 0.25f );
 			var replace = dist >= Size / 2f - 1f && data.Voxel != null
@@ -180,10 +179,10 @@ public partial class Bomb : ModelEntity
 		if ( sinceSpawn < Delay )
 			return;
 
+		sinceSpawn = 0;
+
 		var exploded = Explode();
 		if ( IsAuthority )
 			Delete();
-
-		sinceSpawn = 0;
 	}
 }
