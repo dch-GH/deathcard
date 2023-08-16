@@ -84,7 +84,7 @@ partial class VoxelWorld
 	{
 		// Check if we are within chunk bounds.
 		if ( pos.x > ChunkSize.x - 1 || pos.y > ChunkSize.y - 1 || pos.z > ChunkSize.z - 1
-		  || pos.x < 0 || pos.y < 0 || pos.z < 0 ) return false;
+		  || pos.x < 0 || pos.y < 0 || pos.z < 0 || chunk == null ) return false;
 
 		var previous = chunk.GetVoxel( pos.x, pos.y, pos.z );
 		if ( previous == null && voxel == null )
@@ -153,9 +153,26 @@ partial class VoxelWorld
 	{
 		// Convert to local space.
 		var pos = GetLocalSpace( x, y, z, out var chunk, relative );
-		if ( chunk == null )
-			return;
-		
+
+		// Create new chunk if needed.
+		if ( chunk == null && voxel != null )
+		{
+			var position = (
+				x: (ushort)((relative?.Position.x ?? 0) + (float)x / ChunkSize.x - (float)pos.x / ChunkSize.x).CeilToInt(),
+				y: (ushort)((relative?.Position.y ?? 0) + (float)y / ChunkSize.y - (float)pos.y / ChunkSize.y).CeilToInt(),
+				z: (ushort)((relative?.Position.z ?? 0) + (float)z / ChunkSize.z - (float)pos.z / ChunkSize.z).CeilToInt()
+			);
+
+			if ( position.x >= Size.x || position.y >= Size.y || position.z >= Size.z
+			  || position.x < 0 || position.y < 0 || position.z < 0
+			  || Chunks[position.x, position.y, position.z] != null ) return;
+
+			Chunks[position.x, position.y, position.z] = new Chunk( 
+				position.x, position.y, position.z, 
+				ChunkSize.x, ChunkSize.y, ChunkSize.z, 
+				Chunks );
+		}
+
 		// Set voxel.
 		SetVoxel( chunk, pos.x, pos.y, pos.z, voxel );
 	}
@@ -229,12 +246,7 @@ partial class VoxelWorld
 				: new Voxel( new Color32( reader.ReadByte(), reader.ReadByte(), reader.ReadByte() ) );
 
 			var pos = GetLocalSpace( position.x, position.y, position.z, out var chunk );
-			chunk.SetVoxel( pos.x, pos.y, pos.z, voxel );
-
-			var neighbors = chunk.GetNeighbors( pos.x, pos.y, pos.z );
-			foreach ( var neighbor in neighbors )
-				if ( neighbor != null && !chunks.Contains( neighbor ) )
-					chunks.Add( neighbor );
+			chunk?.SetVoxel( pos.x, pos.y, pos.z, voxel );
 
 			// Check if our Voxel matches on client & server.
 			var condition = changes.TryGetValue( position, out var change )
@@ -244,9 +256,18 @@ partial class VoxelWorld
 			if ( condition || (voxel == null && change?.Voxel == null) )
 				changes.Remove( position );
 			else if ( change != null )
-				changes[position] = change.Value with { 
+				changes[position] = change.Value with
+				{
 					Revert = voxel,
 				};
+
+			var neighbors = chunk?.GetNeighbors( pos.x, pos.y, pos.z );
+			if ( neighbors == null )
+				continue;
+
+			foreach ( var neighbor in neighbors )
+				if ( neighbor != null && !chunks.Contains( neighbor ) )
+					chunks.Add( neighbor );
 		}
 
 		// Revert failed changes.
@@ -394,7 +415,8 @@ partial class VoxelWorld
 		}
 
 		// Go through all changes.
-		foreach ( var (position, voxel) in world.totalChanges )
+		var changes = new Dictionary<Vector3I, Voxel?>( world.totalChanges );
+		foreach ( var (position, voxel) in changes )
 		{
 			// Start new chunk and send current data to client..
 			if ( count >= maxPerChunk )
@@ -451,11 +473,20 @@ partial class VoxelWorld
 	[GameEvent.Tick]
 	private void Tick()
 	{
-		// Let's apply existing changes on server and network them.
-		if ( changes.Count > 0 && Game.IsServer )
+		// If we don't have any changes this tick, just skip it.
+		if ( changes.Count <= 0 )
+			return;
+		
+		// Check all changes and send them to clients.
+		if ( Game.IsServer )
 		{
 			Update();
 			changes.Clear();
+		}
+
+		// Check if we changed voxels on client and need to update.
+		else
+		{ 
 		}
 	}
 	#endregion
