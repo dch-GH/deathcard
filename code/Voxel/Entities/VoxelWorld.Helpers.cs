@@ -36,9 +36,9 @@ partial class VoxelWorld
 
 		chunk = null;
 		if ( position.x >= 0 && position.y >= 0 && position.z >= 0
-		  && position.x < ChunkSize.x
-		  && position.y < ChunkSize.y
-		  && position.z < ChunkSize.z ) chunk = Chunks?[position.x, position.y, position.z];
+		  && position.x < Size.x
+		  && position.y < Size.y
+		  && position.z < Size.z ) chunk = Chunks?[position.x, position.y, position.z];
 
 		return new Vector3I(
 			(ushort)((x % ChunkSize.x + ChunkSize.x) % ChunkSize.x),
