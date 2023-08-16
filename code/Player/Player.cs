@@ -60,7 +60,12 @@ public partial class Player : ModelEntity
 		var chunk = (Chunk)null;
 		var pos = parent?.GetLocalSpace( value.x, value.y, value.z, out chunk );
 
-		if ( Input.Pressed( "attack1" ) )
+		var set = Input.Pressed( "attack1" )
+			? 1
+			: Input.Pressed( "attack2" )
+				? -1
+				: 0;
+		if ( set != 0 )
 		{
 			var size = 8;
 			for ( int x = 0; x < size; x++ )
@@ -75,10 +80,14 @@ public partial class Player : ModelEntity
 				if ( target.Distance( center ) >= size / 2f )
 					continue;
 
+				var voxel = set == 1
+					? new Voxel( Color32.White )
+					: (Voxel?)null;
+
 				parent.SetVoxel(
 					target.x.FloorToInt(),
 					target.y.FloorToInt(),
-					target.z.FloorToInt(), null, chunk );
+					target.z.FloorToInt(), voxel, chunk );
 			}
 		}
 	}
