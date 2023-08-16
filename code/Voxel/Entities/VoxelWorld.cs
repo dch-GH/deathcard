@@ -152,7 +152,7 @@ public partial class VoxelWorld : ModelEntity
 			+ VoxelScale / 2f;
 
 		// Check if we actually end up with vertices.
-		if ( Game.IsClient )
+		if ( Game.IsClient && vertices.Count > 0 )
 		{
 			mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
 			mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
