@@ -25,6 +25,13 @@ partial class Player
 		Rotation = Rotation.FromYaw( ViewAngles.yaw );
 		EyePosition = Position
 			+ Vector3.Up * Utility.Scale * 2 * 0.7f;
+		
+		// Noclip
+		if ( Input.Down( "reload" ) )
+		{
+			Position += (InputDirection * ViewAngles.ToRotation()).Normal * 1000f * Time.Delta;
+			return;
+		}
 
 		// Apply gravity & jumping.
 		if ( GroundEntity == null )
@@ -38,10 +45,9 @@ partial class Player
 		// Start calculating velocity.
 		var speed = 250f;
 		var wishVelocity = (InputDirection * Rotation)
-			.Normal
-			.WithZ( 0 );
+			.Normal;
 
-		Velocity = (wishVelocity * speed)
+		Velocity = (wishVelocity.WithZ( 0 ) * speed)
 			.WithZ( Velocity.z );
 
 		// Initialize MoveHelper and set new values.
