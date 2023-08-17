@@ -2,6 +2,8 @@
 
 partial class Player
 {
+	[Net, Predicted] public bool Noclip { get; set; }
+
 	[ClientInput] public Vector3 InputDirection { get; protected set; }
 	[ClientInput] public Angles ViewAngles { get; set; }
 
@@ -25,11 +27,25 @@ partial class Player
 		Rotation = Rotation.FromYaw( ViewAngles.yaw );
 		EyePosition = Position
 			+ Vector3.Up * Utility.Scale * 2 * 0.7f;
-		
+
 		// Noclip
-		if ( Input.Down( "reload" ) )
+		if ( Input.Pressed( "reload" ) )
+			Noclip = !Noclip;
+
+		if ( Noclip )
 		{
-			Position += (InputDirection * ViewAngles.ToRotation()).Normal * 1000f * Time.Delta;
+			var up = Input.Down( "jump" ) 
+				? Vector3.Up 
+				: Input.Down( "duck" )
+					? Vector3.Down
+					: 0;
+
+			Position += ((InputDirection * ViewAngles.ToRotation()).Normal + up) 
+				* 1000f 
+				* Time.Delta;
+
+			Velocity = 0f;
+
 			return;
 		}
 
