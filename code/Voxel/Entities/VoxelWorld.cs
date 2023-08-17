@@ -25,6 +25,9 @@ public class ChunkEntity : ModelEntity
 
 public partial class VoxelWorld : ModelEntity
 {
+	public static new IReadOnlyList<VoxelWorld> All => all;
+	private static List<VoxelWorld> all = new();
+
 	private Dictionary<Vector3I, ChunkEntity> entities = new();
 
 	public float VoxelScale { get; set; } = Utility.Scale;
@@ -37,6 +40,8 @@ public partial class VoxelWorld : ModelEntity
 	{
 		ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
 		Transmit = TransmitType.Always;
+
+		all.Add( this );
 	}
 
 	protected override void OnDestroy()
