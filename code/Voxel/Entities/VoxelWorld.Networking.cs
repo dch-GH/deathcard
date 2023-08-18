@@ -126,6 +126,36 @@ partial class VoxelWorld
 	}
 
 	/// <summary>
+	/// Creates a chunk at some position if there isn't one yet.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <param name="z"></param>
+	/// <param name="local"></param>
+	/// <param name="relative"></param>
+	/// <returns>The newly created chunk or null.</returns>
+	private Chunk CreateChunk( int x, int y, int z, Vector3I? local = null, Chunk relative = null )
+	{
+		var position = (
+			x: (ushort)((relative?.Position.x ?? 0) + (float)x / ChunkSize.x - (float)(local?.x ?? 0) / ChunkSize.x).CeilToInt(),
+			y: (ushort)((relative?.Position.y ?? 0) + (float)y / ChunkSize.y - (float)(local?.y ?? 0) / ChunkSize.y).CeilToInt(),
+			z: (ushort)((relative?.Position.z ?? 0) + (float)z / ChunkSize.z - (float)(local?.z ?? 0) / ChunkSize.z).CeilToInt()
+		);
+
+		if ( position.x >= Size.x || position.y >= Size.y || position.z >= Size.z
+		  || position.x < 0 || position.y < 0 || position.z < 0
+		  || Chunks[position.x, position.y, position.z] != null ) return null;
+
+		var chunk = new Chunk(
+			position.x, position.y, position.z,
+			ChunkSize.x, ChunkSize.y, ChunkSize.z,
+			Chunks );
+		Chunks[position.x, position.y, position.z] = chunk;
+
+		return chunk;
+	}
+
+	/// <summary>
 	/// Sets voxel relative to a chunk, coordinates cannot be greater or equal to ChunkSize or less than 0.
 	/// </summary>
 	/// <param name="chunk"></param>
@@ -156,22 +186,7 @@ partial class VoxelWorld
 
 		// Create new chunk if needed.
 		if ( chunk == null && voxel != null )
-		{
-			var position = (
-				x: (ushort)((relative?.Position.x ?? 0) + (float)x / ChunkSize.x - (float)pos.x / ChunkSize.x).CeilToInt(),
-				y: (ushort)((relative?.Position.y ?? 0) + (float)y / ChunkSize.y - (float)pos.y / ChunkSize.y).CeilToInt(),
-				z: (ushort)((relative?.Position.z ?? 0) + (float)z / ChunkSize.z - (float)pos.z / ChunkSize.z).CeilToInt()
-			);
-
-			if ( position.x >= Size.x || position.y >= Size.y || position.z >= Size.z
-			  || position.x < 0 || position.y < 0 || position.z < 0
-			  || Chunks[position.x, position.y, position.z] != null ) return;
-
-			Chunks[position.x, position.y, position.z] = new Chunk( 
-				position.x, position.y, position.z, 
-				ChunkSize.x, ChunkSize.y, ChunkSize.z, 
-				Chunks );
-		}
+			chunk = CreateChunk( x, y, z, pos, relative );
 
 		// Set voxel.
 		SetVoxel( chunk, pos.x, pos.y, pos.z, voxel );
@@ -323,7 +338,6 @@ partial class VoxelWorld
 
 		// Go through all of this payload's changes.
 		var count = reader.ReadInt32();
-		Log.Info( $"Payload {Loaded}/{Payloads} contained {count} changes!" );
 		for ( int i = 0; i < count; i++ )
 		{
 			// Read a few variables from the MemoryStream.
@@ -333,6 +347,10 @@ partial class VoxelWorld
 			var voxel = state == VoxelState.Valid
 				? new Voxel( new Color32( reader.ReadByte(), reader.ReadByte(), reader.ReadByte() ) )
 				: (Voxel?)null;
+
+			// Create a new chunk if we need it.
+			if ( chunk == null && voxel != null )
+				chunk = CreateChunk( position.x, position.y, position.z, pos );
 
 			// Skip newly assigned voxels.
 			if ( totalChanges.ContainsKey( position ) )
@@ -485,6 +503,7 @@ partial class VoxelWorld
 		}
 
 		// Check if we changed voxels on client and need to update.
+		// If LastUpdated (from ClientRPC) > tickrate, rebuild chunks here.
 		else
 		{ 
 		}
