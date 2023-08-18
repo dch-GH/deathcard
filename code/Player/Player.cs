@@ -65,19 +65,20 @@ public partial class Player : ModelEntity
 			: Input.Pressed( "attack2" )
 				? -1
 				: 0;
+
 		if ( set != 0 )
 		{
 			var size = 8;
-			for ( int x = 0; x < size; x++ )
-			for ( int y = 0; y < size; y++ )
-			for ( int z = 0; z < size; z++ )
+			for ( int x = 0; x <= size; x++ )
+			for ( int y = 0; y <= size; y++ )
+			for ( int z = 0; z <= size; z++ )
 			{
 				var center = (Vector3)pos;
 				var target = center
 					+ new Vector3( x, y, z )
 					- size / 2f;
 
-				if ( target.Distance( center ) >= size / 2f )
+				if ( target.Distance( center ) >= size / 2f + 0.5f )
 					continue;
 
 				var voxel = set == 1
