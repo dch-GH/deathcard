@@ -45,25 +45,36 @@ public class VoxelResource : GameResource
 	/// </summary>
 	public Vector3 Center { get; set; } = Vector3.One;
 
+	private async void rebuildModel()
+	{
+		Log.Info( $"Building VoxelModel \"{ResourceName}\"!" );
+
+		var mdl = await VoxelModel.FromFile( Path )
+			.WithScale( Scale )
+			.WithDepth( HasDepth
+				? Depth
+				: null )
+			.BuildAsync( center: Center );
+
+		Model = mdl;
+		Loaded = true;	
+	}
+
 	protected override void PostLoad()
 	{
-		if ( all.ContainsKey( ResourcePath ) || Game.IsServer )
+		if ( all.ContainsKey( ResourcePath ) || !Game.IsClient )
 			return;
 
 		all.Add( ResourcePath, this );
+		rebuildModel();
+	}
 
-		new Action( async () => 
-		{
-			var mdl = await VoxelModel.FromFile( Path )
-				.WithScale( Scale )
-				.WithDepth( HasDepth
-					? Depth 
-					: null )
-				.BuildAsync( center: Center );
+	protected override void PostReload()
+	{
+		if ( !Game.IsClient )
+			return;
 
-			Model = mdl;
-			Loaded = true;
-		} ).Invoke();
+		rebuildModel();
 	}
 
 	public static VoxelResource Get( string path )
