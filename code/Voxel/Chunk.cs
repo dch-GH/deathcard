@@ -39,6 +39,9 @@ public class Chunk : IEquatable<Chunk>
 	public Voxel?[,,] GetVoxels()
 		=> voxels;
 
+	public void SetParent( Chunk[,,] parent )
+		=> chunks = parent;
+
 	public (Chunk Chunk, Voxel? Voxel) GetDataByOffset( int x, int y, int z )
 	{
 		if ( chunks == null )

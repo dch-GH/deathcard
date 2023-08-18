@@ -33,7 +33,7 @@ public partial class VoxelWorld : ModelEntity
 	public float VoxelScale { get; set; } = Utility.Scale;
 	public Chunk[,,] Chunks { get; private set; }
 
-	[Net] public Vector3I Size { get; private set; }
+	[Net, Predicted] public Vector3I Size { get; private set; }
 	[Net] public Vector3I ChunkSize { get; private set; }
 
 	public VoxelWorld() 
@@ -50,6 +50,28 @@ public partial class VoxelWorld : ModelEntity
 			child.Delete();
 
 		Chunks = null;
+	}
+
+	/// <summary>
+	/// Extends the chunks, probably shouldn't use this lolé.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <param name="z"></param>
+	public void Extend( int x, int y, int z )
+	{
+		var size = new Vector3I( Chunks.GetLength( 0 ), Chunks.GetLength( 1 ), Chunks.GetLength( 2 ) );
+		var temp = new Chunk[size.x + x, size.y + y, size.z + z];
+		for ( int i = 0; i < size.x; i++ )
+		for ( int j = 0; j < size.y; j++ )
+		for ( int k = 0; k < size.z; k++ )
+		{
+			temp[i, j, k] = Chunks[i, j, k];
+			temp[i, j, k]?.SetParent( temp );
+		}
+
+		Chunks = temp;
+		Size = size;
 	}
 
 	/// <summary>

@@ -136,20 +136,33 @@ partial class VoxelWorld
 	/// <returns>The newly created chunk or null.</returns>
 	private Chunk CreateChunk( int x, int y, int z, Vector3I? local = null, Chunk relative = null )
 	{
+		// Calculate new chunk position.
 		var position = (
-			x: (ushort)((relative?.Position.x ?? 0) + (float)x / ChunkSize.x - (float)(local?.x ?? 0) / ChunkSize.x).CeilToInt(),
-			y: (ushort)((relative?.Position.y ?? 0) + (float)y / ChunkSize.y - (float)(local?.y ?? 0) / ChunkSize.y).CeilToInt(),
-			z: (ushort)((relative?.Position.z ?? 0) + (float)z / ChunkSize.z - (float)(local?.z ?? 0) / ChunkSize.z).CeilToInt()
+			x: ((relative?.Position.x ?? 0) + (float)x / ChunkSize.x - (float)(local?.x ?? 0) / ChunkSize.x).CeilToInt(),
+			y: ((relative?.Position.y ?? 0) + (float)y / ChunkSize.y - (float)(local?.y ?? 0) / ChunkSize.y).CeilToInt(),
+			z: ((relative?.Position.z ?? 0) + (float)z / ChunkSize.z - (float)(local?.z ?? 0) / ChunkSize.z).CeilToInt()
 		);
+		
+		// For now we don't want to extend.
+		/*if ( position.x >= Size.x || position.y >= Size.y || position.z >= Size.z )
+		{
+			Extend( Math.Max( position.x - Size.x + 1, 0 ),
+					Math.Max( position.y - Size.y + 1, 0 ),
+					Math.Max( position.z - Size.z + 1, 0 ) );
+			//return null;
+		}*/
 
+		// Check if we have a chunk already or are out of bounds.
 		if ( position.x >= Size.x || position.y >= Size.y || position.z >= Size.z
 		  || position.x < 0 || position.y < 0 || position.z < 0
 		  || Chunks[position.x, position.y, position.z] != null ) return null;
 
+		// Create new chunk.
 		var chunk = new Chunk(
-			position.x, position.y, position.z,
+			(ushort)position.x, (ushort)position.y, (ushort)position.z,
 			ChunkSize.x, ChunkSize.y, ChunkSize.z,
 			Chunks );
+
 		Chunks[position.x, position.y, position.z] = chunk;
 
 		return chunk;
