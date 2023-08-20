@@ -207,7 +207,7 @@ public partial class VoxelWorld : ModelEntity
 			return;
 
 		// Display all chunks.
-		foreach ( var world in Entity.All.OfType<VoxelWorld>() )
+		foreach ( var world in VoxelWorld.All )
 		{
 			if ( world?.Chunks == null )
 				continue;

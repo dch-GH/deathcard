@@ -57,8 +57,7 @@ public partial class Player : ModelEntity
 			return;
 
 		var value = position.Value;
-		var chunk = (Chunk)null;
-		var pos = parent?.GetLocalSpace( value.x, value.y, value.z, out chunk );
+		var pos = parent.GetLocalSpace( value.x, value.y, value.z, out var chunk );
 
 		var set = Input.Pressed( "attack1" )
 			? 1
@@ -68,7 +67,9 @@ public partial class Player : ModelEntity
 
 		if ( set != 0 )
 		{
+			var color = Color32.White;
 			var size = 8;
+
 			for ( int x = 0; x <= size; x++ )
 			for ( int y = 0; y <= size; y++ )
 			for ( int z = 0; z <= size; z++ )
@@ -82,7 +83,7 @@ public partial class Player : ModelEntity
 					continue;
 
 				var voxel = set == 1
-					? new Voxel( Color32.White )
+					? new Voxel( color )
 					: (Voxel?)null;
 
 				parent.SetVoxel(

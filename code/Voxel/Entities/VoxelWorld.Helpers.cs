@@ -76,6 +76,6 @@ partial class VoxelWorld
 		if ( chunk == null )
 			return (null, null);
 
-		return Chunks[0, 0, 0].GetDataByOffset( x, y, z );
+		return chunk.GetDataByOffset( x, y, z );
 	}
 }
