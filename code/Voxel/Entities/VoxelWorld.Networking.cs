@@ -276,19 +276,6 @@ partial class VoxelWorld
 			var pos = GetLocalSpace( position.x, position.y, position.z, out var chunk );
 			chunk?.SetVoxel( pos.x, pos.y, pos.z, voxel );
 
-			// Check if our Voxel matches on client & server.
-			var condition = changes.TryGetValue( position, out var change )
-				&& change?.State == state
-				&& change?.Voxel?.Color == voxel?.Color;
-
-			if ( condition || (voxel == null && change?.Voxel == null) )
-				changes.Remove( position );
-			else if ( change != null )
-				changes[position] = change.Value with
-				{
-					Revert = voxel,
-				};
-
 			var neighbors = chunk?.GetNeighbors( pos.x, pos.y, pos.z );
 			if ( neighbors == null )
 				continue;
@@ -297,19 +284,6 @@ partial class VoxelWorld
 				if ( neighbor != null && !chunks.Contains( neighbor ) )
 					chunks.Add( neighbor );
 		}
-
-		// Revert failed changes.
-		// TODO: Implement this properly.
-		foreach ( var (pos, change) in changes )
-		{
-			var position = GetLocalSpace( pos.x, pos.y, pos.z, out var chunk );
-			if ( chunk == null )
-				continue;
-
-			chunk.SetVoxel( position.x, position.y, position.z, change?.Revert );
-		}
-
-		changes.Clear();
 
 		// Update changed chunks.
 		foreach ( var chunk in chunks )
@@ -513,12 +487,6 @@ partial class VoxelWorld
 		{
 			Update();
 			changes.Clear();
-		}
-
-		// Check if we changed voxels on client and need to update.
-		// If LastUpdated (from ClientRPC) > tickrate, rebuild chunks here.
-		else
-		{ 
 		}
 	}
 	#endregion
