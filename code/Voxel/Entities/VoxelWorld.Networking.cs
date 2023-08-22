@@ -1,4 +1,6 @@
-﻿namespace DeathCard;
+﻿using Sandbox;
+
+namespace DeathCard;
 
 partial class VoxelWorld
 {
@@ -23,8 +25,8 @@ partial class VoxelWorld
 	public bool Finished { get; private set; } = false;
 
 	#region Fields
-	private Dictionary<Vector3I, Change?> changes = new();
-	private Dictionary<Vector3I, Voxel?> totalChanges = new();
+	private Dictionary<Vector3S, Change?> changes = new();
+	private Dictionary<Vector3S, Voxel?> totalChanges = new();
 	private Collection<IClient> clients = new();
 	#endregion
 
@@ -32,7 +34,7 @@ partial class VoxelWorld
 	/// Initializes a VoxelWorld, should be called on server.
 	/// </summary>
 	/// <returns></returns>
-	public static async Task<VoxelWorld> Create( string map, Vector3I? chunkSize = null )
+	public static async Task<VoxelWorld> Create( string map, Vector3US? chunkSize = null )
 	{
 		Game.AssertServer();
 
@@ -49,10 +51,9 @@ partial class VoxelWorld
 		};
 
 		world.Chunks = await Importer.VoxImporter.Load( map, size.x, size.y, size.z );
-		world.Size = new Vector3I( world.Chunks.GetLength( 0 ), world.Chunks.GetLength( 1 ), world.Chunks.GetLength( 2 ) );
 
 		// Initial chunk generation.
-		foreach ( var chunk in world.Chunks )
+		foreach ( var (_, chunk) in world.Chunks )
 			world.GenerateChunk( chunk );
 
 		// Send the map to all clients.
@@ -80,7 +81,7 @@ partial class VoxelWorld
 		public Voxel? Revert;
 	}
 
-	private bool RegisterChange( Chunk chunk, Vector3I pos, Voxel? voxel )
+	private bool RegisterChange( Chunk chunk, Vector3US pos, Voxel? voxel )
 	{
 		// Check if we are within chunk bounds.
 		if ( pos.x > ChunkSize.x - 1 || pos.y > ChunkSize.y - 1 || pos.z > ChunkSize.z - 1
@@ -133,37 +134,28 @@ partial class VoxelWorld
 	/// <param name="z"></param>
 	/// <param name="local"></param>
 	/// <param name="relative"></param>
-	/// <returns>The newly created chunk or null.</returns>
-	private Chunk CreateChunk( int x, int y, int z, Vector3I? local = null, Chunk relative = null )
+	/// <returns>The newly created chunk or an old one.</returns>
+	private Chunk GetOrCreateChunk( int x, int y, int z, Vector3US? local = null, Chunk relative = null )
 	{
 		// Calculate new chunk position.
-		var position = (
-			x: ((relative?.Position.x ?? 0) + (float)x / ChunkSize.x - (float)(local?.x ?? 0) / ChunkSize.x).CeilToInt(),
-			y: ((relative?.Position.y ?? 0) + (float)y / ChunkSize.y - (float)(local?.y ?? 0) / ChunkSize.y).CeilToInt(),
-			z: ((relative?.Position.z ?? 0) + (float)z / ChunkSize.z - (float)(local?.z ?? 0) / ChunkSize.z).CeilToInt()
+		var position = new Vector3S(
+			((relative?.Position.x ?? 0) + (float)x / ChunkSize.x - (float)(local?.x ?? 0) / ChunkSize.x).CeilToInt(),
+			((relative?.Position.y ?? 0) + (float)y / ChunkSize.y - (float)(local?.y ?? 0) / ChunkSize.y).CeilToInt(),
+			((relative?.Position.z ?? 0) + (float)z / ChunkSize.z - (float)(local?.z ?? 0) / ChunkSize.z).CeilToInt()
 		);
-		
-		// For now we don't want to extend.
-		/*if ( position.x >= Size.x || position.y >= Size.y || position.z >= Size.z )
-		{
-			Extend( Math.Max( position.x - Size.x + 1, 0 ),
-					Math.Max( position.y - Size.y + 1, 0 ),
-					Math.Max( position.z - Size.z + 1, 0 ) );
-			//return null;
-		}*/
 
 		// Check if we have a chunk already or are out of bounds.
-		if ( position.x >= Size.x || position.y >= Size.y || position.z >= Size.z
-		  || position.x < 0 || position.y < 0 || position.z < 0
-		  || Chunks[position.x, position.y, position.z] != null ) return null;
+		if ( Chunks.TryGetValue( position, out var chunk ) )
+			return chunk;
 
 		// Create new chunk.
-		var chunk = new Chunk(
-			(ushort)position.x, (ushort)position.y, (ushort)position.z,
-			ChunkSize.x, ChunkSize.y, ChunkSize.z,
-			Chunks );
-
-		Chunks[position.x, position.y, position.z] = chunk;
+		Chunks.Add( 
+			position,
+			chunk = new Chunk(
+				position.x, position.y, position.z,
+				ChunkSize.x, ChunkSize.y, ChunkSize.z,
+				Chunks )
+		);
 
 		return chunk;
 	}
@@ -178,7 +170,8 @@ partial class VoxelWorld
 	/// <param name="voxel"></param>
 	public void SetVoxel( Chunk chunk, ushort x, ushort y, ushort z, Voxel? voxel )
 	{
-		if ( !RegisterChange( chunk, new( x, y, z ), voxel ) )
+		// TODO: Fix the client shit.
+		if ( !RegisterChange( chunk, new( x, y, z ), voxel ) || Game.IsClient )
 			return;
 
 		chunk.SetVoxel( x, y, z, voxel );
@@ -199,7 +192,7 @@ partial class VoxelWorld
 
 		// Create new chunk if needed.
 		if ( chunk == null && voxel != null )
-			chunk = CreateChunk( x, y, z, pos, relative );
+			chunk = GetOrCreateChunk( x, y, z, pos, relative );
 
 		// Set voxel.
 		SetVoxel( chunk, pos.x, pos.y, pos.z, voxel );
@@ -267,13 +260,16 @@ partial class VoxelWorld
 		for ( int i = 0; i < count; i++ )
 		{
 			var state = (VoxelState)reader.ReadByte();
-			var position = new Vector3I( reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16() );
+			var position = new Vector3S( reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16() );
 
 			var voxel = state == VoxelState.Invalid
 				? (Voxel?)null
 				: new Voxel( new Color32( reader.ReadByte(), reader.ReadByte(), reader.ReadByte() ) );
 
 			var pos = GetLocalSpace( position.x, position.y, position.z, out var chunk );
+			if ( chunk == null && voxel != null )
+				chunk = GetOrCreateChunk( position.x, position.y, position.z, pos );
+
 			chunk?.SetVoxel( pos.x, pos.y, pos.z, voxel );
 
 			var neighbors = chunk?.GetNeighbors( pos.x, pos.y, pos.z );
@@ -317,7 +313,7 @@ partial class VoxelWorld
 		{
 			Finished = true;
 
-			foreach ( var chunk in Chunks )
+			foreach ( var (_, chunk) in Chunks )
 				GenerateChunk( chunk );
 
 			return;
@@ -328,7 +324,7 @@ partial class VoxelWorld
 		for ( int i = 0; i < count; i++ )
 		{
 			// Read a few variables from the MemoryStream.
-			var position = new Vector3I( reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16() );
+			var position = new Vector3S( reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16() );
 			var pos = GetLocalSpace( position.x, position.y, position.z, out var chunk );
 			var state = (VoxelState)reader.ReadByte();
 			var voxel = state == VoxelState.Valid
@@ -337,7 +333,7 @@ partial class VoxelWorld
 
 			// Create a new chunk if we need it.
 			if ( chunk == null && voxel != null )
-				chunk = CreateChunk( position.x, position.y, position.z, pos );
+				chunk = GetOrCreateChunk( position.x, position.y, position.z, pos );
 
 			// Skip newly assigned voxels.
 			if ( totalChanges.ContainsKey( position ) )
@@ -351,7 +347,7 @@ partial class VoxelWorld
 		{
 			Finished = true;
 
-			foreach ( var chunk in Chunks )
+			foreach ( var (_, chunk) in Chunks )
 				GenerateChunk( chunk );
 		}
 	}
@@ -420,7 +416,7 @@ partial class VoxelWorld
 		}
 
 		// Go through all changes.
-		var changes = new Dictionary<Vector3I, Voxel?>( world.totalChanges );
+		var changes = new Dictionary<Vector3S, Voxel?>( world.totalChanges );
 		foreach ( var (position, voxel) in changes )
 		{
 			// Start new chunk and send current data to client..

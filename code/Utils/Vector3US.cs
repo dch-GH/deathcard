@@ -1,6 +1,6 @@
 ﻿namespace DeathCard;
 
-public struct Vector3I : IEquatable<Vector3I>
+public struct Vector3US : IEquatable<Vector3US>
 {
 	public ushort x;
 	public ushort y;
@@ -34,30 +34,30 @@ public struct Vector3I : IEquatable<Vector3I>
 		}
 	}
 
-	public Vector3I( int x, int y, int z )
+	public Vector3US( int x, int y, int z )
 	{
 		this.x = (ushort)x;
 		this.y = (ushort)y;
 		this.z = (ushort)z;
 	}
 
-	public Vector3I( ushort x, ushort y, ushort z )
+	public Vector3US( ushort x, ushort y, ushort z )
 	{
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
 
-	public static implicit operator Vector3( Vector3I v )
+	public static implicit operator Vector3( Vector3US v )
 		=> new Vector3( v.x, v.y, v.z );
 
-	public static implicit operator Vector3I( (ushort x, ushort y, ushort z) v )
-		=> new Vector3I( v.x, v.y, v.z );
+	public static implicit operator Vector3US( (ushort x, ushort y, ushort z) v )
+		=> new Vector3US( v.x, v.y, v.z );
 
-	public static Vector3I operator +( Vector3I a, Vector3I b )
-		=> new Vector3I( a.x + b.x, a.y + b.y, a.z + b.z );
+	public static Vector3US operator +( Vector3US a, Vector3US b )
+		=> new Vector3US( a.x + b.x, a.y + b.y, a.z + b.z );
 
-	public bool Equals( Vector3I other )
+	public bool Equals( Vector3US other )
 	{
 		return x == other.x 
 			&& y == other.y 
@@ -66,7 +66,7 @@ public struct Vector3I : IEquatable<Vector3I>
 
 	public override bool Equals( object obj )
 	{
-		return obj is Vector3I other
+		return obj is Vector3US other
 			&& other.Equals( this );
 	}
 

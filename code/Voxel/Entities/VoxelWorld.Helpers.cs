@@ -1,4 +1,6 @@
-﻿namespace DeathCard;
+﻿using DeathCard.Importer;
+
+namespace DeathCard;
 
 partial class VoxelWorld
 {
@@ -7,14 +9,14 @@ partial class VoxelWorld
 	/// </summary>
 	/// <param name="position"></param>
 	/// <returns></returns>
-	public Vector3I WorldToVoxel( Vector3 position )
+	public Vector3S WorldToVoxel( Vector3 position )
 	{
 		var relative = position - Position;
 
-		return new(
-			(ushort)MathF.Max( relative.x / VoxelScale, 0 ).FloorToInt(),
-			(ushort)MathF.Max( relative.y / VoxelScale, 0 ).FloorToInt(),
-			(ushort)MathF.Max( relative.z / VoxelScale, 0 ).FloorToInt() );
+		return new Vector3S(
+			(relative.x / VoxelScale).FloorToInt(),
+			(relative.y / VoxelScale).FloorToInt(),
+			(relative.z / VoxelScale).FloorToInt() );
 	}
 
 	/// <summary>
@@ -26,21 +28,17 @@ partial class VoxelWorld
 	/// <param name="chunk"></param>
 	/// <param name="relative"></param>
 	/// <returns></returns>
-	public Vector3I GetLocalSpace( int x, int y, int z, out Chunk chunk, Chunk relative = null )
+	public Vector3US GetLocalSpace( int x, int y, int z, out Chunk chunk, Chunk relative = null )
 	{
-		var position = new Vector3I(
-			(ushort)((float)(x + (relative?.x ?? 0) * ChunkSize.x) / ChunkSize.x).FloorToInt(),
-			(ushort)((float)(y + (relative?.y ?? 0) * ChunkSize.y) / ChunkSize.y).FloorToInt(),
-			(ushort)((float)(z + (relative?.z ?? 0) * ChunkSize.z) / ChunkSize.z).FloorToInt()
+		var position = new Vector3S(
+			((float)(x + (relative?.x ?? 0) * ChunkSize.x) / ChunkSize.x).FloorToInt(),
+			((float)(y + (relative?.y ?? 0) * ChunkSize.y) / ChunkSize.y).FloorToInt(),
+			((float)(z + (relative?.z ?? 0) * ChunkSize.z) / ChunkSize.z).FloorToInt()
 		);
 
-		chunk = null;
-		if ( position.x >= 0 && position.y >= 0 && position.z >= 0
-		  && position.x < Size.x
-		  && position.y < Size.y
-		  && position.z < Size.z ) chunk = Chunks?[position.x, position.y, position.z];
+		_ = Chunks.TryGetValue( position, out chunk );
 
-		return new Vector3I(
+		return new Vector3US(
 			(ushort)((x % ChunkSize.x + ChunkSize.x) % ChunkSize.x),
 			(ushort)((y % ChunkSize.y + ChunkSize.y) % ChunkSize.y),
 			(ushort)((z % ChunkSize.z + ChunkSize.z) % ChunkSize.z) );
@@ -54,12 +52,12 @@ partial class VoxelWorld
 	/// <param name="z"></param>
 	/// <param name="relative"></param>
 	/// <returns></returns>
-	public Vector3I GetGlobalSpace( ushort x, ushort y, ushort z, Chunk relative )
+	public Vector3S GetGlobalSpace( ushort x, ushort y, ushort z, Chunk? relative )
 	{
-		return new Vector3I(
-			(ushort)(x + (relative?.x ?? 0) * ChunkSize.x),
-			(ushort)(y + (relative?.y ?? 0) * ChunkSize.y),
-			(ushort)(z + (relative?.z ?? 0) * ChunkSize.z) );
+		return new Vector3S(
+			(short)(x + (relative?.x ?? 0) * ChunkSize.x),
+			(short)(y + (relative?.y ?? 0) * ChunkSize.y),
+			(short)(z + (relative?.z ?? 0) * ChunkSize.z) );
 	}
 
 	/// <summary>
@@ -72,10 +70,21 @@ partial class VoxelWorld
 	/// <returns></returns>
 	public (Chunk Chunk, Voxel? Voxel) GetByOffset( int x, int y, int z, Chunk relative = null )
 	{
-		var chunk = relative ?? Chunks[0, 0, 0];
-		if ( chunk == null )
-			return (null, null);
+		// Get the new chunk's position based on the offset.
+		var position = new Vector3S(
+			(relative?.x ?? 0) + ((x + 1) / (float)ChunkSize.x - 1).CeilToInt(),
+			(relative?.y ?? 0) + ((y + 1) / (float)ChunkSize.y - 1).CeilToInt(),
+			(relative?.z ?? 0) + ((z + 1) / (float)ChunkSize.z - 1).CeilToInt()
+		);
 
-		return chunk.GetDataByOffset( x, y, z );
+		// Calculate new voxel position.
+		_ = Chunks.TryGetValue( position, out var chunk );
+		return (
+			Chunk: chunk,
+			Voxel: chunk?.GetVoxel(
+				(ushort)((x % ChunkSize.x + ChunkSize.x) % ChunkSize.x),
+				(ushort)((y % ChunkSize.y + ChunkSize.y) % ChunkSize.y),
+				(ushort)((z % ChunkSize.z + ChunkSize.z) % ChunkSize.z) )
+		);
 	}
 }

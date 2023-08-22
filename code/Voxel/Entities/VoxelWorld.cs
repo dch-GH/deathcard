@@ -28,13 +28,12 @@ public partial class VoxelWorld : ModelEntity
 	public static new IReadOnlyList<VoxelWorld> All => all;
 	private static List<VoxelWorld> all = new();
 
-	private Dictionary<Vector3I, ChunkEntity> entities = new();
+	private Dictionary<Vector3S, ChunkEntity> entities = new();
 
 	public float VoxelScale { get; set; } = Utility.Scale;
-	public Chunk[,,] Chunks { get; private set; }
+	public Dictionary<Vector3S, Chunk> Chunks { get; private set; }
 
-	[Net, Predicted] public Vector3I Size { get; private set; }
-	[Net] public Vector3I ChunkSize { get; private set; }
+	[Net] public Vector3US ChunkSize { get; private set; }
 
 	public VoxelWorld() 
 	{
@@ -50,27 +49,6 @@ public partial class VoxelWorld : ModelEntity
 			child.Delete();
 
 		Chunks = null;
-	}
-
-	/// <summary>
-	/// Extends the chunks, probably shouldn't use this lolé.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <param name="y"></param>
-	/// <param name="z"></param>
-	public void Extend( int x, int y, int z )
-	{
-		var temp = new Chunk[Size.x + x, Size.y + y, Size.z + z];
-		for ( int i = 0; i < Size.x; i++ )
-		for ( int j = 0; j < Size.y; j++ )
-		for ( int k = 0; k < Size.z; k++ )
-		{
-			temp[i, j, k] = Chunks[i, j, k];
-			temp[i, j, k]?.SetParent( temp );
-		}
-
-		Chunks = temp;
-		Size = Size + new Vector3I( x, y, z );
 	}
 
 	/// <summary>
@@ -99,15 +77,18 @@ public partial class VoxelWorld : ModelEntity
 		var buffer = new CollisionBuffer();
 		buffer.Init( true );
 
+		chunk.Empty = true;
 		for ( ushort x = 0; x < ChunkSize.x; x++ )
 		for ( ushort y = 0; y < ChunkSize.y; y++ )
 		for ( ushort z = 0; z < ChunkSize.z; z++ )
 		{
 			var voxel = chunk.GetVoxel( x, y, z );
-			if ( voxel == null )
+			if ( voxel == null )				
 				continue;
 
-			var position = new Vector3I( x, y, z );
+			chunk.Empty = false;
+
+			var position = new Vector3US( x, y, z );
 
 			// Let's start checking for collisions.
 			if ( !tested[x, y, z] )
@@ -211,13 +192,13 @@ public partial class VoxelWorld : ModelEntity
 			if ( world?.Chunks == null )
 				continue;
 
-			foreach ( var chunk in world.Chunks )
+			foreach ( var (_, chunk) in world.Chunks )
 			{
 				if ( chunk == null )
 					continue;
 
 				var pos = world.Position
-					+ (Vector3)chunk.Position * world.VoxelScale * world.ChunkSize;
+					+ (Vector3)chunk?.Position * world.VoxelScale * world.ChunkSize;
 
 				Gizmo.Draw.Color = Color.Yellow;
 				Gizmo.Draw.LineThickness = 1;
@@ -244,7 +225,7 @@ public partial class VoxelWorld : ModelEntity
 		// Debug
 		DebugOverlay.ScreenText( $"{data.Voxel?.Color ?? default}" );
 		DebugOverlay.ScreenText( $"XYZ: {position}", 1 );
-		DebugOverlay.ScreenText( $"Chunk: {data.Chunk.Position}", 2 );
+		DebugOverlay.ScreenText( $"Chunk: {data.Chunk?.Position}", 2 );
 
 		var voxelCenter = (Vector3)position * parent.VoxelScale
 			+ parent.VoxelScale / 2f

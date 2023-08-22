@@ -74,7 +74,7 @@ public struct VoxelModel
 		var indices = new List<int>();
 		var offset = 0;
 
-		foreach ( var chunk in chunks )
+		foreach ( var (_, chunk) in chunks )
 		{
 			if ( chunk == null )
 				continue;
@@ -95,7 +95,7 @@ public struct VoxelModel
 				if ( voxel == null )
 					continue;
 
-				var position = new Vector3I( x, y, z );
+				var position = new Vector3US( x, y, z );
 
 				// Generate all visible faces for our voxel.
 				var drawCount = 0;

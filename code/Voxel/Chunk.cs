@@ -6,20 +6,24 @@ public class Chunk : IEquatable<Chunk>
 	public const ushort DEFAULT_DEPTH = 16;
 	public const ushort DEFAULT_HEIGHT = 16;
 
-	private Chunk[,,] chunks;
+	private Dictionary<Vector3S, Chunk> chunks;
 	private Voxel?[,,] voxels;
 
-	public ushort x;
-	public ushort y;
-	public ushort z;
+	public short x;
+	public short y;
+	public short z;
 
 	public ushort Width;
 	public ushort Height;
 	public ushort Depth;
 
-	public Vector3I Position => new( x, y, z );
+	public Vector3S Position => new( x, y, z );
+	public bool Empty { get; set; }
 
-	public Chunk( ushort x, ushort y, ushort z, ushort width = DEFAULT_WIDTH, ushort depth = DEFAULT_DEPTH, ushort height = DEFAULT_HEIGHT, Chunk[,,] chunks = null )
+	public Chunk( 
+		short x, short y, short z, 
+		ushort width = DEFAULT_WIDTH, ushort depth = DEFAULT_DEPTH, ushort height = DEFAULT_HEIGHT, 
+		Dictionary<Vector3S, Chunk> chunks = null )
 	{
 		this.x = x;
 		this.y = y;
@@ -39,7 +43,7 @@ public class Chunk : IEquatable<Chunk>
 	public Voxel?[,,] GetVoxels()
 		=> voxels;
 
-	public void SetParent( Chunk[,,] parent )
+	public void SetParent( Dictionary<Vector3S, Chunk> parent )
 		=> chunks = parent;
 
 	public (Chunk Chunk, Voxel? Voxel) GetDataByOffset( int x, int y, int z )
@@ -48,24 +52,16 @@ public class Chunk : IEquatable<Chunk>
 			return (null, null);
 
 		// Get the new chunk's position based on the offset.
-		var position = (
-			x: this.x + ((x + 1) / (float)Width - 1).CeilToInt(),
-			y: this.y + ((y + 1) / (float)Depth - 1).CeilToInt(),
-			z: this.z + ((z + 1) / (float)Height - 1).CeilToInt()
+		var position = new Vector3S(
+			this.x + ((x + 1) / (float)Width - 1).CeilToInt(),
+			this.y + ((y + 1) / (float)Depth - 1).CeilToInt(),
+			this.z + ((z + 1) / (float)Height - 1).CeilToInt()
 		);
-
-		var size = (
-			x: chunks.GetLength( 0 ),
-			y: chunks.GetLength( 1 ),
-			z: chunks.GetLength( 2 )
-		);
-
-		// Are we out of chunk bounds?
-		if ( position.x >= size.x || position.y >= size.y || position.z >= size.z
-		  || position.x < 0 || position.y < 0 || position.z < 0 ) return (null, null);
 
 		// Calculate new voxel position.
-		var chunk = chunks[position.x, position.y, position.z];
+		if ( !chunks.TryGetValue( position, out var chunk ) )
+			return (null, null);
+
 		return (
 			Chunk: chunk,
 			Voxel: chunk?.voxels[ 
@@ -80,63 +76,72 @@ public class Chunk : IEquatable<Chunk>
 
 	public IEnumerable<Chunk> GetNeighbors( ushort x, ushort y, ushort z, bool includeSelf = true )
 	{
-		// Find all neighbors.
-		var size = (
-			x: chunks.GetLength( 0 ),
-			y: chunks.GetLength( 1 ),
-			z: chunks.GetLength( 2 )
-		);
-
-		var corner = new int[3] { this.x, this.y, this.z };
-
 		// Let's include this chunk too if we want.
 		if ( includeSelf )
 			yield return this;
 
+		var neighbors = new Vector3S[]
+		{
+			new( 1, 0, 0 ),
+			new( -1, 0, 0 ),
+			new( 0, 1, 0 ),
+			new( 0, -1, 0 ),
+			new( 0, 0, 1 ),
+			new( 0, 0, -1 ),
+		};
+		var skip = false;
+
 		// Yield return affected neighbors.
-		if ( x >= Width - 1 && this.x + 1 < size.x )
+		foreach ( var direction in neighbors )
 		{
-			corner[0] = this.x + 1;
-			yield return chunks[this.x + 1, this.y, this.z];
-		}
-		else if ( x == 0 && this.x - 1 >= 0 )
-		{
-			corner[0] = this.x - 1;
-			yield return chunks[this.x - 1, this.y, this.z];
-		}
+			// If know the direction, we can just skip.
+			if ( skip )
+			{
+				skip = false;
+				continue;
+			}
 
-		if ( y >= Depth - 1 && this.y + 1 < size.y )
-		{
-			corner[1] = corner[0] != this.x ? this.y : this.y + 1;
-			yield return chunks[this.x, this.y + 1, this.z];
-		}
-		else if ( y == 0 && this.y - 1 >= 0 )
-		{
-			corner[1] = corner[0] != this.x ? this.y : this.y - 1;
-			yield return chunks[this.x, this.y - 1, this.z];
-		}
+			// Check if we should include the neighbor.
+			if ( chunks.TryGetValue( Position + direction, out var result )
+			 && ((direction.x == 1 && x >= Width - 1) || (direction.x == -1 && x <= 0)
+			  || (direction.y == 1 && y >= Depth - 1) || (direction.y == -1 && y <= 0)
+			  || (direction.z == 1 && z >= Height - 1) || (direction.z == -1 && z <= 0) ) )
+			{
+				skip = true;
 
-		if ( z >= Height - 1 && this.z + 1 < size.z )
-		{
-			corner[2] = corner[1] != this.y ? this.z : this.z + 1;
-			yield return chunks[this.x, this.y, this.z + 1];
-		}
-		else if ( z == 0 && this.z - 1 >= 0 )
-		{
-			corner[2] = corner[1] != this.y ? this.z : this.z - 1;
-			yield return chunks[this.x, this.y, this.z - 1];
+				yield return result;
+				continue;
+			}
 		}
 
 		// Check last corner.
-		if ( corner[0] < size.x && corner[1] < size.y && corner[2] < size.z
-		  && corner[0] >= 0 && corner[1] >= 0 && corner[2] >= 0 ) yield return chunks?[corner[0], corner[1], corner[2]];
+		// (This is a hacky fix for AO...)
+		var directions = new Vector3S(
+			x: x <= 0
+				? -1
+				: x >= Width - 1
+					? 1
+					: 0,
+			y: y <= 0
+				? -1
+				: y >= Depth - 1
+					? 1
+					: 0,
+			z: z <= 0
+				? -1
+				: z >= Height - 1
+					? 1
+					: 0
+		);
+		
+		var corner = new Vector3S( this.x, this.y, this.z ) + directions;
+		if ( !corner.Equals( Position ) && chunks.TryGetValue( corner, out var chunk ) )
+			yield return chunk;
 	}
 
 	public bool Equals( Chunk other )
 	{
-		return other.x == Position.x
-			&& other.y == Position.y
-			&& other.z == Position.z;
+		return other.Position.Equals( Position );
 	}
 
 	public override bool Equals( object obj )

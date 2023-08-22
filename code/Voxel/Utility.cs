@@ -60,7 +60,7 @@ public static partial class Utility
 		}
 	};
 
-	private static float occlusion( Chunk chunk, Vector3I pos, int x, int y, int z )
+	private static float occlusion( Chunk chunk, Vector3US pos, int x, int y, int z )
 	{
 		if ( chunk.GetDataByOffset( pos.x + x, pos.y + z, pos.z + y ).Voxel != null )
 			return 0.75f;
@@ -76,7 +76,7 @@ public static partial class Utility
 	/// <param name="face"></param>
 	/// <param name="vertex"></param>
 	/// <returns></returns>
-	public static float BuildAO( Chunk chunk, Vector3I pos, int face, int vertex )
+	public static float BuildAO( Chunk chunk, Vector3US pos, int face, int vertex )
 	{
 		if ( !aoNeighbors.TryGetValue( face, out var values ) )
 			return 1f;

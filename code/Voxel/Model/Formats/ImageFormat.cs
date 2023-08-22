@@ -4,7 +4,7 @@ public class ImageFormat : BaseFormat
 {
 	public override string Extension => ".png";
 
-	public override async Task<Chunk[,,]> Build( string path )
+	public override async Task<Dictionary<Vector3S, Chunk>> Build( string path )
 	{
 		// Get our texture.
 		var texture = await Texture.LoadAsync( FileSystem.Mounted, path, false );
@@ -14,8 +14,9 @@ public class ImageFormat : BaseFormat
 		// Initialize our voxel chunk.
 		var width = (ushort)texture.Width;
 		var height = (ushort)texture.Height;
-		var chunks = new Chunk[1, 1, 1];
-		chunks[0, 0, 0] = new Chunk( 0, 0, 0, width, 1, height, chunks );
+		var chunks = new Dictionary<Vector3S, Chunk>();
+		var chunk = new Chunk( 0, 0, 0, width, 1, height, chunks );
+		chunks.Add( new( 0, 0, 0 ), chunk );
 
 		// Generate voxels based on the pixels of our image.
 		var pixels = texture.GetPixels();
@@ -29,7 +30,7 @@ public class ImageFormat : BaseFormat
 			if ( color.a == 0 )
 				continue;
 
-			chunks[0, 0, 0].SetVoxel( x, 0, y, new Voxel( color ) );
+			chunk.SetVoxel( x, 0, y, new Voxel( color ) );
 		}
 
 		return chunks;

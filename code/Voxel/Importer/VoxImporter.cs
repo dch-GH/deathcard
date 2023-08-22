@@ -44,7 +44,7 @@ public static class VoxImporter
 		return chunk;
 	}
 
-	public static async Task<Chunk[,,]> Load( string file, ushort width = Chunk.DEFAULT_WIDTH, ushort depth = Chunk.DEFAULT_DEPTH, ushort height = Chunk.DEFAULT_WIDTH, bool single = false )
+	public static async Task<Dictionary<Vector3S, Chunk>> Load( string file, ushort width = Chunk.DEFAULT_WIDTH, ushort depth = Chunk.DEFAULT_DEPTH, ushort height = Chunk.DEFAULT_WIDTH, bool single = false )
 	{
 		var data = await FileSystem.Mounted.ReadAllBytesAsync( file );
 
@@ -62,13 +62,11 @@ public static class VoxImporter
 		var palette = main.GetChild<RGBAChunk>().Palette // We might not have a palette.
 			?? RGBAChunk.Default;
 
-		var chunks = !single
-			? new Chunk[(size.x - 1) / width + 1, (size.y - 1) / depth + 1, (size.z - 1) / height + 1]
-			: new Chunk[1, 1, 1];
+		var chunks = new Dictionary<Vector3S, Chunk>();
 		var length = voxelData.Values.Length;
 
 		// Calculate chunk size if needed.
-		var chunkSize = new Vector3I( width, depth, height );
+		var chunkSize = new Vector3US( width, depth, height );
 		for ( int i = 0; i < length && single; i++ )
 		{
 			var voxel = voxelData.Values[i];
@@ -88,15 +86,21 @@ public static class VoxImporter
 			var voxel = voxelData.Values[i];
 			var color = palette[voxel.i];
 			var position = !single
-				? (
-					x: voxel.x / width,
-					y: voxel.y / depth,
-					z: voxel.z / height
+				? new Vector3S(
+					voxel.x / chunkSize.x,
+					voxel.y / chunkSize.y,
+					voxel.z / chunkSize.z
 				)
-				: ( x: 0, y: 0, z: 0 );
+				: new Vector3S( 0, 0, 0 );
 
-			chunks[position.x, position.y, position.z] ??= new Chunk( (ushort)position.x, (ushort)position.y, (ushort)position.z, chunkSize.x, chunkSize.y, chunkSize.z, chunks );
-			chunks[position.x, position.y, position.z].SetVoxel( (ushort)(voxel.x % chunkSize.x), (ushort)(voxel.y % chunkSize.y), (ushort)(voxel.z % chunkSize.z), new Voxel( color ) );
+			if ( !chunks.TryGetValue( position, out var chunk ) || chunk == null )
+				chunks.Add( position, chunk = new Chunk( 
+					position.x, position.y, position.z, 
+					chunkSize.x, chunkSize.y, chunkSize.z, 
+					chunks ) 
+				);
+
+			chunk.SetVoxel( (ushort)(voxel.x % chunkSize.x), (ushort)(voxel.y % chunkSize.y), (ushort)(voxel.z % chunkSize.z), new Voxel( color ) );
 		}
 
 		stream.Close();
