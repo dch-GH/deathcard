@@ -12,9 +12,25 @@ if ( voxel != null )
 	particle.SetPosition( 2, col );
 }
 */
+
 public class ChunkEntity : ModelEntity
 {
 	public new VoxelWorld Parent { get; set; }
+
+	// One of the most retarded things ever XDDDD
+	// Nice fucking shit game
+	public Model RenderModel
+	{
+		set
+		{
+			obj ??= new SceneObject( Game.SceneWorld, value, Transform );
+
+			if ( obj.Model != value )
+				obj.Model = value;
+		}
+	}
+
+	SceneObject obj;
 
 	public ChunkEntity()
 	{
@@ -29,11 +45,12 @@ public partial class VoxelWorld : ModelEntity
 	private static List<VoxelWorld> all = new();
 
 	private Dictionary<Vector3S, ChunkEntity> entities = new();
+	private Dictionary<ChunkEntity, (Model model, RealTimeSince since)> queue = new();
 
-	public float VoxelScale { get; set; } = Utility.Scale;
 	public Dictionary<Vector3S, Chunk> Chunks { get; private set; }
 
 	[Net] public Vector3US ChunkSize { get; private set; }
+	[Net] public float VoxelScale { get; set; } = Utility.Scale;
 
 	public VoxelWorld() 
 	{
@@ -127,7 +144,7 @@ public partial class VoxelWorld : ModelEntity
 				var neighbour = chunk.GetDataByOffset( x + direction.x, y + direction.y, z + direction.z ).Voxel;
 				if ( neighbour != null )
 					continue;
-
+				
 				var faceColor = Utility.FaceMultiply[i];
 				for ( var j = 0; j < 4; ++j )
 				{
@@ -158,19 +175,24 @@ public partial class VoxelWorld : ModelEntity
 			+ (Vector3)chunk.Position * ChunkSize * VoxelScale
 			+ VoxelScale / 2f;
 
+		// Create a model for the mesh.
+		builder.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
+
+		// Create the collider.
+		var collider = builder.Create();
+
 		// Check if we actually end up with vertices.
 		if ( Game.IsClient && vertices.Count > 0 )
 		{
 			mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
 			mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
 
-			builder.AddMesh( mesh );
+			chunkEntity.RenderModel = Model.Builder
+				.AddMesh( mesh )
+				.Create();
 		}
 
-		// Create a model for the mesh.
-		builder.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
-
-		chunkEntity.Model = builder.Create();
+		chunkEntity.Model = collider;
 		chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
 	}
 
@@ -178,7 +200,7 @@ public partial class VoxelWorld : ModelEntity
 	static bool debugMode = false;
 
 	[GameEvent.Client.Frame]
-	private static void debug()
+	private static void Debug()
 	{
 		if ( Input.Pressed( "score" ) )
 			debugMode = !debugMode;

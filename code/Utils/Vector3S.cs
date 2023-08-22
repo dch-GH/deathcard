@@ -51,9 +51,6 @@ public struct Vector3S : IEquatable<Vector3S>
 	public static implicit operator Vector3( Vector3S v )
 		=> new Vector3( v.x, v.y, v.z );
 
-	public static implicit operator Chunk( Vector3S v )
-		=> new Chunk( v.x, v.y, v.z );
-
 	public static implicit operator Vector3S( (short x, short y, short z) v )
 		=> new Vector3S( v.x, v.y, v.z );
 
