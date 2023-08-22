@@ -60,18 +60,17 @@ public partial class VoxelWorld : ModelEntity
 	/// <param name="z"></param>
 	public void Extend( int x, int y, int z )
 	{
-		var size = new Vector3I( Chunks.GetLength( 0 ), Chunks.GetLength( 1 ), Chunks.GetLength( 2 ) );
-		var temp = new Chunk[size.x + x, size.y + y, size.z + z];
-		for ( int i = 0; i < size.x; i++ )
-		for ( int j = 0; j < size.y; j++ )
-		for ( int k = 0; k < size.z; k++ )
+		var temp = new Chunk[Size.x + x, Size.y + y, Size.z + z];
+		for ( int i = 0; i < Size.x; i++ )
+		for ( int j = 0; j < Size.y; j++ )
+		for ( int k = 0; k < Size.z; k++ )
 		{
 			temp[i, j, k] = Chunks[i, j, k];
 			temp[i, j, k]?.SetParent( temp );
 		}
 
 		Chunks = temp;
-		Size = size;
+		Size = Size + new Vector3I( x, y, z );
 	}
 
 	/// <summary>

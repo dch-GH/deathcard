@@ -59,6 +59,7 @@ public partial class Player : ModelEntity
 		var value = position.Value;
 		var pos = parent.GetLocalSpace( value.x, value.y, value.z, out var chunk );
 
+		var size = 8; 
 		var set = Input.Pressed( "attack1" )
 			? 1
 			: Input.Pressed( "attack2" )
@@ -68,8 +69,7 @@ public partial class Player : ModelEntity
 		if ( set != 0 )
 		{
 			var color = Color32.White;
-			var size = 8;
-
+			
 			for ( int x = 0; x <= size; x++ )
 			for ( int y = 0; y <= size; y++ )
 			for ( int z = 0; z <= size; z++ )
