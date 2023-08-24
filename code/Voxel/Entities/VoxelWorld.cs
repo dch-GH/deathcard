@@ -37,6 +37,14 @@ public class ChunkEntity : ModelEntity
 		Tags.Add( "chunk" );
 		Transmit = TransmitType.Never;
 	}
+
+	protected override void OnDestroy()
+	{
+		base.OnDestroy();
+
+		// Let's delete our RenderModel SceneObject for the chunk.
+		obj?.Delete();
+	}
 }
 
 public partial class VoxelWorld : ModelEntity
