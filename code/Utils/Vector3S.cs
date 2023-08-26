@@ -51,6 +51,9 @@ public struct Vector3S : IEquatable<Vector3S>
 	public static implicit operator Vector3( Vector3S v )
 		=> new Vector3( v.x, v.y, v.z );
 
+	public static implicit operator Vector3S( Vector3 v )
+		=> new Vector3S( (short)v.x.FloorToInt(), (short)v.y.FloorToInt(), (short)v.z.FloorToInt() );
+
 	public static implicit operator Vector3S( (short x, short y, short z) v )
 		=> new Vector3S( v.x, v.y, v.z );
 
