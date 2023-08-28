@@ -1,7 +1,9 @@
 ﻿namespace DeathCard.Importer;
 
-public static class VoxImporter
+public class VoxImporter : BaseImporter
 {
+	public override string Extension => ".vox";
+
 	static Dictionary<string, Type> keys = new()
 	{
 		["MAIN"] = typeof( VoxChunk ),
@@ -44,11 +46,11 @@ public static class VoxImporter
 		return chunk;
 	}
 
-	public static async Task<Dictionary<Vector3S, Chunk>> Load( string file, ushort width = Chunk.DEFAULT_WIDTH, ushort depth = Chunk.DEFAULT_DEPTH, ushort height = Chunk.DEFAULT_WIDTH, bool single = false )
+	public override async Task<Dictionary<Vector3S, Chunk>> BuildAsync( VoxelBuilder builder )
 	{
-		var data = await FileSystem.Mounted.ReadAllBytesAsync( file );
+		var buffer = await FileSystem.Mounted.ReadAllBytesAsync( builder.File );
 
-		using var stream = new MemoryStream( data );
+		using var stream = new MemoryStream( buffer );
 		using var reader = new BinaryReader( stream );
 
 		// Let's read the root chunk.
@@ -66,8 +68,8 @@ public static class VoxImporter
 		var length = voxelData.Values.Length;
 
 		// Calculate chunk size if needed.
-		var chunkSize = new Vector3US( width, depth, height );
-		for ( int i = 0; i < length && single; i++ )
+		var chunkSize = builder.ChunkSize;
+		for ( int i = 0; i < length && builder.Minimal; i++ )
 		{
 			var voxel = voxelData.Values[i];
 			if ( voxel.x > chunkSize.x )
@@ -85,7 +87,7 @@ public static class VoxImporter
 		{
 			var voxel = voxelData.Values[i];
 			var color = palette[voxel.i];
-			var position = !single
+			var position = !builder.Minimal
 				? new Vector3S(
 					voxel.x / chunkSize.x,
 					voxel.y / chunkSize.y,
@@ -94,10 +96,10 @@ public static class VoxImporter
 				: new Vector3S( 0, 0, 0 );
 
 			if ( !chunks.TryGetValue( position, out var chunk ) || chunk == null )
-				chunks.Add( position, chunk = new Chunk( 
-					position.x, position.y, position.z, 
-					chunkSize.x, chunkSize.y, chunkSize.z, 
-					chunks ) 
+				chunks.Add( position, chunk = new Chunk(
+					position.x, position.y, position.z,
+					chunkSize.x, chunkSize.y, chunkSize.z,
+					chunks )
 				);
 
 			chunk.SetVoxel( (ushort)(voxel.x % chunkSize.x), (ushort)(voxel.y % chunkSize.y), (ushort)(voxel.z % chunkSize.z), new Voxel( color ) );
@@ -105,7 +107,7 @@ public static class VoxImporter
 
 		stream.Close();
 		stream.Dispose();
-		
+
 		return chunks;
 	}
 }

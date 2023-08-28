@@ -187,12 +187,14 @@ public static partial class Utility
 		}
 
 		if ( !resource.Loaded )
-			resource.Model = await VoxelModel.FromFile( resource.Path )
+			resource.Model = await VoxelBuilder.FromFile( resource.Path )
 				.WithScale( resource.Scale )
 				.WithDepth( resource.HasDepth
 					? resource.Depth
 					: null )
-				.BuildAsync( center: resource.Center );
+				.WithCenter( resource.Center )
+				.WithMinimal()
+				.FinishAsync();
 
 		resource.Loaded = true;
 		entity.Model = resource.Model;

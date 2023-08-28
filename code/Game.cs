@@ -8,6 +8,7 @@ global using System.Collections.Generic;
 global using System.Collections.ObjectModel;
 global using System.Text;
 global using System.Runtime.InteropServices;
+global using DeathCard.Importer;
 
 //
 // You don't need to put things in a namespace, but it doesn't hurt.

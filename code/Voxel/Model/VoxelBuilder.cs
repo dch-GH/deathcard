@@ -1,69 +1,80 @@
-﻿using DeathCard.Formats;
+﻿namespace DeathCard.Importer;
 
-namespace DeathCard;
-
-public struct VoxelModel
+public struct VoxelBuilder
 {
 	public Model Model { get; private set; }
+
+	// Fields
+	public string File;
+	public Vector3 Scale;
+	public float? Depth;
+	public Vector3? Center;
+	public bool Minimal;
+	public Vector3US ChunkSize;
 	
-	private string file;
-	private bool physics;
-	private Vector3 scale;
-	private float? depth;
+	private BaseImporter importer;
 
-	private static Dictionary<string, BaseFormat> cache = TypeLibrary?
-		.GetTypes<BaseFormat>()?
-		.Where( type => !type.IsAbstract )
-		.Select( type => type.Create<BaseFormat>() )
-		.ToDictionary( instance => instance.Extension );
-
-	public static VoxelModel FromFile( string file )
-	{
-		return new VoxelModel()
-		{
-			file = file,
-			scale = Utility.Scale
-		};
-	}
-
-	public VoxelModel WithPhysics( bool physics = true )
-	{
-		return this with 
-		{ 
-			physics = true 
-		};
-	}
-
-	public VoxelModel WithDepth( float? depth = Utility.Scale )
-	{
-		return this with
-		{
-			depth = depth
-		};
-	}
-
-	public VoxelModel WithScale( Vector3 scale )
-	{
-		return this with
-		{
-			scale = scale
-		};
-	}
-
-	public async Task<Model> BuildAsync( bool occlusion = true, Vector3? center = null )
+	public static VoxelBuilder FromFile( string file )
 	{
 		// Get our format if it's supported.
 		var extension = Path.GetExtension( file );
-		if ( !cache.TryGetValue( extension, out var format ) )
-		{
-			Log.Error( $"Voxel format for extension type '{extension}' not found." );
-			return null;
-		}
+		if ( !BaseImporter.Cache.TryGetValue( extension, out var importer ) )
+			throw new Exception( $"Voxel format for extension type '{extension}' not found." );
 
-		// Build the voxel chunks.
-		var chunks = await format.Build( file );
-		if ( chunks == null )
-			return null;
+		return new()
+		{ 
+			File = file,
+			ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT ),
+			importer = importer
+		};
+	}
+
+	public VoxelBuilder WithDepth( float? depth = Utility.Scale )
+	{
+		return this with
+		{
+			Depth = depth
+		};
+	}
+
+	public VoxelBuilder WithScale( Vector3 scale )
+	{
+		return this with
+		{
+			Scale = scale
+		};
+	}
+
+	public VoxelBuilder WithMinimal()
+	{
+		return this with
+		{
+			Minimal = true
+		};
+	}
+
+	public VoxelBuilder WithCenter( Vector3 dimensions )
+	{
+		return this with
+		{
+			Center = dimensions
+		};
+	}
+
+	private async Task<Dictionary<Vector3S, Chunk>> GetChunks()
+	{
+		// Check if we have a importer.
+		if ( importer == null )
+			throw new Exception( $"BaseImporter was not initialized." );
+
+		// Try building the chunks with out importer.
+		return await importer.BuildAsync( this );
+	}
+
+	public async Task<Model> FinishAsync()
+	{
+		// Get our chunks.
+		var chunks = await GetChunks();
 
 		// Build our model.
 		var builder = Model.Builder;
@@ -80,12 +91,12 @@ public struct VoxelModel
 				continue;
 
 			var chunkSize = new Vector3( chunk.Width, chunk.Depth, chunk.Height );
-			var size = chunkSize * (scale / 2f);
-			var c = center ?? Vector3.One;
+			var size = chunkSize * (Scale / 2f);
+			var c = Center ?? Vector3.Zero;
 			var centerOffset = c * size / 2f;
 			var chunkPosition = (Vector3)chunk.Position
-				* scale
-				+ scale / 2f;
+				* Scale
+				+ Scale / 2f;
 
 			for ( ushort x = 0; x < chunk.Width; x++ )
 			for ( ushort y = 0; y < chunk.Depth; y++ )
@@ -110,16 +121,14 @@ public struct VoxelModel
 					for ( var j = 0; j < 4; ++j )
 					{
 						var vertexIndex = Utility.FaceIndices[(i * 4) + j];
-						var pos = Utility.Positions[vertexIndex] * scale
-							+ new Vector3( x, y, z ) * scale
+						var pos = Utility.Positions[vertexIndex] * Scale
+							+ new Vector3( x, y, z ) * Scale
 							- centerOffset
 							+ chunkPosition;
 
-						var ao = occlusion 
-							? Utility.BuildAO( chunk, position, i, j )
-							: 1;
+						var ao = Utility.BuildAO( chunk, position, i, j );
 						var color = voxel.Value.Color.Multiply( ao * faceColor );
-						vertices.Add( new VoxelVertex( pos * new Vector3( 1, depth ?? 1, 1 ), color ) );
+						vertices.Add( new VoxelVertex( pos * new Vector3( 1, Depth ?? 1, 1 ), color ) );
 					}
 
 					indices.Add( offset + drawCount * 4 + 0 );
@@ -138,7 +147,7 @@ public struct VoxelModel
 
 		mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
 		mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
-		
+
 		// Create a model for the mesh.
 		return Model = builder
 			.AddMesh( mesh )

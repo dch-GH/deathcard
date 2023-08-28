@@ -1,13 +1,13 @@
-﻿namespace DeathCard.Formats;
+﻿namespace DeathCard.Importer;
 
-public class ImageFormat : BaseFormat
+public class ImageImporter : BaseImporter
 {
 	public override string Extension => ".png";
 
-	public override async Task<Dictionary<Vector3S, Chunk>> Build( string path )
+	public override async Task<Dictionary<Vector3S, Chunk>> BuildAsync( VoxelBuilder builder )
 	{
 		// Get our texture.
-		var texture = await Texture.LoadAsync( FileSystem.Mounted, path, false );
+		var texture = await Texture.LoadAsync( FileSystem.Mounted, builder.File, false );
 		if ( texture == null )
 			return null;
 

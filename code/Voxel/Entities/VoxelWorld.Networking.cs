@@ -1,6 +1,4 @@
-﻿using Sandbox;
-
-namespace DeathCard;
+﻿namespace DeathCard;
 
 partial class VoxelWorld
 {
@@ -50,7 +48,12 @@ partial class VoxelWorld
 			Map = map
 		};
 
-		world.Chunks = await Importer.VoxImporter.Load( map, size.x, size.y, size.z );
+		world.Chunks = await BaseImporter.Get<VoxImporter>()?
+			.BuildAsync( new()
+			{
+				ChunkSize = size,
+				File = map,
+			} );
 
 		// Initial chunk generation.
 		foreach ( var (_, chunk) in world.Chunks )
@@ -290,7 +293,13 @@ partial class VoxelWorld
 	public async void LoadAsMap( string map )
 	{
 		// Create same map as server.
-		var chunks = await Importer.VoxImporter.Load( map, ChunkSize.x, ChunkSize.y, ChunkSize.z );
+		var chunks = await BaseImporter.Get<VoxImporter>()?
+			.BuildAsync( new()
+			{
+				ChunkSize = ChunkSize,
+				File = map,
+			} );
+
 		Chunks = chunks;
 		Map = map;
 

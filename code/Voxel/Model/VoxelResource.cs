@@ -49,12 +49,14 @@ public class VoxelResource : GameResource
 	{
 		Log.Info( $"Building VoxelModel \"{ResourceName}\"!" );
 
-		var mdl = await VoxelModel.FromFile( Path )
+		var mdl = await Importer.VoxelBuilder.FromFile( Path )
 			.WithScale( Scale )
 			.WithDepth( HasDepth
 				? Depth
 				: null )
-			.BuildAsync( center: Center );
+			.WithCenter( Center )
+			.WithMinimal()
+			.FinishAsync();
 
 		Model = mdl;
 		Loaded = true;	

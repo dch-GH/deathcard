@@ -1,6 +1,4 @@
-﻿using DeathCard.Importer;
-
-namespace DeathCard;
+﻿namespace DeathCard;
 
 partial class VoxelWorld
 {
