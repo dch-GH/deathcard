@@ -10,7 +10,7 @@ public struct VoxelBuilder
 	public float? Depth;
 	public Vector3? Center;
 	public bool Minimal;
-	public Vector3US ChunkSize;
+	public Vector3B ChunkSize;
 	
 	private BaseImporter importer;
 
@@ -106,7 +106,7 @@ public struct VoxelBuilder
 				if ( voxel == null )
 					continue;
 
-				var position = new Vector3US( x, y, z );
+				var position = new Vector3B( x, y, z );
 
 				// Generate all visible faces for our voxel.
 				var drawCount = 0;
@@ -128,7 +128,7 @@ public struct VoxelBuilder
 
 						var ao = Utility.BuildAO( chunk, position, i, j );
 						var color = voxel.Value.Color.Multiply( ao * faceColor );
-						vertices.Add( new VoxelVertex( pos * new Vector3( 1, Depth ?? 1, 1 ), color ) );
+						vertices.Add( new VoxelVertex( position * new Vector3( 1, Depth ?? 1, 1 ), (byte)i, ao, color ) );
 					}
 
 					indices.Add( offset + drawCount * 4 + 0 );

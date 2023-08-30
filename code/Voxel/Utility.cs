@@ -60,12 +60,12 @@ public static partial class Utility
 		}
 	};
 
-	private static float occlusion( Chunk chunk, Vector3US pos, int x, int y, int z )
+	private static int occlusion( Chunk chunk, Vector3B pos, int x, int y, int z )
 	{
 		if ( chunk.GetDataByOffset( pos.x + x, pos.y + z, pos.z + y ).Voxel != null )
-			return 0.75f;
+			return 1;
 
-		return 1f;
+		return 0;
 	}
 
 	/// <summary>
@@ -76,10 +76,10 @@ public static partial class Utility
 	/// <param name="face"></param>
 	/// <param name="vertex"></param>
 	/// <returns></returns>
-	public static float BuildAO( Chunk chunk, Vector3US pos, int face, int vertex )
+	public static byte BuildAO( Chunk chunk, Vector3B pos, int face, int vertex )
 	{
 		if ( !aoNeighbors.TryGetValue( face, out var values ) )
-			return 1f;
+			return 0;
 
 		var table = values[
 			vertex switch
@@ -90,9 +90,12 @@ public static partial class Utility
 				3 => 1,
 				_ => 0
 			}];
-		return occlusion( chunk, pos, table[0].x, table[0].y, table[0].z )
-			* occlusion( chunk, pos, table[1].x, table[1].y, table[1].z )
-			* occlusion( chunk, pos, table[2].x, table[2].y, table[2].z );
+
+		var ao = occlusion( chunk, pos, table[0].x, table[0].y, table[0].z )
+			+ occlusion( chunk, pos, table[1].x, table[1].y, table[1].z )
+			+ occlusion( chunk, pos, table[2].x, table[2].y, table[2].z );
+
+		return (byte)ao;
 	}
 	#endregion
 

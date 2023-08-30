@@ -23,10 +23,15 @@ public class ChunkEntity : ModelEntity
 	{
 		set
 		{
-			obj ??= new SceneObject( Game.SceneWorld, value, Transform );
+			obj ??= new SceneObject( Game.SceneWorld, value, Transform )
+			{
+				Batchable = false
+			};
 
 			if ( obj.Model != value )
 				obj.Model = value;
+
+			obj.Attributes.Set( "VoxelScale", Parent.VoxelScale );
 		}
 	}
 
@@ -57,7 +62,7 @@ public partial class VoxelWorld : ModelEntity
 
 	public Dictionary<Vector3S, Chunk> Chunks { get; private set; }
 
-	[Net] public Vector3US ChunkSize { get; private set; }
+	[Net] public Vector3B ChunkSize { get; private set; }
 	[Net] public float VoxelScale { get; set; } = Utility.Scale;
 
 	public VoxelWorld() 
@@ -113,7 +118,7 @@ public partial class VoxelWorld : ModelEntity
 
 			chunk.Empty = false;
 
-			var position = new Vector3US( x, y, z );
+			var position = new Vector3B( x, y, z );
 
 			// Let's start checking for collisions.
 			if ( !tested[x, y, z] )
@@ -163,7 +168,7 @@ public partial class VoxelWorld : ModelEntity
 					var ao = Utility.BuildAO( chunk, position, i, j );
 					var color = voxel.Value.Color
 						.Multiply( ao * faceColor );
-					vertices.Add( new VoxelVertex( pos, color ) );
+					vertices.Add( new VoxelVertex( position, (byte)i, ao, color ) );
 				}
 
 				indices.Add( offset + drawCount * 4 + 0 );

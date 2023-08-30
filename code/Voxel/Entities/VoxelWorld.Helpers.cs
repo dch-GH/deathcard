@@ -26,7 +26,7 @@ partial class VoxelWorld
 	/// <param name="chunk"></param>
 	/// <param name="relative"></param>
 	/// <returns></returns>
-	public Vector3US GetLocalSpace( int x, int y, int z, out Chunk chunk, Chunk relative = null )
+	public Vector3B GetLocalSpace( int x, int y, int z, out Chunk chunk, Chunk relative = null )
 	{
 		var position = new Vector3S(
 			((float)(x + (relative?.x ?? 0) * ChunkSize.x) / ChunkSize.x).FloorToInt(),
@@ -36,10 +36,10 @@ partial class VoxelWorld
 
 		_ = Chunks.TryGetValue( position, out chunk );
 
-		return new Vector3US(
-			(ushort)((x % ChunkSize.x + ChunkSize.x) % ChunkSize.x),
-			(ushort)((y % ChunkSize.y + ChunkSize.y) % ChunkSize.y),
-			(ushort)((z % ChunkSize.z + ChunkSize.z) % ChunkSize.z) );
+		return new Vector3B(
+			(byte)((x % ChunkSize.x + ChunkSize.x) % ChunkSize.x),
+			(byte)((y % ChunkSize.y + ChunkSize.y) % ChunkSize.y),
+			(byte)((z % ChunkSize.z + ChunkSize.z) % ChunkSize.z) );
 	}
 
 	/// <summary>
@@ -50,7 +50,7 @@ partial class VoxelWorld
 	/// <param name="z"></param>
 	/// <param name="relative"></param>
 	/// <returns></returns>
-	public Vector3S GetGlobalSpace( ushort x, ushort y, ushort z, Chunk? relative )
+	public Vector3S GetGlobalSpace( byte x, byte y, byte z, Chunk? relative )
 	{
 		return new Vector3S(
 			(short)(x + (relative?.x ?? 0) * ChunkSize.x),

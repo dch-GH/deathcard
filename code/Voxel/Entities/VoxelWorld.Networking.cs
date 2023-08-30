@@ -32,7 +32,7 @@ partial class VoxelWorld
 	/// Initializes a VoxelWorld, should be called on server.
 	/// </summary>
 	/// <returns></returns>
-	public static async Task<VoxelWorld> Create( string map, Vector3US? chunkSize = null )
+	public static async Task<VoxelWorld> Create( string map, Vector3B? chunkSize = null )
 	{
 		Game.AssertServer();
 
@@ -84,7 +84,7 @@ partial class VoxelWorld
 		public Voxel? Revert;
 	}
 
-	private bool RegisterChange( Chunk chunk, Vector3US pos, Voxel? voxel )
+	private bool RegisterChange( Chunk chunk, Vector3B pos, Voxel? voxel )
 	{
 		// Check if we are within chunk bounds.
 		if ( pos.x > ChunkSize.x - 1 || pos.y > ChunkSize.y - 1 || pos.z > ChunkSize.z - 1
@@ -138,7 +138,7 @@ partial class VoxelWorld
 	/// <param name="local"></param>
 	/// <param name="relative"></param>
 	/// <returns>The newly created chunk or an old one.</returns>
-	private Chunk GetOrCreateChunk( int x, int y, int z, Vector3US? local = null, Chunk relative = null )
+	private Chunk GetOrCreateChunk( int x, int y, int z, Vector3B? local = null, Chunk relative = null )
 	{
 		// Calculate new chunk position.
 		var position = new Vector3S(
