@@ -196,7 +196,9 @@ public partial class VoxelWorld : ModelEntity
 			chunkEntity.SetupPhysicsFromSphere( PhysicsMotionType.Static, 0f, 1f );
 		
 		chunkEntity.PhysicsBody.ClearShapes();
-		chunkEntity.PhysicsBody.AddMeshShape( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
+		chunkEntity.PhysicsBody
+			.AddMeshShape( buffer.Vertex.ToArray(), buffer.Index.ToArray() )
+			.AddTag( "chunk" );
 	}
 
 	#region DEBUG
@@ -234,8 +236,7 @@ public partial class VoxelWorld : ModelEntity
 		// Focus on hovered VoxelWorld.
 		var ray = new Ray( Camera.Position, Camera.Rotation.Forward );
 		var tr = Trace.Ray( ray, 10000f )
-			.Ignore( Game.LocalPawn )
-			.WorldAndEntities()
+			.WithTag( "chunk" )
 			.Run();
 
 		var parent = (tr.Entity as ChunkEntity)?.Parent;

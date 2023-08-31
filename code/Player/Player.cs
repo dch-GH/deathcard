@@ -47,8 +47,7 @@ public partial class Player : ModelEntity
 		// Destruction
 		var ray = new Ray( EyePosition, ViewAngles.Forward );
 		var tr = Trace.Ray( ray, 10000f )
-			.Ignore( this )
-			.WorldAndEntities()
+			.WithTag( "chunk" )
 			.Run();
 
 		var parent = (tr.Entity as ChunkEntity)?.Parent;
