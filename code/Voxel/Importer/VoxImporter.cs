@@ -67,42 +67,17 @@ public class VoxImporter : BaseImporter
 		var chunks = new Dictionary<Vector3S, Chunk>();
 		var length = voxelData.Values.Length;
 
-		// Calculate chunk size if needed.
-		var chunkSize = builder.ChunkSize;
-		for ( int i = 0; i < length && builder.Minimal; i++ )
-		{
-			var voxel = voxelData.Values[i];
-			if ( voxel.x > chunkSize.x )
-				chunkSize.x = voxel.x;
-
-			if ( voxel.y > chunkSize.y )
-				chunkSize.y = voxel.y;
-
-			if ( voxel.z > chunkSize.z )
-				chunkSize.z = voxel.z;
-		}
-
 		// Go through all voxels.
 		for ( int i = 0; i < length; i++ )
 		{
 			var voxel = voxelData.Values[i];
 			var color = palette[voxel.i];
-			var position = !builder.Minimal
-				? new Vector3S(
-					voxel.x / chunkSize.x,
-					voxel.y / chunkSize.y,
-					voxel.z / chunkSize.z
-				)
-				: new Vector3S( 0, 0, 0 );
+			var position = new Vector3S( voxel.x / Chunk.Size.x, voxel.y / Chunk.Size.y, voxel.z / Chunk.Size.z );
 
 			if ( !chunks.TryGetValue( position, out var chunk ) || chunk == null )
-				chunks.Add( position, chunk = new Chunk(
-					position.x, position.y, position.z,
-					chunkSize.x, chunkSize.y, chunkSize.z,
-					chunks )
-				);
+				chunks.Add( position, chunk = new Chunk( position.x, position.y, position.z, chunks ) );
 
-			chunk.SetVoxel( (ushort)(voxel.x % chunkSize.x), (ushort)(voxel.y % chunkSize.y), (ushort)(voxel.z % chunkSize.z), new Voxel( color ) );
+			chunk.SetVoxel( (ushort)(voxel.x % Chunk.Size.x), (ushort)(voxel.y % Chunk.Size.y), (ushort)(voxel.z % Chunk.Size.z), new Voxel( color ) );
 		}
 
 		stream.Close();

@@ -62,12 +62,10 @@ public partial class VoxelWorld : ModelEntity
 
 	public Dictionary<Vector3S, Chunk> Chunks { get; private set; }
 
-	[Net] public Vector3B ChunkSize { get; private set; }
 	[Net] public float VoxelScale { get; set; } = Utility.Scale;
 
 	public VoxelWorld() 
 	{
-		ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
 		Transmit = TransmitType.Always;
 
 		all.Add( this );
@@ -103,14 +101,14 @@ public partial class VoxelWorld : ModelEntity
 		var indices = new List<int>();
 		var offset = 0;
 
-		var tested = new bool[ChunkSize.x, ChunkSize.y, ChunkSize.z];
+		var tested = new bool[Chunk.Size.x, Chunk.Size.y, Chunk.Size.z];
 		var buffer = new CollisionBuffer();
 		buffer.Init( true );
 
 		chunk.Empty = true;
-		for ( ushort x = 0; x < ChunkSize.x; x++ )
-		for ( ushort y = 0; y < ChunkSize.y; y++ )
-		for ( ushort z = 0; z < ChunkSize.z; z++ )
+		for ( ushort x = 0; x < Chunk.Size.x; x++ )
+		for ( ushort y = 0; y < Chunk.Size.y; y++ )
+		for ( ushort z = 0; z < Chunk.Size.z; z++ )
 		{
 			var voxel = chunk.GetVoxel( x, y, z );
 			if ( voxel == null )				
@@ -158,17 +156,12 @@ public partial class VoxelWorld : ModelEntity
 				if ( neighbour != null )
 					continue;
 				
-				var faceColor = Utility.FaceMultiply[i];
 				for ( var j = 0; j < 4; ++j )
 				{
 					var vertexIndex = Utility.FaceIndices[(i * 4) + j];
-					var pos = Utility.Positions[vertexIndex] * VoxelScale
-						+ new Vector3( x, y, z ) * VoxelScale;
-
 					var ao = Utility.BuildAO( chunk, position, i, j );
-					var color = voxel.Value.Color
-						.Multiply( ao * faceColor );
-					vertices.Add( new VoxelVertex( position, (byte)i, ao, color ) );
+
+					vertices.Add( new VoxelVertex( position, (byte)vertexIndex, (byte)i, ao, voxel.Value.Color ) );
 				}
 
 				indices.Add( offset + drawCount * 4 + 0 );
@@ -185,7 +178,7 @@ public partial class VoxelWorld : ModelEntity
 		}
 
 		chunkEntity.Position = Position
-			+ (Vector3)chunk.Position * ChunkSize * VoxelScale
+			+ (Vector3)chunk.Position * Chunk.Size * VoxelScale
 			+ VoxelScale / 2f;
 
 		// Create a model for the mesh.
@@ -233,11 +226,11 @@ public partial class VoxelWorld : ModelEntity
 					continue;
 
 				var pos = world.Position
-					+ (Vector3)chunk?.Position * world.VoxelScale * world.ChunkSize;
+					+ (Vector3)chunk?.Position * world.VoxelScale * Chunk.Size;
 
 				Gizmo.Draw.Color = Color.Yellow;
 				Gizmo.Draw.LineThickness = 1;
-				Gizmo.Draw.LineBBox( new BBox( pos, pos + (Vector3)world.ChunkSize * world.VoxelScale ) );
+				Gizmo.Draw.LineBBox( new BBox( pos, pos + (Vector3)Chunk.Size * world.VoxelScale ) );
 			}
 		}
 

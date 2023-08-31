@@ -55,7 +55,6 @@ public class VoxelResource : GameResource
 				? Depth
 				: null )
 			.WithCenter( Center )
-			.WithMinimal()
 			.FinishAsync();
 
 		Model = mdl;

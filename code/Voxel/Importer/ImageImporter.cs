@@ -15,8 +15,6 @@ public class ImageImporter : BaseImporter
 		var width = (ushort)texture.Width;
 		var height = (ushort)texture.Height;
 		var chunks = new Dictionary<Vector3S, Chunk>();
-		var chunk = new Chunk( 0, 0, 0, width, 1, height, chunks );
-		chunks.Add( new( 0, 0, 0 ), chunk );
 
 		// Generate voxels based on the pixels of our image.
 		var pixels = texture.GetPixels();
@@ -29,6 +27,10 @@ public class ImageImporter : BaseImporter
 			// Skip transparent pixels.
 			if ( color.a == 0 )
 				continue;
+
+			var chunkPosition = new Vector3S( (x / 16f).FloorToInt(), 0, (y / 16f).FloorToInt() );
+			if ( !chunks.TryGetValue( chunkPosition, out var chunk ) )
+				chunks.Add( chunkPosition, chunk = new Chunk( (short)x, 0, (short)y, chunks ) );
 
 			chunk.SetVoxel( x, 0, y, new Voxel( color ) );
 		}

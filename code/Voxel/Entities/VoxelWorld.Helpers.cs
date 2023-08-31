@@ -29,17 +29,17 @@ partial class VoxelWorld
 	public Vector3B GetLocalSpace( int x, int y, int z, out Chunk chunk, Chunk relative = null )
 	{
 		var position = new Vector3S(
-			((float)(x + (relative?.x ?? 0) * ChunkSize.x) / ChunkSize.x).FloorToInt(),
-			((float)(y + (relative?.y ?? 0) * ChunkSize.y) / ChunkSize.y).FloorToInt(),
-			((float)(z + (relative?.z ?? 0) * ChunkSize.z) / ChunkSize.z).FloorToInt()
+			((float)(x + (relative?.x ?? 0) * Chunk.Size.x) / Chunk.Size.x).FloorToInt(),
+			((float)(y + (relative?.y ?? 0) * Chunk.Size.y) / Chunk.Size.y).FloorToInt(),
+			((float)(z + (relative?.z ?? 0) * Chunk.Size.z) / Chunk.Size.z).FloorToInt()
 		);
 
 		_ = Chunks.TryGetValue( position, out chunk );
 
 		return new Vector3B(
-			(byte)((x % ChunkSize.x + ChunkSize.x) % ChunkSize.x),
-			(byte)((y % ChunkSize.y + ChunkSize.y) % ChunkSize.y),
-			(byte)((z % ChunkSize.z + ChunkSize.z) % ChunkSize.z) );
+			(byte)((x % Chunk.Size.x + Chunk.Size.x) % Chunk.Size.x),
+			(byte)((y % Chunk.Size.y + Chunk.Size.y) % Chunk.Size.y),
+			(byte)((z % Chunk.Size.z + Chunk.Size.z) % Chunk.Size.z) );
 	}
 
 	/// <summary>
@@ -53,9 +53,9 @@ partial class VoxelWorld
 	public Vector3S GetGlobalSpace( byte x, byte y, byte z, Chunk? relative )
 	{
 		return new Vector3S(
-			(short)(x + (relative?.x ?? 0) * ChunkSize.x),
-			(short)(y + (relative?.y ?? 0) * ChunkSize.y),
-			(short)(z + (relative?.z ?? 0) * ChunkSize.z) );
+			(short)(x + (relative?.x ?? 0) * Chunk.Size.x),
+			(short)(y + (relative?.y ?? 0) * Chunk.Size.y),
+			(short)(z + (relative?.z ?? 0) * Chunk.Size.z) );
 	}
 
 	/// <summary>
@@ -70,9 +70,9 @@ partial class VoxelWorld
 	{
 		// Get the new chunk's position based on the offset.
 		var position = new Vector3S(
-			(relative?.x ?? 0) + ((x + 1) / (float)ChunkSize.x - 1).CeilToInt(),
-			(relative?.y ?? 0) + ((y + 1) / (float)ChunkSize.y - 1).CeilToInt(),
-			(relative?.z ?? 0) + ((z + 1) / (float)ChunkSize.z - 1).CeilToInt()
+			(relative?.x ?? 0) + ((x + 1) / (float)Chunk.Size.x - 1).CeilToInt(),
+			(relative?.y ?? 0) + ((y + 1) / (float)Chunk.Size.y - 1).CeilToInt(),
+			(relative?.z ?? 0) + ((z + 1) / (float)Chunk.Size.z - 1).CeilToInt()
 		);
 
 		// Calculate new voxel position.
@@ -80,9 +80,9 @@ partial class VoxelWorld
 		return (
 			Chunk: chunk,
 			Voxel: chunk?.GetVoxel(
-				(ushort)((x % ChunkSize.x + ChunkSize.x) % ChunkSize.x),
-				(ushort)((y % ChunkSize.y + ChunkSize.y) % ChunkSize.y),
-				(ushort)((z % ChunkSize.z + ChunkSize.z) % ChunkSize.z) )
+				(ushort)((x % Chunk.Size.x + Chunk.Size.x) % Chunk.Size.x),
+				(ushort)((y % Chunk.Size.y + Chunk.Size.y) % Chunk.Size.y),
+				(ushort)((z % Chunk.Size.z + Chunk.Size.z) % Chunk.Size.z) )
 		);
 	}
 }

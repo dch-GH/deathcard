@@ -103,19 +103,6 @@ public static partial class Utility
 	public const float Scale = 1f / 0.0254f;
 	public const int Faces = 6;
 
-	public static readonly Vector3[]
-		Positions = new Vector3[8]
-	{
-		new Vector3( -0.5f, -0.5f, 0.5f ),
-		new Vector3( -0.5f, 0.5f, 0.5f ),
-		new Vector3( 0.5f, 0.5f, 0.5f ),
-		new Vector3( 0.5f, -0.5f, 0.5f ),
-		new Vector3( -0.5f, -0.5f, -0.5f ),
-		new Vector3( -0.5f, 0.5f, -0.5f ),
-		new Vector3( 0.5f, 0.5f, -0.5f ),
-		new Vector3( 0.5f, -0.5f, -0.5f )
-	};
-
 	public static readonly int[]
 		FaceIndices = new int[4 * Faces]
 	{
@@ -125,14 +112,6 @@ public static partial class Utility
 		1, 5, 6, 2,
 		2, 6, 7, 3,
 		3, 7, 4, 0,
-	};
-
-	public static readonly float[]
-		FaceMultiply = new float[Faces]
-	{
-		1f, 1f,
-		0.85f, 0.7f,
-		0.85f, 0.7f
 	};
 
 	public static readonly (short x, short y, short z)[]
@@ -196,7 +175,6 @@ public static partial class Utility
 					? resource.Depth
 					: null )
 				.WithCenter( resource.Center )
-				.WithMinimal()
 				.FinishAsync();
 
 		resource.Loaded = true;

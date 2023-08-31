@@ -41,17 +41,14 @@ partial class VoxelWorld
 			old.Delete();
 
 		// Create a VoxelWorld and load a map for it.
-		var size = chunkSize ?? new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
 		var world = new VoxelWorld()
 		{
-			ChunkSize = size,
 			Map = map
 		};
 
 		world.Chunks = await BaseImporter.Get<VoxImporter>()?
 			.BuildAsync( new()
 			{
-				ChunkSize = size,
 				File = map,
 			} );
 
@@ -87,7 +84,7 @@ partial class VoxelWorld
 	private bool RegisterChange( Chunk chunk, Vector3B pos, Voxel? voxel )
 	{
 		// Check if we are within chunk bounds.
-		if ( pos.x > ChunkSize.x - 1 || pos.y > ChunkSize.y - 1 || pos.z > ChunkSize.z - 1
+		if ( pos.x > Chunk.Size.x - 1 || pos.y > Chunk.Size.y - 1 || pos.z > Chunk.Size.z - 1
 		  || pos.x < 0 || pos.y < 0 || pos.z < 0 || chunk == null ) return false;
 
 		var previous = chunk.GetVoxel( pos.x, pos.y, pos.z );
@@ -142,9 +139,9 @@ partial class VoxelWorld
 	{
 		// Calculate new chunk position.
 		var position = new Vector3S(
-			((relative?.Position.x ?? 0) + (float)x / ChunkSize.x - (float)(local?.x ?? 0) / ChunkSize.x).CeilToInt(),
-			((relative?.Position.y ?? 0) + (float)y / ChunkSize.y - (float)(local?.y ?? 0) / ChunkSize.y).CeilToInt(),
-			((relative?.Position.z ?? 0) + (float)z / ChunkSize.z - (float)(local?.z ?? 0) / ChunkSize.z).CeilToInt()
+			((relative?.Position.x ?? 0) + (float)x / Chunk.Size.x - (float)(local?.x ?? 0) / Chunk.Size.x).CeilToInt(),
+			((relative?.Position.y ?? 0) + (float)y / Chunk.Size.y - (float)(local?.y ?? 0) / Chunk.Size.y).CeilToInt(),
+			((relative?.Position.z ?? 0) + (float)z / Chunk.Size.z - (float)(local?.z ?? 0) / Chunk.Size.z).CeilToInt()
 		);
 
 		// Check if we have a chunk already or are out of bounds.
@@ -154,10 +151,7 @@ partial class VoxelWorld
 		// Create new chunk.
 		Chunks.Add( 
 			position,
-			chunk = new Chunk(
-				position.x, position.y, position.z,
-				ChunkSize.x, ChunkSize.y, ChunkSize.z,
-				Chunks )
+			chunk = new Chunk( position.x, position.y, position.z, Chunks )
 		);
 
 		return chunk;
@@ -296,7 +290,6 @@ partial class VoxelWorld
 		var chunks = await BaseImporter.Get<VoxImporter>()?
 			.BuildAsync( new()
 			{
-				ChunkSize = ChunkSize,
 				File = map,
 			} );
 

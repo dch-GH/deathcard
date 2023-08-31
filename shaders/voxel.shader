@@ -10,17 +10,17 @@ FEATURES
 
 MODES
 {
-    Default();
     VrForward();
-    ToolsVis( S_MODE_TOOLS_VIS );
-    Depth( "depth_only.shader" );
+	Depth( "depth_only.vfx" );
+	ToolsVis( S_MODE_TOOLS_VIS );
+	ToolsShadingComplexity( "vr_tools_shading_complexity.vfx" );
 }
 
 COMMON
 {
     #include "common/shared.hlsl"
 
-    float g_flVoxelScale < Attribute( "VoxelScale" ); Default( 32.0 ); >;
+    float g_flVoxelScale < Attribute( "VoxelScale" ); Default( 1.0 ); >;
 }
 
 struct VertexInput
@@ -35,7 +35,6 @@ struct PixelInput
 {
 	#include "common/pixelinput.hlsl"
 
-    int3 vPositionOs : TEXCOORD11;
     float3 vNormal : TEXCOORD15;
     float fOcclusion : TEXCOORD14;
     float2 vTexCoord : TEXCOORD9;	
@@ -46,16 +45,36 @@ VS
 {
 	#include "common/vertex.hlsl"
 
+    static const float3 offsetTable[8] =
+    {
+        float3( -0.5f, -0.5f, 0.5f ),
+		float3( -0.5f, 0.5f, 0.5f ),
+		float3( 0.5f, 0.5f, 0.5f ),
+		float3( 0.5f, -0.5f, 0.5f ),
+		float3( -0.5f, -0.5f, -0.5f ),
+		float3( -0.5f, 0.5f, -0.5f ),
+		float3( 0.5f, 0.5f, -0.5f ),
+		float3( 0.5f, -0.5f, -0.5f )
+    };
+
+    static const float faceMultipliers[6] = {
+        1.0f, 1.0f,
+		0.85f, 0.7f,
+		0.85f, 0.7f
+    };
+
     PixelInput MainVs( INSTANCED_SHADER_PARAMS( VertexInput i ) )
 	{
-        float3 position = float3(i.vData.x & 0x1F, (i.vData.x >> 5) & 0x1f, (i.vData.x >> 10) & 0x1f);
+        // Turn our uint32s back to the actual data.
+        int3 position = int3(i.vData.x & 0xF, (i.vData.x >> 4) & 0xF, (i.vData.x >> 8) & 0xF);
 
-        uint textureIndex = i.vData.x >> 20;
+        uint textureIndex = (i.vData.x >> 20) & 0xFFF;
+        uint vertexIndex = (i.vData.x >> 17) & 0x7;
 
-        float ao = pow(0.75, (i.vData.x >> 18) & 0x3);
+        float ao = pow(0.75, (i.vData.x >> 15) & 0x3);
 
         float3 normal = float3( 0, 0, 0 );
-        uint face = (i.vData.x >> 15) & 0x7;
+        uint face = (i.vData.x >> 12) & 0x7;
         if ( face == 0 ) normal = float3( 0, 0, 1 );
         else if ( face == 1 ) normal = float3( 0, 0, -1 );
         else if ( face == 2 ) normal = float3( -1, 0, 0 );
@@ -64,18 +83,21 @@ VS
         else if ( face == 5 ) normal = float3( 0, -1, 0 );
 
         float4 color = float4( 
-            (i.vData.y >> 24), 
-            ((i.vData.y >> 16) & 0xFF), 
-            ((i.vData.y >> 8) & 0xFF), 
-            (i.vData.y & 0xFF) ) / 255.0f;
-        
+            (i.vData.y & 0xFFu),
+            ((i.vData.y >> 8) & 0xFFu),
+            ((i.vData.y >> 16) & 0xFFu),
+            ((i.vData.y >> 24) & 0xFFu)) / 255.0f;
+
+        // Set object space position.
+        i.vPositionOs = (position + offsetTable[vertexIndex]) * g_flVoxelScale;
+
+        // Set our output data.
         PixelInput o = ProcessVertex( i );
-        
-        o.vPositionOs = position * g_flVoxelScale;
+        o.vPositionWs = i.vPositionOs;
         o.vNormal = normal;
         o.fOcclusion = ao;
         o.vTexCoord = float2( 0, 0 );
-        o.vColor = color;
+        o.vColor = color * faceMultipliers[face];
 
         return FinalizeVertex( o );
     }
@@ -89,8 +111,8 @@ PS
 
     float4 MainPs( PixelInput i ) : SV_Target0
 	{   
-        /*Material m;
-        m.Albedo = i.vColor.rgb;
+        Material m;
+        m.Albedo = i.vColor.rgb * i.fOcclusion;
         m.Normal = 1;
         m.Roughness = 1;
 		m.Metalness = 0;
@@ -101,7 +123,7 @@ PS
 		m.Transmission = 1;
 
         float4 result = ShadingModelStandard::Shade( i, m );
-        return result;*/
-        return float4( i.vColor.rgb, 1 );
+        return result;
+        //return float4( i.vColor.rgb, 1 );
     }
 }

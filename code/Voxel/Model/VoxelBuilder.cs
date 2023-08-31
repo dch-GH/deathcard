@@ -9,8 +9,6 @@ public struct VoxelBuilder
 	public Vector3 Scale;
 	public float? Depth;
 	public Vector3? Center;
-	public bool Minimal;
-	public Vector3B ChunkSize;
 	
 	private BaseImporter importer;
 
@@ -24,7 +22,6 @@ public struct VoxelBuilder
 		return new()
 		{ 
 			File = file,
-			ChunkSize = new( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT ),
 			importer = importer
 		};
 	}
@@ -42,14 +39,6 @@ public struct VoxelBuilder
 		return this with
 		{
 			Scale = scale
-		};
-	}
-
-	public VoxelBuilder WithMinimal()
-	{
-		return this with
-		{
-			Minimal = true
 		};
 	}
 
@@ -90,17 +79,16 @@ public struct VoxelBuilder
 			if ( chunk == null )
 				continue;
 
-			var chunkSize = new Vector3( chunk.Width, chunk.Depth, chunk.Height );
-			var size = chunkSize * (Scale / 2f);
+			var size = Chunk.Size * (Scale / 2f);
 			var c = Center ?? Vector3.Zero;
 			var centerOffset = c * size / 2f;
 			var chunkPosition = (Vector3)chunk.Position
 				* Scale
 				+ Scale / 2f;
 
-			for ( ushort x = 0; x < chunk.Width; x++ )
-			for ( ushort y = 0; y < chunk.Depth; y++ )
-			for ( ushort z = 0; z < chunk.Height; z++ )
+			for ( ushort x = 0; x < Chunk.DEFAULT_WIDTH; x++ )
+			for ( ushort y = 0; y < Chunk.DEFAULT_DEPTH; y++ )
+			for ( ushort z = 0; z < Chunk.DEFAULT_HEIGHT; z++ )
 			{
 				var voxel = chunk.GetVoxel( x, y, z );
 				if ( voxel == null )
@@ -117,18 +105,12 @@ public struct VoxelBuilder
 					if ( neighbour != null )
 						continue;
 
-					var faceColor = Utility.FaceMultiply[i];
 					for ( var j = 0; j < 4; ++j )
 					{
 						var vertexIndex = Utility.FaceIndices[(i * 4) + j];
-						var pos = Utility.Positions[vertexIndex] * Scale
-							+ new Vector3( x, y, z ) * Scale
-							- centerOffset
-							+ chunkPosition;
-
 						var ao = Utility.BuildAO( chunk, position, i, j );
-						var color = voxel.Value.Color.Multiply( ao * faceColor );
-						vertices.Add( new VoxelVertex( position * new Vector3( 1, Depth ?? 1, 1 ), (byte)i, ao, color ) );
+
+						vertices.Add( new VoxelVertex( position * new Vector3( 1, Depth ?? 1, 1 ), (byte)vertexIndex, (byte)i, ao, voxel.Value.Color ) );
 					}
 
 					indices.Add( offset + drawCount * 4 + 0 );
