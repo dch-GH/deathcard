@@ -37,7 +37,7 @@ public partial class Bomb : ModelEntity
 		var force = 1000f;
 		foreach ( var ent in Entity.FindInSphere( Position, Size * Utility.Scale ) )
 		{
-			if ( ent == this || ent.Tags.Has( "chunk" ) || !ent.IsValid || !IsAuthority )
+			if ( ent == this || ent is ChunkEntity || !ent.IsValid || !IsAuthority )
 				continue;
 
 			var normal = (ent.Position - Position).Normal;
@@ -49,8 +49,7 @@ public partial class Bomb : ModelEntity
 		var ray = new Ray( Position, Vector3.Down );
 		var results = Trace.Box( Size * Utility.Scale / 2f, ray, 0f )
 			.Ignore( this )
-			.WithTag( "chunk" )
-			.IncludeClientside()
+			.WorldAndEntities()
 			.RunAll();
 
 		// Check if our bomb is near a chunk.

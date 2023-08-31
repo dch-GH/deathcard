@@ -39,7 +39,6 @@ public class ChunkEntity : ModelEntity
 
 	public ChunkEntity()
 	{
-		Tags.Add( "chunk" );
 		Transmit = TransmitType.Never;
 	}
 
@@ -181,12 +180,6 @@ public partial class VoxelWorld : ModelEntity
 			+ (Vector3)chunk.Position * Chunk.Size * VoxelScale
 			+ VoxelScale / 2f;
 
-		// Create a model for the mesh.
-		builder.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
-
-		// Create the collider.
-		var collider = builder.Create();
-
 		// Check if we actually end up with vertices.
 		if ( Game.IsClient && vertices.Count > 0 )
 		{
@@ -198,8 +191,12 @@ public partial class VoxelWorld : ModelEntity
 				.Create();
 		}
 
-		chunkEntity.Model = collider;
-		chunkEntity.SetupPhysicsFromModel( PhysicsMotionType.Static );
+		// Do physics.
+		if ( chunkEntity.PhysicsBody == null )
+			chunkEntity.SetupPhysicsFromSphere( PhysicsMotionType.Static, 0f, 1f );
+		
+		chunkEntity.PhysicsBody.ClearShapes();
+		chunkEntity.PhysicsBody.AddMeshShape( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
 	}
 
 	#region DEBUG
@@ -237,11 +234,9 @@ public partial class VoxelWorld : ModelEntity
 		// Focus on hovered VoxelWorld.
 		var ray = new Ray( Camera.Position, Camera.Rotation.Forward );
 		var tr = Trace.Ray( ray, 10000f )
-			.IncludeClientside()
-			.WithTag( "chunk" )
+			.Ignore( Game.LocalPawn )
+			.WorldAndEntities()
 			.Run();
-
-		DebugOverlay.TraceResult( tr );
 
 		var parent = (tr.Entity as ChunkEntity)?.Parent;
 		if ( parent == null )
