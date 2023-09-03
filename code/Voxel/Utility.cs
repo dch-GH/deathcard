@@ -179,6 +179,19 @@ public static partial class Utility
 
 		resource.Loaded = true;
 		entity.Model = resource.Model;
+
+		// Don't use batching for this, also get the shit from our atlas for the SceneObject.
+		var obj = entity.SceneObject;
+		if ( obj == null )
+			return;
+
+		obj.Batchable = false;
+
+		var atlas = TextureAtlas.Get( "resources/textures/default.atlas" );
+		obj.Attributes.Set( "Albedo", atlas.Albedo );
+		obj.Attributes.Set( "RAE", atlas.RAE );
+		obj.Attributes.Set( "TextureSize", atlas.TextureSize );
+		obj.Attributes.Set( "AtlasSize", atlas.Size );
 	}
 
 	[GameEvent.Server.ClientJoined]

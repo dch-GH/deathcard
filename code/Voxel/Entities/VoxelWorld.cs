@@ -23,15 +23,16 @@ public class ChunkEntity : ModelEntity
 	{
 		set
 		{
-			obj ??= new SceneObject( Game.SceneWorld, value, Transform )
-			{
-				Batchable = false
-			};
+			obj ??= new SceneObject( Game.SceneWorld, value, Transform );
 
 			if ( obj.Model != value )
 				obj.Model = value;
 
 			obj.Attributes.Set( "VoxelScale", Parent.VoxelScale );
+			obj.Attributes.Set( "Albedo", Parent.Atlas.Albedo );
+			obj.Attributes.Set( "RAE", Parent.Atlas.RAE );
+			obj.Attributes.Set( "TextureSize", Parent.Atlas.TextureSize );
+			obj.Attributes.Set( "AtlasSize", Parent.Atlas.Size );
 		}
 	}
 
@@ -61,7 +62,9 @@ public partial class VoxelWorld : ModelEntity
 
 	public Dictionary<Vector3S, Chunk> Chunks { get; private set; }
 
-	[Net] public float VoxelScale { get; set; } = Utility.Scale;
+	private Material material = Material.FromShader( "shaders/voxel.shader" );
+
+	[Net] public Vector3 VoxelScale { get; set; } = Utility.Scale;
 	[Net] public TextureAtlas Atlas { get; set; } 
 		= TextureAtlas.Get( "resources/textures/default.atlas" );
 
@@ -96,7 +99,6 @@ public partial class VoxelWorld : ModelEntity
 
 		// Let's create a mesh.
 		var builder = Model.Builder;
-		var material = Material.FromShader( "shaders/voxel.shader" );
 		var mesh = new Mesh( material );
 		var vertices = new List<VoxelVertex>();
 		var indices = new List<int>();
@@ -197,10 +199,10 @@ public partial class VoxelWorld : ModelEntity
 		if ( chunkEntity.PhysicsBody == null )
 			chunkEntity.SetupPhysicsFromSphere( PhysicsMotionType.Static, 0f, 1f );
 		
-		chunkEntity.PhysicsBody.ClearShapes();
+		chunkEntity.PhysicsBody?.ClearShapes();
 		chunkEntity.PhysicsBody
-			.AddMeshShape( buffer.Vertex.ToArray(), buffer.Index.ToArray() )
-			.AddTag( "chunk" );
+			?.AddMeshShape( buffer.Vertex.ToArray(), buffer.Index.ToArray() )
+			?.AddTag( "chunk" );
 	}
 
 	#region DEBUG
@@ -259,7 +261,7 @@ public partial class VoxelWorld : ModelEntity
 
 		Gizmo.Draw.Color = Color.Black;
 		Gizmo.Draw.LineThickness = 1;
-		Gizmo.Draw.LineBBox( new BBox( voxelCenter, parent.VoxelScale ) );
+		Gizmo.Draw.LineBBox( new BBox( voxelCenter - parent.VoxelScale / 2f, voxelCenter + parent.VoxelScale / 2f ) );
 	}
 	#endregion
 }

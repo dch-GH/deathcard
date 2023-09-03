@@ -12,9 +12,9 @@ partial class VoxelWorld
 		var relative = position - Position;
 
 		return new Vector3S(
-			(relative.x / VoxelScale).FloorToInt(),
-			(relative.y / VoxelScale).FloorToInt(),
-			(relative.z / VoxelScale).FloorToInt() );
+			(relative.x / VoxelScale.x).FloorToInt(),
+			(relative.y / VoxelScale.y).FloorToInt(),
+			(relative.z / VoxelScale.z).FloorToInt() );
 	}
 
 	/// <summary>

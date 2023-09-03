@@ -35,7 +35,7 @@ public class TextureAtlas : GameResource
 	/// Single pixel's size as a fraction.
 	/// </summary>
 	[HideInEditor, JsonIgnore]
-	public Vector2 Step => 1f / TextureSize;
+	public Vector2 Step => 1f / Size;
 
 	/// <summary>
 	/// The size of the whole TextureAtlas.
@@ -49,9 +49,7 @@ public class TextureAtlas : GameResource
 	private static string FixPath( string filename )
 	{
 		if ( filename == null )
-		{
 			return "";
-		}
 
 		filename = filename.NormalizeFilename( enforceInitialSlash: false );
 		if ( filename.EndsWith( "_c" ) )
@@ -160,9 +158,6 @@ public class TextureAtlas : GameResource
 
 			RAE.Update( pixels, x - itemWidth, y, itemWidth, itemHeight );
 		}
-
-		DebugOverlay.Texture( Albedo, new Rect( 0, 0, width, height ), 15f );
-		DebugOverlay.Texture( RAE, new Rect( width, 0, width, height ), 15f );
 	}
 
 	protected override void PostLoad()

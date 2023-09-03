@@ -9,6 +9,10 @@
     {
       "Name": "Grass",
       "Albedo": "resources/textures/grass_albedo.png"
+    },
+    {
+      "Name": "Dirt",
+      "Albedo": "resources/textures/dirt_albedo.png"
     }
   ]
 }
