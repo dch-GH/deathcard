@@ -1,0 +1,14 @@
+{
+  "Title": "Default Atlas",
+  "TextureSize": "32,32",
+  "Items": [
+    {
+      "Name": "Block",
+      "Albedo": "resources/textures/default_albedo.png"
+    },
+    {
+      "Name": "Grass",
+      "Albedo": "resources/textures/grass_albedo.png"
+    }
+  ]
+}

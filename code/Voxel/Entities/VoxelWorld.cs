@@ -62,6 +62,8 @@ public partial class VoxelWorld : ModelEntity
 	public Dictionary<Vector3S, Chunk> Chunks { get; private set; }
 
 	[Net] public float VoxelScale { get; set; } = Utility.Scale;
+	[Net] public TextureAtlas Atlas { get; set; } 
+		= TextureAtlas.Get( "resources/textures/default.atlas" );
 
 	public VoxelWorld() 
 	{
