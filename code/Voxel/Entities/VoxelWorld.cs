@@ -23,7 +23,10 @@ public class ChunkEntity : ModelEntity
 	{
 		set
 		{
-			obj ??= new SceneObject( Game.SceneWorld, value, Transform );
+			obj ??= new SceneObject( Game.SceneWorld, value, Transform )
+			{
+				Batchable = false
+			};
 
 			if ( obj.Model != value )
 				obj.Model = value;
@@ -98,7 +101,6 @@ public partial class VoxelWorld : ModelEntity
 			entities.Add( chunk.Position, chunkEntity = new ChunkEntity() { Parent = this } );
 
 		// Let's create a mesh.
-		var builder = Model.Builder;
 		var mesh = new Mesh( material );
 		var vertices = new List<VoxelVertex>();
 		var indices = new List<int>();

@@ -10,10 +10,10 @@ FEATURES
 
 MODES
 {
+    Default();
     VrForward();
 	Depth( "depth_only.vfx" );
 	ToolsVis( S_MODE_TOOLS_VIS );
-	ToolsShadingComplexity( "vr_tools_shading_complexity.vfx" );
 }
 
 COMMON
@@ -195,8 +195,8 @@ PS
 {
     #include "common/pixel.hlsl"
 
-    CreateTexture2D( g_tAlbedo ) < Attribute( "Albedo" ); SrgbRead( true ); Filter( POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
-    CreateTexture2D( g_tRAE ) < Attribute( "RAE" ); SrgbRead( false ); Filter( POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
+    CreateTexture2D( g_tAlbedo ) < Attribute( "Albedo" ); SrgbRead( true ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
+    CreateTexture2D( g_tRAE ) < Attribute( "RAE" ); SrgbRead( false ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
 
     RenderState( CullMode, DEFAULT );
 
@@ -208,12 +208,12 @@ PS
         Material m;
         m.Albedo = albedo.rgb * i.vColor.rgb * i.fOcclusion;
         m.Normal = 1;
-        m.Roughness = 1;
+        m.Roughness = rae.r;
 		m.Metalness = 0;
 		m.AmbientOcclusion = 1;
 		m.TintMask = 1;
-		m.Opacity = 1;
-		m.Emission = 0;
+		m.Opacity = 1; // rea.g
+		m.Emission = rae.b;
 		m.Transmission = 1;
 
         float4 result = ShadingModelStandard::Shade( i, m );

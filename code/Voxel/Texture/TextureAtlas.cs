@@ -153,7 +153,13 @@ public class TextureAtlas : GameResource
 
 			pixels = rae
 				.GetPixels()
-				.SelectMany( v => new[] { v.r, v.g, v.b, v.a } )
+				.SelectMany( v => new[] 
+				{ 
+					item.Roughness ? v.r : byte.MaxValue,
+					v.a,
+					v.b, 
+					v.a 
+				} )
 				.ToArray();
 
 			RAE.Update( pixels, x - itemWidth, y, itemWidth, itemHeight );
