@@ -66,6 +66,7 @@ VS
 		0.85f, 0.7f
     };
 
+    
     static const float2 uvTable[6][8] = 
     {
         // +z, correct
@@ -153,13 +154,13 @@ VS
 
     PixelInput MainVs( INSTANCED_SHADER_PARAMS( VertexInput i ) )
 	{
-        // Turn our uint32s back to the actual data.
-        int3 position = int3(i.vData.x & 0xF, (i.vData.x >> 4) & 0xF, (i.vData.x >> 8) & 0xF);
+        // Turn our 32-bit unsigned integers back to the actual data.
+        int3 position = int3( i.vData.x & 0xF, (i.vData.x >> 4) & 0xF, (i.vData.x >> 8) & 0xF );
 
         uint textureIndex = (i.vData.x >> 20) & 0xFFF;
         uint vertexIndex = (i.vData.x >> 17) & 0x7;
 
-        float ao = pow(0.75, (i.vData.x >> 15) & 0x3);
+        float ao = pow( 0.75, (i.vData.x >> 15) & 0x3 );
 
         float3 normal = float3( 0, 0, 0 );
         uint face = (i.vData.x >> 12) & 0x7;

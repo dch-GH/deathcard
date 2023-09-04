@@ -7,6 +7,13 @@ partial class Player
 	[ClientInput] public Vector3 InputDirection { get; protected set; }
 	[ClientInput] public Angles ViewAngles { get; set; }
 
+	private float speed;
+
+	private float moveSpeed => 150f;
+	private float runMultiplier => 1.6f;
+	private float acceleration => 10f;
+	private float jumpForce => Utility.Scale;
+	
 	public override void BuildInput()
 	{
 		// Handle directional movement.
@@ -51,23 +58,29 @@ partial class Player
 
 		// Apply gravity & jumping.
 		if ( GroundEntity == null )
-			Velocity += Game.PhysicsWorld.Gravity * Time.Delta;
-		else if ( Input.Pressed( "jump" ) )
 		{
-			Velocity = Utility.Scale * 8 * Vector3.Up;
+			Velocity += Game.PhysicsWorld.Gravity * Time.Delta;
+		}
+		else if ( Input.Down( "jump" ) )
+		{
+			Velocity += jumpForce * 7.5f * Vector3.Up;
 			GroundEntity = null;
 		}
 
 		// Start calculating velocity.
-		var speed = 250f;
 		var wishVelocity = (InputDirection * Rotation)
 			.Normal;
 
-		Velocity = (wishVelocity.WithZ( 0 ) * speed)
+		var targetSpeed = wishVelocity.Normal.Length
+			* moveSpeed
+			* (Input.Down( "run" ) ? runMultiplier : 1);
+
+		speed = speed.LerpTo( targetSpeed, acceleration * Time.Delta );
+
+		Velocity = (wishVelocity * speed)
 			.WithZ( Velocity.z );
 
 		// Initialize MoveHelper and set new values.
-		var step = Utility.Scale / 2f;
 		var helper = new MoveHelper( Position, Velocity );
 		helper.Trace = helper.Trace
 			.Size( BBox.Mins, BBox.Maxs )
@@ -75,16 +88,14 @@ partial class Player
 			.WithAnyTags( "chunk", "solid" )
 			.IncludeClientside();
 
-		helper.TryUnstuck();
-
-		if ( helper.TryMoveWithStep( Time.Delta, step ) > 0 )
+		if ( helper.TryMove( Time.Delta ) > 0 )
 		{
 			Position = helper.Position;
 			Velocity = helper.Velocity;
 		}
 
 		// Check for ground collision.
-		if ( Velocity.z <= step )
+		if ( Velocity.z <= Utility.Scale / 4f )
 		{
 			var tr = helper.TraceDirection( Vector3.Down * 2f );
 			GroundEntity = tr.Entity;
