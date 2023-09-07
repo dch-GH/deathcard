@@ -68,7 +68,7 @@ public partial class Player : ModelEntity
 		if ( set != 0 )
 		{
 			var color = Color32.White;
-			
+
 			for ( int x = 0; x <= size; x++ )
 			for ( int y = 0; y <= size; y++ )
 			for ( int z = 0; z <= size; z++ )

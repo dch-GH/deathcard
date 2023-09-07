@@ -9,8 +9,8 @@ partial class Player
 
 	private float speed;
 
-	private float moveSpeed => 150f;
-	private float runMultiplier => 1.6f;
+	private float moveSpeed => 180f;
+	private float runMultiplier => 1.65f;
 	private float acceleration => 10f;
 	private float jumpForce => Utility.Scale;
 	
