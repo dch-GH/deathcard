@@ -39,7 +39,7 @@ struct PixelInput
 
     float3 vNormal : TEXCOORD15;
     float fOcclusion : TEXCOORD14;
-    float2 vTexCoord : TEXCOORD9;	
+    float3 vTexCoord : TEXCOORD9;	
 	float4 vColor : TEXCOORD13;
 };
 
@@ -66,91 +66,80 @@ VS
 		0.85f, 0.7f
     };
 
-    
-    static const float2 uvTable[6][8] = 
+    static const int2 uvTable[6][8] = 
     {
         // +z, correct
         {
-            float2( 1, 1 ),
-            float2( 0, 1 ),
-            float2( 0, 0 ),
-            float2( 1, 0 ),
-            float2( 0, 0 ),
-            float2( 0, 0 ),
-            float2( 0, 0 ),
-            float2( 0, 0 )
+            int2( 1, 1 ),
+            int2( 0, 1 ),
+            int2( 0, 0 ),
+            int2( 1, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 )
         },
 
         // -z, correct
         {
-            float2( 1, 0 ),
-            float2( 1, 0 ),
-            float2( 1, 0 ),
-            float2( 1, 0 ),
-            float2( 1, 1 ),
-            float2( 2, 1 ),
-            float2( 2, 0 ),
-            float2( 1, 0 )
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 1 ),
+            int2( 1, 1 ),
+            int2( 1, 0 ),
+            int2( 0, 0 )
         },
 
         // -x, correct
         {
-            float2( 1, 1 ),
-            float2( 0, 1 ),
-            float2( 0, 1 ),
-            float2( 0, 1 ),
-            float2( 1, 2 ),
-            float2( 0, 2 ),
-            float2( 0, 1 ),
-            float2( 0, 1 )
+            int2( 1, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 1, 1 ),
+            int2( 0, 1 ),
+            int2( 0, 0 ),
+            int2( 0, 0 )
         },
 
         // +y, correct
         {
-            float2( 1, 1 ),
-            float2( 2, 1 ),
-            float2( 1, 1 ),
-            float2( 1, 1 ),
-            float2( 1, 1 ),
-            float2( 2, 2 ),
-            float2( 1, 2 ),
-            float2( 1, 1 )
+            int2( 0, 0 ),
+            int2( 1, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 1, 1 ),
+            int2( 0, 1 ),
+            int2( 0, 0 )
         },
 
         // +x, correct
         {
-            float2( 2, 1 ),
-            float2( 2, 1 ),
-            float2( 3, 1 ),
-            float2( 2, 1 ),
-            float2( 2, 1 ),
-            float2( 2, 1 ),
-            float2( 3, 2 ),
-            float2( 2, 2 )
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 1, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 1, 1 ),
+            int2( 0, 1 )
         },
 
         // -y, correct
         {
-            float2( 3, 1 ),
-            float2( 3, 1 ),
-            float2( 3, 1 ),
-            float2( 4, 1 ),
-            float2( 3, 2 ),
-            float2( 3, 1 ),
-            float2( 3, 1 ),
-            float2( 4, 2 )
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 1, 0 ),
+            int2( 0, 1 ),
+            int2( 0, 0 ),
+            int2( 0, 0 ),
+            int2( 1, 1 )
         },
     };
-
-    float2 getTexturePos( uint textureIndex, uint face, uint vertexIndex )
-    {
-        float2 vertexOffset = uvTable[face][vertexIndex];
-
-        float x = (textureIndex * 4 + vertexOffset.x) * g_vTextureSize.x;
-        float y = vertexOffset.y * g_vTextureSize.y;
-
-        return float2( x, y );
-    }
 
     PixelInput MainVs( INSTANCED_SHADER_PARAMS( VertexInput i ) )
 	{
@@ -185,7 +174,7 @@ VS
         o.vPositionWs = i.vPositionOs;
         o.vNormal = normal;
         o.fOcclusion = ao;
-        o.vTexCoord = getTexturePos( textureIndex, face, vertexIndex ) / g_vAtlasSize.xy;
+        o.vTexCoord = float3( uvTable[face][vertexIndex].xy, textureIndex * 6 + face );
         o.vColor = color * faceMultipliers[face];
 
         return FinalizeVertex( o );
@@ -194,19 +183,21 @@ VS
 
 PS
 {
-    #include "common/pixel.hlsl"
+    //#include "common/pixel.hlsl"
 
-    CreateTexture2D( g_tAlbedo ) < Attribute( "Albedo" ); SrgbRead( true ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
-    CreateTexture2D( g_tRAE ) < Attribute( "RAE" ); SrgbRead( false ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
+    CreateTexture2DArray( g_tAlbedo ) < Attribute( "Albedo" ); SrgbRead( true ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
+    CreateTexture2DArray( g_tRAE ) < Attribute( "RAE" ); SrgbRead( false ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
+
+    SamplerState g_sSampler < Filter( POINT ); AddressU( CLAMP ); AddressV( CLAMP ); >;
 
     RenderState( CullMode, DEFAULT );
 
     float4 MainPs( PixelInput i ) : SV_Target0
 	{   
-        float3 albedo = Tex2D( g_tAlbedo, i.vTexCoord.xy ).rgb;
-        float3 rae = Tex2D( g_tRAE, i.vTexCoord.xy ).rgb;
+        float3 albedo = Tex2DArrayS( g_tAlbedo, g_sSampler, i.vTexCoord.xyz ).rgb;
+        float3 rae = Tex2DArrayS( g_tRAE, g_sSampler, i.vTexCoord.xyz ).rgb;
 
-        Material m;
+        /*Material m;
         m.Albedo = albedo.rgb * i.vColor.rgb * i.fOcclusion;
         m.Normal = 1;
         m.Roughness = rae.r;
@@ -218,6 +209,7 @@ PS
 		m.Transmission = 1;
 
         float4 result = ShadingModelStandard::Shade( i, m );
-        return result;
+        return result;*/
+        return float4( albedo.rgb * i.vColor.rgb * i.fOcclusion, 1 );
     }
 }

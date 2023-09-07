@@ -42,7 +42,7 @@ public class TextureAtlas : GameResource
 	/// </summary>
 	[HideInEditor, JsonIgnore]
 	public Vector2 Size => new Vector2(
-		(int)(TextureSize.x * Items.Count * 4),
+		(int)(TextureSize.x * 4),
 		(int)(TextureSize.y * 2) );
 
 	// Take directly from GameResource code.
@@ -87,6 +87,18 @@ public class TextureAtlas : GameResource
 		return new Rect( x, 0, TextureSize.x * 4, TextureSize.y );
 	}
 
+	// Used to read faces at specific positions.
+	private readonly static (int x, int y)[] faces 
+		= new (int x, int y)[Utility.Faces]
+	{
+		(0, 0),
+		(1, 0),
+		(0, 1),
+		(1, 1),
+		(2, 1),
+		(3, 1)
+	};
+
 	private void buildTextures()
 	{
 		// Don't generate atlas textures anywhere else but client.
@@ -94,75 +106,74 @@ public class TextureAtlas : GameResource
 			return;
 
 		// Calculate required width and height.
-		var width = (int)Size.x;
-		var height = (int)Size.y;
-
+		var width = (int)TextureSize.x;
+		var height = (int)TextureSize.y;
+		var depth = Utility.Faces;
+		
 		// Create our textures.
 		Albedo?.Dispose();
-		Albedo = Texture.Create( width, height )
+		Albedo = Texture.CreateArray( width, height, Items.Count * depth )
 			.WithName( $"{Title}_albedo" )
 			.Finish();
 
 		RAE?.Dispose();
-		RAE = Texture.Create( width, height )
+		RAE = Texture.CreateArray( width, height, Items.Count * depth )
 			.WithName( $"{Title}_rae" )
 			.Finish();
 
 		// Go through all serialized textures.
-		var x = 0;
-		var y = 0;
-		var itemWidth = (int)(TextureSize.x * 4);
-		var itemHeight = height;
+		var z = 0;
 
 		foreach ( var item in Items )
 		{
-			x += itemWidth;
+			z += depth;
 
 			if ( item.Albedo == string.Empty ) 
 				continue;
 
 			var albedo = Texture.Load( FileSystem.Mounted, item.Albedo, false );
 			if ( albedo == null
-				|| albedo.Width != itemWidth
-				|| albedo.Height != itemHeight )
+				|| albedo.Width != (int)Size.x
+				|| albedo.Height != (int)Size.y )
 			{
 				Log.Error( $"[TextureAtlas] -> Failed to generate Albedo for {Title}." );
 				continue;
 			}
 
-			// Read pixels and set for albedo.
-			var pixels = albedo
-				.GetPixels()
-				.SelectMany( v => new[] { v.r, v.g, v.b, v.a } )
-				.ToArray();
-
-			Albedo.Update( pixels, x - itemWidth, y, itemWidth, itemHeight );
-			
-			// Check if we need to read RAE.
-			if ( !item.HasRAE )
-				continue;
-
 			var rae = Texture.Load( FileSystem.Mounted, item.RAE, false );
-			if ( rae == null
-				|| rae.Width != itemWidth
-				|| rae.Height != itemHeight )
+			if ( item.HasRAE && (rae == null 
+				|| rae.Width != (int)Size.x
+				|| rae.Height != (int)Size.y) )
 			{
 				Log.Error( $"[TextureAtlas] -> Failed to generate RAE for {Title}." );
 				continue;
 			}
 
-			pixels = rae
-				.GetPixels()
-				.SelectMany( v => new[] 
-				{ 
-					item.Roughness ? v.r : byte.MaxValue,
-					v.a,
-					v.b, 
-					v.a 
-				} )
-				.ToArray();
+			// Read pixels and set for albedo.
+			for ( int i = 0; i < depth; i++ )
+			{
+				var face = faces[i];
+				var buffer = new Color32[width * height];
+				var rect = (face.x * width, face.y * height, width, height);
 
-			RAE.Update( pixels, x - itemWidth, y, itemWidth, itemHeight );
+				// Update albedo.
+				albedo.GetPixels( rect, 0, 0, buffer.AsSpan(), ImageFormat.RGBA8888 );
+				var albedoPixels = buffer
+					.SelectMany( v => new[] { v.r, v.g, v.b, v.a } )
+					.ToArray();
+				Albedo.Update3D( albedoPixels, 0, 0, z - depth + i, width, height, 1 );
+
+				// Check if we need to read RAE.
+				if ( !item.HasRAE )
+					continue;
+
+				// Update RAE.
+				rae.GetPixels( rect, 0, 0, buffer.AsSpan(), ImageFormat.RGBA8888 );
+				var raePixels = buffer
+					.SelectMany( v => new[] { v.r, v.g, v.b, v.a } )
+					.ToArray();
+				RAE.Update3D( raePixels, 0, 0, z - depth + i, width, height, 1 );
+			}
 		}
 	}
 
