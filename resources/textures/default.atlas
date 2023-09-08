@@ -7,8 +7,8 @@
       "Albedo": "resources/textures/default_albedo.png"
     },
     {
-      "Name": "Grass",
-      "Albedo": "resources/textures/grass_albedo.png"
+      "Name": "Example",
+      "Albedo": "resources/textures/example_albedo.png"
     },
     {
       "Name": "Dirt",

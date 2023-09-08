@@ -42,8 +42,8 @@ public class TextureAtlas : GameResource
 	/// </summary>
 	[HideInEditor, JsonIgnore]
 	public Vector2 Size => new Vector2(
-		(int)(TextureSize.x * 4),
-		(int)(TextureSize.y * 2) );
+		(int)(TextureSize.x * Utility.Faces),
+		(int)TextureSize.y );
 
 	// Take directly from GameResource code.
 	private static string FixPath( string filename )
@@ -86,18 +86,6 @@ public class TextureAtlas : GameResource
 
 		return new Rect( x, 0, TextureSize.x * 4, TextureSize.y );
 	}
-
-	// Used to read faces at specific positions.
-	private readonly static (int x, int y)[] faces 
-		= new (int x, int y)[Utility.Faces]
-	{
-		(0, 0),
-		(1, 0),
-		(0, 1),
-		(1, 1),
-		(2, 1),
-		(3, 1)
-	};
 
 	private void buildTextures()
 	{
@@ -152,9 +140,8 @@ public class TextureAtlas : GameResource
 			// Read pixels and set for albedo.
 			for ( int i = 0; i < depth; i++ )
 			{
-				var face = faces[i];
 				var buffer = new Color32[width * height];
-				var rect = (face.x * width, face.y * height, width, height);
+				var rect = (i * width, 0, width, height);
 
 				// Update albedo.
 				albedo.GetPixels( rect, 0, 0, buffer.AsSpan(), ImageFormat.RGBA8888 );

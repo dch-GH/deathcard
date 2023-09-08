@@ -166,7 +166,7 @@ public partial class VoxelWorld : ModelEntity
 					var vertexIndex = Utility.FaceIndices[(i * 4) + j];
 					var ao = Utility.BuildAO( chunk, position, i, j );
 
-					vertices.Add( new VoxelVertex( position, (byte)vertexIndex, (byte)i, ao, voxel.Value.Color ) );
+					vertices.Add( new VoxelVertex( position, (byte)vertexIndex, (byte)i, ao, voxel.Value.Color, 1 ) );
 				}
 
 				indices.Add( offset + drawCount * 4 + 0 );
