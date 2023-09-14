@@ -3,60 +3,60 @@
 public static partial class Utility
 {
 	#region Ambient Occlusion
-	private static IReadOnlyDictionary<int, List<(int x, int y, int z)[]>> aoNeighbors = new Dictionary<int, List<(int x, int y, int z)[]>>()
+	private static readonly IReadOnlyDictionary<int, List<(sbyte x, sbyte y, sbyte z)[]>> aoNeighbors = new Dictionary<int, List<(sbyte x, sbyte y, sbyte z)[]>>()
 	{
 		// +z
 		[0] = new() 
 		{
-			new (int, int, int)[3] { (0, 1, -1), (-1, 1, 0), (-1, 1, -1) },
-			new (int, int, int)[3] { (0, 1, -1), (1, 1, 0), (1, 1, -1) },
-			new (int, int, int)[3] { (0, 1, 1), (-1, 1, 0), (-1, 1, 1) },
-			new (int, int, int)[3] { (0, 1, 1), (1, 1, 0), (1, 1, 1) }
+			new (sbyte, sbyte, sbyte)[3] { (0, 1, -1), (-1, 1, 0), (-1, 1, -1) },
+			new (sbyte, sbyte, sbyte)[3] { (0, 1, -1), (1, 1, 0), (1, 1, -1) },
+			new (sbyte, sbyte, sbyte)[3] { (0, 1, 1), (-1, 1, 0), (-1, 1, 1) },
+			new (sbyte, sbyte, sbyte)[3] { (0, 1, 1), (1, 1, 0), (1, 1, 1) }
 		},
 
 		// -z
 		[1] = new()
 		{
-			new (int, int, int)[3] { (0, -1, -1), (1, -1, 0), (1, -1, -1) },
-			new (int, int, int)[3] { (0, -1, -1), (-1, -1, 0), (-1, -1, -1) },
-			new (int, int, int)[3] { (0, -1, 1), (1, -1, 0), (1, -1, 1) },
-			new (int, int, int)[3] { (0, -1, 1), (-1, -1, 0), (-1, -1, 1) }
+			new (sbyte, sbyte, sbyte)[3] { (0, -1, -1), (1, -1, 0), (1, -1, -1) },
+			new (sbyte, sbyte, sbyte)[3] { (0, -1, -1), (-1, -1, 0), (-1, -1, -1) },
+			new (sbyte, sbyte, sbyte)[3] { (0, -1, 1), (1, -1, 0), (1, -1, 1) },
+			new (sbyte, sbyte, sbyte)[3] { (0, -1, 1), (-1, -1, 0), (-1, -1, 1) }
 		},
 
 		// -x
 		[2] = new()
 		{
-			new (int, int, int)[3] { (-1, 0, -1), (-1, 1, 0), (-1, 1, -1) },
-			new (int, int, int)[3] { (-1, 0, 1), (-1, 1, 0), (-1, 1, 1) },
-			new (int, int, int)[3] { (-1, 0, -1), (-1, -1, 0), (-1, -1, -1) },
-			new (int, int, int)[3] { (-1, 0, 1), (-1, -1, 0), (-1, -1, 1) }
+			new (sbyte, sbyte, sbyte)[3] { (-1, 0, -1), (-1, 1, 0), (-1, 1, -1) },
+			new (sbyte, sbyte, sbyte)[3] { (-1, 0, 1), (-1, 1, 0), (-1, 1, 1) },
+			new (sbyte, sbyte, sbyte)[3] { (-1, 0, -1), (-1, -1, 0), (-1, -1, -1) },
+			new (sbyte, sbyte, sbyte)[3] { (-1, 0, 1), (-1, -1, 0), (-1, -1, 1) }
 		},
 
 		// +y
 		[3] = new()
 		{
-			new (int, int, int)[3] { (-1, 0, 1), (0, 1, 1), (-1, 1, 1) },
-			new (int, int, int)[3] { (1, 0, 1), (0, 1, 1), (1, 1, 1) },
-			new (int, int, int)[3] { (-1, 0, 1), (0, -1, 1), (-1, -1, 1) },
-			new (int, int, int)[3] { (1, 0, 1), (0, -1, 1), (1, -1, 1) }
+			new (sbyte, sbyte, sbyte)[3] { (-1, 0, 1), (0, 1, 1), (-1, 1, 1) },
+			new (sbyte, sbyte, sbyte)[3] { (1, 0, 1), (0, 1, 1), (1, 1, 1) },
+			new (sbyte, sbyte, sbyte)[3] { (-1, 0, 1), (0, -1, 1), (-1, -1, 1) },
+			new (sbyte, sbyte, sbyte)[3] { (1, 0, 1), (0, -1, 1), (1, -1, 1) }
 		},
 
 		// +x
 		[4] = new()
 		{
-			new (int, int, int)[3] { (1, 0, 1), (1, 1, 0), (1, 1, 1) },
-			new (int, int, int)[3] { (1, 0, -1), (1, 1, 0), (1, 1, -1) },
-			new (int, int, int)[3] { (1, 0, 1), (1, -1, 0), (1, -1, 1) },
-			new (int, int, int)[3] { (1, 0, -1), (1, -1, 0), (1, -1, -1) }
+			new (sbyte, sbyte, sbyte)[3] { (1, 0, 1), (1, 1, 0), (1, 1, 1) },
+			new (sbyte, sbyte, sbyte)[3] { (1, 0, -1), (1, 1, 0), (1, 1, -1) },
+			new (sbyte, sbyte, sbyte)[3] { (1, 0, 1), (1, -1, 0), (1, -1, 1) },
+			new (sbyte, sbyte, sbyte)[3] { (1, 0, -1), (1, -1, 0), (1, -1, -1) }
 		},
 
 		// -y
 		[5] = new()
 		{
-			new (int, int, int)[3] { (1, 0, -1), (0, 1, -1), (1, 1, -1) },
-			new (int, int, int)[3] { (-1, 0, -1), (0, 1, -1), (-1, 1, -1) },
-			new (int, int, int)[3] { (1, 0, -1), (0, -1, -1), (1, -1, -1) },
-			new (int, int, int)[3] { (-1, 0, -1), (0, -1, -1), (-1, -1, -1) }
+			new (sbyte, sbyte, sbyte)[3] { (1, 0, -1), (0, 1, -1), (1, 1, -1) },
+			new (sbyte, sbyte, sbyte)[3] { (-1, 0, -1), (0, 1, -1), (-1, 1, -1) },
+			new (sbyte, sbyte, sbyte)[3] { (1, 0, -1), (0, -1, -1), (1, -1, -1) },
+			new (sbyte, sbyte, sbyte)[3] { (-1, 0, -1), (0, -1, -1), (-1, -1, -1) }
 		}
 	};
 
@@ -103,8 +103,8 @@ public static partial class Utility
 	public const float Scale = 1f / 0.0254f;
 	public const int Faces = 6;
 
-	public static readonly int[]
-		FaceIndices = new int[4 * Faces]
+	public static readonly byte[]
+		FaceIndices = new byte[4 * Faces]
 	{
 		0, 1, 2, 3,
 		7, 6, 5, 4,
@@ -114,8 +114,8 @@ public static partial class Utility
 		3, 7, 4, 0,
 	};
 
-	public static readonly (short x, short y, short z)[]
-		Neighbors = new (short, short, short)[Faces]
+	public static readonly (sbyte x, sbyte y, sbyte z)[]
+		Neighbors = new (sbyte, sbyte, sbyte)[Faces]
 	{
 		(0, 0, 1),
 		(0, 0, -1),

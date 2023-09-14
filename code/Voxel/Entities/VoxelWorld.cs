@@ -106,14 +106,14 @@ public partial class VoxelWorld : ModelEntity
 		var indices = new List<int>();
 		var offset = 0;
 
-		var tested = new bool[Chunk.Size.x, Chunk.Size.y, Chunk.Size.z];
+		var tested = new bool[Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT];
 		var buffer = new CollisionBuffer();
 		buffer.Init( true );
 
 		chunk.Empty = true;
-		for ( ushort x = 0; x < Chunk.Size.x; x++ )
-		for ( ushort y = 0; y < Chunk.Size.y; y++ )
-		for ( ushort z = 0; z < Chunk.Size.z; z++ )
+		for ( ushort x = 0; x < Chunk.DEFAULT_WIDTH; x++ )
+		for ( ushort y = 0; y < Chunk.DEFAULT_DEPTH; y++ )
+		for ( ushort z = 0; z < Chunk.DEFAULT_HEIGHT; z++ )
 		{
 			var voxel = chunk.GetVoxel( x, y, z );
 			if ( voxel == null )				
@@ -166,7 +166,7 @@ public partial class VoxelWorld : ModelEntity
 					var vertexIndex = Utility.FaceIndices[(i * 4) + j];
 					var ao = Utility.BuildAO( chunk, position, i, j );
 
-					vertices.Add( new VoxelVertex( position, (byte)vertexIndex, (byte)i, ao, voxel.Value.Color, 1 ) );
+					vertices.Add( new VoxelVertex( position, vertexIndex, (byte)i, ao, voxel.Value.Color, 0 ) );
 				}
 
 				indices.Add( offset + drawCount * 4 + 0 );

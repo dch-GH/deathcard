@@ -10,7 +10,7 @@ partial class VoxelWorld
 		for ( ushort z = start.z; z < zLimit; ++z )
 		{
 			var newX = (ushort)(start.x + size.x);
-			if ( newX >= Chunk.Size.x || tested[newX, y, z] || chunk.GetVoxel( newX, y, z ) == null )
+			if ( newX >= Chunk.DEFAULT_WIDTH || tested[newX, y, z] || chunk.GetVoxel( newX, y, z ) == null )
 				canSpreadX = false;
 		}
 
@@ -40,7 +40,7 @@ partial class VoxelWorld
 		for ( ushort z = start.z; z < zLimit; ++z )
 		{
 			var newY = (ushort)(start.y + size.y);
-			if ( newY >= Chunk.Size.y || tested[x, newY, z] || chunk.GetVoxel( x, newY, z ) == null )
+			if ( newY >= Chunk.DEFAULT_DEPTH || tested[x, newY, z] || chunk.GetVoxel( x, newY, z ) == null )
 				canSpreadY = false;
 		}
 
@@ -70,7 +70,7 @@ partial class VoxelWorld
 		for ( ushort y = start.y; y < yLimit; ++y )
 		{
 			var newZ = (ushort)(start.z + size.z);
-			if ( newZ >= Chunk.Size.z || tested[x, y, newZ] || chunk.GetVoxel( x, y, newZ ) == null )
+			if ( newZ >= Chunk.DEFAULT_HEIGHT || tested[x, y, newZ] || chunk.GetVoxel( x, y, newZ ) == null )
 				canSpreadZ = false;
 		}
 
