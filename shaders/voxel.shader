@@ -12,8 +12,9 @@ MODES
 {
     Default();
     VrForward();
-	Depth( "depth_only.vfx" );
+    Depth( "depth_only.shader" ); 
 	ToolsVis( S_MODE_TOOLS_VIS );
+    ToolsShadingComplexity( "tools_shading_complexity.shader" );
 }
 
 COMMON
@@ -183,7 +184,7 @@ VS
 
 PS
 {
-    //#include "common/pixel.hlsl"
+    #include "common/pixel.hlsl"
 
     CreateTexture2DArray( g_tAlbedo ) < Attribute( "Albedo" ); SrgbRead( true ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
     CreateTexture2DArray( g_tRAE ) < Attribute( "RAE" ); SrgbRead( false ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
@@ -197,19 +198,18 @@ PS
         float3 albedo = Tex2DArrayS( g_tAlbedo, g_sSampler, i.vTexCoord.xyz ).rgb;
         float3 rae = Tex2DArrayS( g_tRAE, g_sSampler, i.vTexCoord.xyz ).rgb;
 
-        /*Material m;
+        Material m;
         m.Albedo = albedo.rgb * i.vColor.rgb * i.fOcclusion;
         m.Normal = 1;
         m.Roughness = rae.r;
 		m.Metalness = 0;
 		m.AmbientOcclusion = 1;
 		m.TintMask = 1;
-		m.Opacity = 1; // rea.g
+		m.Opacity = rae.g; // rea.g
 		m.Emission = rae.b;
 		m.Transmission = 1;
 
         float4 result = ShadingModelStandard::Shade( i, m );
-        return result;*/
-        return float4( albedo.rgb * i.vColor.rgb * i.fOcclusion, 1 );
+        return result;
     }
 }

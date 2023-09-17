@@ -115,7 +115,7 @@ public static partial class Utility
 	};
 
 	public static readonly (sbyte x, sbyte y, sbyte z)[]
-		Neighbors = new (sbyte, sbyte, sbyte)[Faces]
+		Directions = new (sbyte, sbyte, sbyte)[Faces]
 	{
 		(0, 0, 1),
 		(0, 0, -1),

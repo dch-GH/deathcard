@@ -156,7 +156,7 @@ public partial class VoxelWorld : ModelEntity
 			var drawCount = 0;
 			for ( var i = 0; i < Utility.Faces; i++ )
 			{
-				var direction = Utility.Neighbors[i];
+				var direction = Utility.Directions[i];
 				var neighbour = chunk.GetDataByOffset( x + direction.x, y + direction.y, z + direction.z ).Voxel;
 				if ( neighbour != null )
 					continue;
