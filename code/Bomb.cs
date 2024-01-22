@@ -34,7 +34,7 @@ public partial class Bomb : ModelEntity
 	public bool Explode()
 	{
 		// Get all nearby bombs and apply a force to them.
-		var force = 1000f;
+		/*var force = 1000f;
 		foreach ( var ent in Entity.FindInSphere( Position, Size * Utility.Scale ) )
 		{
 			if ( ent == this || ent is ChunkEntity || !ent.IsValid || !IsAuthority )
@@ -98,7 +98,7 @@ public partial class Bomb : ModelEntity
 
 			parent.SetVoxel( target.x, target.y, target.z, replace );
 		}
-
+		*/
 		return true;
 	}
 

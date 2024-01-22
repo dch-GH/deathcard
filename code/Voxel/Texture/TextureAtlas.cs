@@ -73,20 +73,6 @@ public class TextureAtlas : GameResource
 		return all.FirstOrDefault( a => a.ResourcePath == path );
 	}
 
-	/// <summary>
-	/// Gets the rectangle of a single texture by index.
-	/// </summary>
-	/// <param name="index"></param>
-	/// <returns></returns>
-	public Rect? GetRect( int index )
-	{ 
-		var x = index * 4 * TextureSize.x;
-		if ( x >= Size.x )
-			return null;
-
-		return new Rect( x, 0, TextureSize.x * 4, TextureSize.y );
-	}
-
 	private void buildTextures()
 	{
 		// Don't generate atlas textures anywhere else but client.

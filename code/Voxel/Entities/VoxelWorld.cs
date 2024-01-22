@@ -13,20 +13,25 @@ if ( voxel != null )
 }
 */
 
-public class ChunkEntity : ModelEntity
+public class ChunkEntity : IEquatable<ChunkEntity>
 {
-	public new VoxelWorld Parent { get; set; }
+	public Vector3S Position3D { get; set; }
+	public VoxelWorld Parent { get; set; }
 
-	// One of the most retarded things ever XDDDD
-	// Nice fucking shit game
-	public Model RenderModel
+	public PhysicsBody Body { get; }
+	public PhysicsShape Shape { get; set; }
+
+	public Model Model
 	{
 		set
 		{
-			obj ??= new SceneObject( Game.SceneWorld, value, Transform )
+			obj ??= new SceneObject( Game.SceneWorld, value, Transform.Zero )
 			{
 				Batchable = false
 			};
+
+			var transform = Parent.Transform.Add( Position3D * (Vector3)Chunk.Size * Parent.VoxelScale, true );
+			obj.Transform = transform;
 
 			if ( obj.Model != value )
 				obj.Model = value;
@@ -43,15 +48,40 @@ public class ChunkEntity : ModelEntity
 
 	public ChunkEntity()
 	{
-		Transmit = TransmitType.Never;
+		Body = Game.PhysicsWorld.Body;
 	}
 
-	protected override void OnDestroy()
+	public void Delete()
 	{
-		base.OnDestroy();
-
-		// Let's delete our RenderModel SceneObject for the chunk.
+		// Let's delete our Model SceneObject for the chunk.
 		obj?.Delete();
+		Shape?.Remove();
+	}
+	
+	public void BuildCollision( CollisionBuffer buffer )
+	{
+		Shape?.Remove();
+		Shape = Body.AddMeshShape( buffer.Vertex, buffer.Index );
+		//Shape.AddTag( "chunk" );
+		Log.Error( (Shape, Body) );
+
+		Shape.AddTag( "solid" );
+	}
+
+	public bool Equals( ChunkEntity other )
+	{
+		return other.Position3D.Equals( Position3D );
+	}
+
+	public override bool Equals( object obj )
+	{
+		return obj is ChunkEntity other
+			&& Equals( other );
+	}
+
+	public override int GetHashCode()
+	{
+		return Position3D.GetHashCode();
 	}
 }
 
@@ -98,7 +128,7 @@ public partial class VoxelWorld : ModelEntity
 
 		ChunkEntity chunkEntity;
 		if ( !entities.TryGetValue( chunk.Position, out chunkEntity ) )
-			entities.Add( chunk.Position, chunkEntity = new ChunkEntity() { Parent = this } );
+			entities.Add( chunk.Position, chunkEntity = new ChunkEntity() { Parent = this, Position3D = chunk.Position } );
 
 		// Let's create a mesh.
 		var mesh = new Mesh( material );
@@ -160,7 +190,7 @@ public partial class VoxelWorld : ModelEntity
 				var neighbour = chunk.GetDataByOffset( x + direction.x, y + direction.y, z + direction.z ).Voxel;
 				if ( neighbour != null )
 					continue;
-				
+			
 				for ( var j = 0; j < 4; ++j )
 				{
 					var vertexIndex = Utility.FaceIndices[(i * 4) + j];
@@ -182,29 +212,20 @@ public partial class VoxelWorld : ModelEntity
 			offset += 4 * drawCount;
 		}
 
-		chunkEntity.Position = Position
-			+ (Vector3)chunk.Position * Chunk.Size * VoxelScale
-			+ VoxelScale / 2f;
-
 		// Check if we actually end up with vertices.
 		if ( Game.IsClient && vertices.Count > 0 )
 		{
 			mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
 			mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
 
-			chunkEntity.RenderModel = Model.Builder
+			chunkEntity.Model = Model.Builder
 				.AddMesh( mesh )
 				.Create();
 		}
 
 		// Do physics.
-		if ( chunkEntity.PhysicsBody == null )
-			chunkEntity.SetupPhysicsFromSphere( PhysicsMotionType.Static, 0f, 1f );
-		
-		chunkEntity.PhysicsBody?.ClearShapes();
-		chunkEntity.PhysicsBody
-			?.AddMeshShape( buffer.Vertex.ToArray(), buffer.Index.ToArray() )
-			?.AddTag( "chunk" );
+		if ( vertices.Count > 0 )
+			chunkEntity.BuildCollision( buffer );
 	}
 
 	#region DEBUG
@@ -213,7 +234,7 @@ public partial class VoxelWorld : ModelEntity
 	[GameEvent.Client.Frame]
 	private static void Debug()
 	{
-		if ( Input.Pressed( "score" ) )
+		/*if ( Input.Pressed( "score" ) )
 			debugMode = !debugMode;
 
 		if ( !debugMode )
@@ -263,7 +284,7 @@ public partial class VoxelWorld : ModelEntity
 
 		Gizmo.Draw.Color = Color.Black;
 		Gizmo.Draw.LineThickness = 1;
-		Gizmo.Draw.LineBBox( new BBox( voxelCenter - parent.VoxelScale / 2f, voxelCenter + parent.VoxelScale / 2f ) );
+		Gizmo.Draw.LineBBox( new BBox( voxelCenter - parent.VoxelScale / 2f, voxelCenter + parent.VoxelScale / 2f ) );*/
 	}
 	#endregion
 }

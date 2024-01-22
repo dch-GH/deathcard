@@ -17,13 +17,8 @@ public partial class Player : ModelEntity
 		EnableShadowInFirstPerson = true;
 		Tags.Add( "player" );
 
-		this.SetVoxelModel( "resources/player.vxmdl" );
+		SetModel( "models/player.vmdl" );
 		SetupPhysicsFromOBB( PhysicsMotionType.Keyframed, BBox.Mins, BBox.Maxs );
-	}
-
-	public override void ClientSpawn()
-	{
-		this.SetVoxelModel( "resources/player.vxmdl" );
 	}
 
 	public override void Simulate( IClient cl )
@@ -50,7 +45,7 @@ public partial class Player : ModelEntity
 			.WithTag( "chunk" )
 			.Run();
 
-		var parent = (tr.Entity as ChunkEntity)?.Parent;
+		/*var parent = (tr.Entity as ChunkEntity)?.Parent;
 		var position = parent?.WorldToVoxel( tr.EndPosition - tr.Normal * parent.VoxelScale / 2f );
 		if ( position == null )
 			return;
@@ -90,7 +85,7 @@ public partial class Player : ModelEntity
 					target.y.FloorToInt(),
 					target.z.FloorToInt(), voxel, chunk );
 			}
-		}
+		}*/
 	}
 
 	public override void FrameSimulate( IClient cl )

@@ -297,6 +297,7 @@ partial class VoxelWorld
 		Map = map;
 
 		// Request all changes.
+		Log.Error( (map, NetworkIdent) );
 		RequestChanges( NetworkIdent );
 	}
 
