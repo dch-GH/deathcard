@@ -15,10 +15,38 @@
       ]
     },
     {
+      "Id": "3864774b-59ae-4617-8256-7cdc043a2d62",
+      "Name": "Camera",
+      "Position": "-4204.196,8524.546,6410.27",
+      "Rotation": "0.09713869,0.1972102,-0.4310597,0.8751342",
+      "Tags": "maincamera",
+      "Enabled": true,
+      "Components": [
+        {
+          "__version": 0,
+          "__type": "CameraComponent",
+          "__enabled": true,
+          "BackgroundColor": "0.33333,0.46275,0.52157,1",
+          "ClearFlags": "All",
+          "FieldOfView": 60,
+          "IsMainCamera": true,
+          "Orthographic": false,
+          "OrthographicHeight": 1204,
+          "Priority": 1,
+          "RenderExcludeTags": "",
+          "RenderTags": "",
+          "TargetEye": "None",
+          "Viewport": "0,0,1,1",
+          "ZFar": 15000,
+          "ZNear": 10
+        }
+      ]
+    },
+    {
       "Id": "a6ef2875-baac-4f8b-a13f-fe61c7c731c0",
       "Name": "Sun",
       "Position": "-578.7006,3679.758,3528.724",
-      "Rotation": "-0.1221292,-0.1597398,0.5949669,-0.7781915",
+      "Rotation": "0.01810057,0.3838691,-0.04348379,0.9221855",
       "Enabled": true,
       "Components": [
         {
@@ -27,9 +55,65 @@
           "__enabled": true,
           "FogMode": "Enabled",
           "FogStrength": 1,
-          "LightColor": "0.91373,0.98039,1,1",
+          "LightColor": "0.42326,0.42326,0.42326,1",
           "Shadows": true,
-          "SkyColor": "0.56279,0.56279,0.56279,1"
+          "SkyColor": "0.29767,0.29767,0.29767,1"
+        }
+      ]
+    },
+    {
+      "Id": "a3378998-5d5a-46a5-b903-6724e0b1b532",
+      "Name": "Cube",
+      "Position": "1087.29,1937.88,3452.528",
+      "Scale": "11.49999,10.6,3.899998",
+      "Tags": "solid",
+      "Enabled": true,
+      "Components": [
+        {
+          "__version": 0,
+          "__type": "ModelRenderer",
+          "__enabled": true,
+          "BodyGroups": 18446744073709551615,
+          "MaterialGroup": null,
+          "MaterialOverride": null,
+          "Model": "models/dev/box.vmdl",
+          "RenderType": "On",
+          "Tint": "1,1,1,1"
+        },
+        {
+          "__version": 0,
+          "__type": "Rigidbody",
+          "__enabled": true,
+          "AngularDamping": 0,
+          "Gravity": true,
+          "LinearDamping": 0,
+          "Locking": {},
+          "RigidbodyFlags": "DisableCollisionSounds",
+          "StartAsleep": false
+        },
+        {
+          "__version": 0,
+          "__type": "BoxCollider",
+          "__enabled": true,
+          "Center": "0,0,0",
+          "IsTrigger": false,
+          "Scale": "50,50,50",
+          "Static": false,
+          "Surface": null
+        }
+      ]
+    },
+    {
+      "Id": "795b6e16-66f6-4c61-bc74-7702a661c372",
+      "Name": "2D Skybox",
+      "Enabled": true,
+      "Components": [
+        {
+          "__version": 0,
+          "__type": "SkyBox2D",
+          "__enabled": true,
+          "SkyMaterial": "materials/skybox/skybox_workshop.vmat",
+          "Tint": "1,1,1,1"
         }
       ]
     }

@@ -13,70 +13,6 @@ if ( voxel != null )
 }
 */
 
-public class ChunkObject : IEquatable<ChunkObject>
-{
-	public Vector3S Position3D { get; set; }
-	public VoxelWorld Parent { get; set; }
-
-	public PhysicsBody Body { get; }
-	public PhysicsShape Shape { get; set; }
-
-	public Model Model
-	{
-		get => obj?.Model;
-		set
-		{
-			obj ??= new( GameManager.ActiveScene.SceneWorld, value ) { Batchable = false };
-			if ( obj.Model != value )
-				obj.Model = value;
-
-			var transform = Parent.Transform.World.Add( Position3D * (Vector3)Chunk.Size * Parent.VoxelScale, true );
-			obj.Transform = transform;
-
-			Parent.AssignAttributes( obj.Attributes );
-		}
-	}
-
-	private SceneObject obj;
-
-	public ChunkObject()
-	{
-		// Body = GameManager.ActiveScene.PhysicsWorld.Body;
-	}
-
-	public void Delete()
-	{
-		// Let's delete our Model SceneObject for the chunk.
-		//obj?.Delete();
-		Shape?.Remove();
-	}
-	
-	public void BuildCollision( CollisionBuffer buffer )
-	{
-		// Shape?.Remove();
-		// Shape = Body.AddMeshShape( buffer.Vertex, buffer.Index );
-		// Log.Error( (Shape, Body) );
-		// 
-		// Shape.Tags.Add( "solid" );
-	}
-
-	public bool Equals( ChunkObject other )
-	{
-		return other.Position3D.Equals( Position3D );
-	}
-
-	public override bool Equals( object obj )
-	{
-		return obj is ChunkObject other
-			&& Equals( other );
-	}
-
-	public override int GetHashCode()
-	{
-		return Position3D.GetHashCode();
-	}
-}
-
 public partial class VoxelWorld : Component
 {
 	[Property] public string Path { get; set; }
@@ -86,7 +22,7 @@ public partial class VoxelWorld : Component
 
 	public Dictionary<Vector3S, Chunk> Chunks { get; private set; }
 
-	private Dictionary<Vector3S, ChunkObject> objects = new();
+	private Dictionary<Vector3S, VoxelChunk> objects = new();
 
 	private Material material = Material.FromShader( "shaders/voxel.shader" );
 
@@ -102,12 +38,13 @@ public partial class VoxelWorld : Component
 		attributes.Set( "AtlasSize", Atlas.Size );
 	}
 
-	public VoxelWorld()
+	protected override void OnAwake()
 	{
 		if ( all.Contains( this ) )
 			return;
 		
 		all.Add( this );
+		Reset();
 	}
 
 	protected override void OnDestroy()
@@ -120,6 +57,23 @@ public partial class VoxelWorld : Component
 		Chunks = null;
 	}
 
+	public VoxelChunk GetVoxelChunk( Chunk chunk )
+	{
+		VoxelChunk vxChunk;
+		if ( !objects.TryGetValue( chunk.Position, out vxChunk ) )
+		{
+			var obj = new GameObject() 
+			{ 
+				Parent = GameObject, 
+				Name = $"Chunk {chunk.Position}",
+			};
+			obj.Transform.LocalPosition = (Vector3)chunk.Position * VoxelScale * Chunk.Size;
+			objects.Add( chunk.Position, vxChunk = obj.Components.GetOrCreate<VoxelChunk>() );
+		}
+
+		return vxChunk;
+	}
+
 	/// <summary>
 	/// Generates a chunk.
 	/// </summary>
@@ -130,9 +84,7 @@ public partial class VoxelWorld : Component
 		if ( chunk == null )
 			return;
 
-		ChunkObject chunkObj;
-		if ( !objects.TryGetValue( chunk.Position, out chunkObj ) )
-			objects.Add( chunk.Position, chunkObj = new ChunkObject() { Parent = this, Position3D = chunk.Position } );
+		var vxChunk = GameManager.IsPlaying ? GetVoxelChunk( chunk ) : null;
 		
 		// Let's create a mesh.
 		var mesh = new Mesh( material );
@@ -158,7 +110,7 @@ public partial class VoxelWorld : Component
 			var position = new Vector3B( x, y, z );
 
 			// Let's start checking for collisions.
-			if ( !tested[x, y, z] )
+			if ( !tested[x, y, z] && GameManager.IsPlaying )
 			{
 				tested[x, y, z] = true;
 
@@ -218,18 +170,24 @@ public partial class VoxelWorld : Component
 			mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
 			mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
 
-			chunkObj.Model = Model.Builder
-				.AddMesh( mesh )
+			var builder = Model.Builder
+				.AddMesh( mesh );
+
+			if ( vxChunk == null )
+			{
+				gizmoCache.Add( chunk.Position, builder.Create() );
+				return;
+			}
+
+			vxChunk.Model = builder
+				.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() )
 				.Create();
 		}
-
-		// Do physics.
-		if ( vertices.Count > 0 && GameManager.IsPlaying )
-			chunkObj.BuildCollision( buffer );
 	}
 
 	public override async void Reset()
 	{
+		gizmoCache.Clear();
 		Chunks = await BaseImporter.Get<VoxImporter>()
 			.BuildAsync( Path );
 
@@ -238,19 +196,16 @@ public partial class VoxelWorld : Component
 	}
 
 	#region DEBUG
+	private readonly Dictionary<Vector3S, Model> gizmoCache = new();
 	protected override void DrawGizmos()
 	{
 		// Display all chunks.
-		foreach ( var (_, chunk) in objects )
+		foreach ( var (chunk, model) in gizmoCache )
 		{
-			if ( chunk == null )
-				continue;
-
-			var pos = Transform.Position
-				+ (Vector3)chunk?.Position3D * VoxelScale * Chunk.Size;
+			var pos = (Vector3)chunk * VoxelScale * Chunk.Size;
 
 			AssignAttributes( Gizmo.Camera.Attributes );
-			Gizmo.Draw.Model( chunk.Model, new Transform( pos + VoxelScale / 2 ) );
+			Gizmo.Draw.Model( model, new Transform( pos + VoxelScale / 2 ) );
 
 			Gizmo.Draw.Color = Color.Yellow;
 			Gizmo.Draw.LineThickness = 0.1f;
@@ -258,30 +213,25 @@ public partial class VoxelWorld : Component
 		}
 
 		// Focus on hovered VoxelWorld.
-		/*var ray = new Ray( Camera.Position, Camera.Rotation.Forward );
-		var tr = Trace.Ray( ray, 10000f )
-			.WithTag( "chunk" )
+		var ray = Scene.Camera.ScreenPixelToRay( Mouse.Position ); // todo: fix
+		var tr = Scene.Trace.Ray( ray, 20000f )
 			.Run();
 
-		var parent = (tr.Entity as ChunkEntity)?.Parent;
-		if ( parent == null )
-			return;
-
-		var position = parent.WorldToVoxel( tr.EndPosition - tr.Normal * parent.VoxelScale / 2f );
-		var data = parent.GetByOffset( position.x, position.y, position.z );
+		var position = WorldToVoxel( tr.EndPosition - tr.Normal * VoxelScale / 2f );
+		var data = GetByOffset( position.x, position.y, position.z );
 
 		// Debug
-		DebugOverlay.ScreenText( $"{data.Voxel?.Color ?? default}" );
-		DebugOverlay.ScreenText( $"XYZ: {position}", 1 );
-		DebugOverlay.ScreenText( $"Chunk: {data.Chunk?.Position}", 2 );
+		Gizmo.Draw.ScreenText( $"{data.Voxel?.Color ?? default}", 20, "Consolas", 18, TextFlag.LeftTop );
+		Gizmo.Draw.ScreenText( $"XYZ: {position}", 20 + Vector2.Up * 20, "Consolas", 18, TextFlag.LeftTop );
+		Gizmo.Draw.ScreenText( $"Chunk: {data.Chunk?.Position}", 20 + Vector2.Up * 40, "Consolas", 18, TextFlag.LeftTop );
 
-		var voxelCenter = (Vector3)position * parent.VoxelScale
-			+ parent.VoxelScale / 2f
-			+ parent.Position;
+		var voxelCenter = (Vector3)position * VoxelScale
+			+ VoxelScale / 2f
+			+ Gizmo.Transform.Position;
 
 		Gizmo.Draw.Color = Color.Black;
 		Gizmo.Draw.LineThickness = 1;
-		Gizmo.Draw.LineBBox( new BBox( voxelCenter - parent.VoxelScale / 2f, voxelCenter + parent.VoxelScale / 2f ) );*/
+		Gizmo.Draw.LineBBox( new BBox( voxelCenter - VoxelScale / 2f, voxelCenter + VoxelScale / 2f ) );
 	}
 	#endregion
 }
