@@ -142,7 +142,7 @@ VS
         },
     };
 
-    PixelInput MainVs( INSTANCED_SHADER_PARAMS( VertexInput i ) )
+    PixelInput MainVs( VertexInput i )
 	{
         // Turn our 32-bit unsigned integers back to the actual data.
         int3 position = int3( i.vData.x & 0xF, (i.vData.x >> 4) & 0xF, (i.vData.x >> 8) & 0xF );
@@ -198,14 +198,14 @@ PS
         float3 albedo = Tex2DArrayS( g_tAlbedo, g_sSampler, i.vTexCoord.xyz ).rgb;
         float3 rae = Tex2DArrayS( g_tRAE, g_sSampler, i.vTexCoord.xyz ).rgb;
 
-        Material m;
+        Material m = Material::Init();
         m.Albedo = albedo.rgb * i.vColor.rgb * i.fOcclusion;
         m.Normal = 1;
         m.Roughness = rae.r;
 		m.Metalness = 0;
 		m.AmbientOcclusion = 1;
 		m.TintMask = 1;
-		m.Opacity = rae.g; // rea.g
+		m.Opacity = rae.g; // rae.g
 		m.Emission = rae.b;
 		m.Transmission = 1;
 

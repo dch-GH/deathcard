@@ -1,0 +1,19 @@
+{
+  "Title": "Default Atlas",
+  "TextureSize": "32,32",
+  "Items": [
+    {
+      "Name": "Block",
+      "Albedo": "resources/textures/default_albedo.png"
+    },
+    {
+      "Name": "Example",
+      "Albedo": "resources/textures/example_albedo.png"
+    },
+    {
+      "Name": "Dirt",
+      "Albedo": "resources/textures/dirt_albedo.png"
+    }
+  ],
+  "__references": []
+}

@@ -4,8 +4,34 @@
     {
       "Id": "709cc0e5-288a-4b9e-a32d-7bc3e023eae3",
       "Name": "VoxelWorld",
-      "Position": "-604.8545,-927.6505,459.9869",
-      "Enabled": true
+      "Enabled": true,
+      "Components": [
+        {
+          "__version": 0,
+          "__type": "VoxelWorld",
+          "__enabled": true,
+          "Path": "vox/maps/monument.vox"
+        }
+      ]
+    },
+    {
+      "Id": "a6ef2875-baac-4f8b-a13f-fe61c7c731c0",
+      "Name": "Sun",
+      "Position": "-578.7006,3679.758,3528.724",
+      "Rotation": "-0.1221292,-0.1597398,0.5949669,-0.7781915",
+      "Enabled": true,
+      "Components": [
+        {
+          "__version": 0,
+          "__type": "DirectionalLight",
+          "__enabled": true,
+          "FogMode": "Enabled",
+          "FogStrength": 1,
+          "LightColor": "0.91373,0.98039,1,1",
+          "Shadows": true,
+          "SkyColor": "0.56279,0.56279,0.56279,1"
+        }
+      ]
     }
   ],
   "SceneProperties": {
