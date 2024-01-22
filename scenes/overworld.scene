@@ -1,0 +1,23 @@
+{
+  "Id": "a5e37001-14af-4201-ac3a-2b68003f23c9",
+  "GameObjects": [
+    {
+      "Id": "709cc0e5-288a-4b9e-a32d-7bc3e023eae3",
+      "Name": "VoxelWorld",
+      "Position": "-604.8545,-927.6505,459.9869",
+      "Enabled": true
+    }
+  ],
+  "SceneProperties": {
+    "FixedUpdateFrequency": 50,
+    "Lerping": true,
+    "MaxFixedUpdates": 5,
+    "NetworkFrequency": 30,
+    "ThreadedAnimation": true,
+    "TimeScale": 1,
+    "UseFixedUpdate": true
+  },
+  "Title": "overworld",
+  "Description": "",
+  "__references": []
+}

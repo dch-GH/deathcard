@@ -1,9 +1,9 @@
 {
-  "Title": "Death Card",
+  "Title": "Deathcard",
   "Type": "game",
   "Org": "fish",
   "Ident": "deathcard",
-  "Tags": "voxel shooter fun",
+  "Tags": "voxel crawl deez",
   "Schema": 1,
   "HasAssets": true,
   "AssetsPath": "",
@@ -26,7 +26,7 @@
     "CsProjName": "",
     "HttpAllowList": null,
     "Compiler": {
-      "RootNamespace": "DeathCard",
+      "RootNamespace": "Deathcard",
       "DefineConstants": "SANDBOX;ADDON;DEBUG",
       "NoWarn": "1701;1702;1591;",
       "References": [],
