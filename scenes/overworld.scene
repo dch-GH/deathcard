@@ -15,34 +15,6 @@
       ]
     },
     {
-      "Id": "3864774b-59ae-4617-8256-7cdc043a2d62",
-      "Name": "Camera",
-      "Position": "-4204.196,8524.546,6410.27",
-      "Rotation": "0.09713869,0.1972102,-0.4310597,0.8751342",
-      "Tags": "maincamera",
-      "Enabled": true,
-      "Components": [
-        {
-          "__version": 0,
-          "__type": "CameraComponent",
-          "__enabled": true,
-          "BackgroundColor": "0.33333,0.46275,0.52157,1",
-          "ClearFlags": "All",
-          "FieldOfView": 60,
-          "IsMainCamera": true,
-          "Orthographic": false,
-          "OrthographicHeight": 1204,
-          "Priority": 1,
-          "RenderExcludeTags": "",
-          "RenderTags": "",
-          "TargetEye": "None",
-          "Viewport": "0,0,1,1",
-          "ZFar": 15000,
-          "ZNear": 10
-        }
-      ]
-    },
-    {
       "Id": "a6ef2875-baac-4f8b-a13f-fe61c7c731c0",
       "Name": "Sun",
       "Position": "-578.7006,3679.758,3528.724",
@@ -114,6 +86,49 @@
           "__enabled": true,
           "SkyMaterial": "materials/skybox/skybox_workshop.vmat",
           "Tint": "1,1,1,1"
+        }
+      ]
+    },
+    {
+      "Id": "80bf0db3-b5a6-4358-9bc2-660b76ef8e3a",
+      "Name": "Player",
+      "Position": "1000,2500,2500",
+      "Rotation": "0,-0,-0.3826835,0.9238795",
+      "Enabled": true,
+      "Components": [
+        {
+          "__version": 0,
+          "__type": "Player",
+          "__enabled": true
+        }
+      ],
+      "Children": [
+        {
+          "Id": "3864774b-59ae-4617-8256-7cdc043a2d62",
+          "Name": "Camera",
+          "Position": "0,0,0",
+          "Tags": "maincamera",
+          "Enabled": true,
+          "Components": [
+            {
+              "__version": 0,
+              "__type": "CameraComponent",
+              "__enabled": true,
+              "BackgroundColor": "0.33333,0.46275,0.52157,1",
+              "ClearFlags": "All",
+              "FieldOfView": 95,
+              "IsMainCamera": true,
+              "Orthographic": false,
+              "OrthographicHeight": 1204,
+              "Priority": 1,
+              "RenderExcludeTags": "",
+              "RenderTags": "",
+              "TargetEye": "None",
+              "Viewport": "0,0,1,1",
+              "ZFar": 15000,
+              "ZNear": 10
+            }
+          ]
         }
       ]
     }

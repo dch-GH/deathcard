@@ -29,6 +29,12 @@ public partial class VoxelWorld : Component
 	public Vector3 VoxelScale { get; set; } = Utility.Scale;
 	public TextureAtlas Atlas { get; set; } = TextureAtlas.Get( "resources/textures/default.atlas" );
 
+	public VoxelWorld()
+	{
+		if ( !GameManager.IsPlaying )
+			Reset();
+	}
+
 	public void AssignAttributes( RenderAttributes attributes )
 	{
 		attributes.Set( "VoxelScale", VoxelScale );
