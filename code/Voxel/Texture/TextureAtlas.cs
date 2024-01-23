@@ -174,7 +174,7 @@ public struct SerializedTexture
 	[ResourceType( "png" ), ShowIf( "HasRAE", true )]
 	public string RAE { get; set; }
 
-	[HideInEditor, JsonIgnore ]
+	[Hide, JsonIgnore]
 	public bool HasRAE => Roughness || Alpha || Emission;
 
 	public SerializedTexture() { }

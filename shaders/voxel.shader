@@ -67,6 +67,16 @@ VS
 		0.85f, 0.7f
     };
 
+    static const float3 faceNormals[6] = 
+    {
+        float3(0, 0, 1),
+        float3(0, 0, -1),
+        float3(-1, 0, 0),
+        float3(0, 1, 0),
+        float3(1, 0, 0),
+        float3(0, -1, 0)
+    };
+
     static const int2 uvTable[6][8] = 
     {
         // +z, correct
@@ -152,14 +162,8 @@ VS
 
         float ao = pow( 0.75, (i.vData.x >> 15) & 0x3 );
 
-        float3 normal = float3( 0, 0, 0 );
         uint face = (i.vData.x >> 12) & 0x7;
-        if ( face == 0 ) normal = float3( 0, 0, 1 );
-        else if ( face == 1 ) normal = float3( 0, 0, -1 );
-        else if ( face == 2 ) normal = float3( -1, 0, 0 );
-        else if ( face == 3 ) normal = float3( 0, 1, 0 );
-        else if ( face == 4 ) normal = float3( 1, 0, 0 );
-        else if ( face == 5 ) normal = float3( 0, -1, 0 );
+        float3 normal = faceNormals[face];
 
         float4 color = float4( 
             (i.vData.y & 0xFFu),
@@ -200,7 +204,7 @@ PS
 
         Material m = Material::Init();
         m.Albedo = albedo.rgb * i.vColor.rgb * i.fOcclusion;
-        m.Normal = 1;
+        m.Normal = i.vNormal; // todo: fix, bugged for some reason?
         m.Roughness = rae.r;
 		m.Metalness = 0;
 		m.AmbientOcclusion = 1;

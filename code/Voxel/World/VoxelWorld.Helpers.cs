@@ -66,7 +66,7 @@ partial class VoxelWorld
 	/// <param name="z"></param>
 	/// <param name="relative"></param>
 	/// <returns></returns>
-	public (Chunk Chunk, IVoxel? Voxel) GetByOffset( int x, int y, int z, Chunk relative = null )
+	public (Chunk Chunk, IVoxel Voxel) GetByOffset( int x, int y, int z, Chunk relative = null )
 	{
 		// Get the new chunk's position based on the offset.
 		var position = new Vector3S(

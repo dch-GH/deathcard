@@ -7,9 +7,7 @@
       "Enabled": true,
       "Components": [
         {
-          "__version": 0,
           "__type": "VoxelWorld",
-          "__enabled": true,
           "Path": "vox/maps/monument.vox"
         }
       ]
@@ -17,14 +15,12 @@
     {
       "Id": "a6ef2875-baac-4f8b-a13f-fe61c7c731c0",
       "Name": "Sun",
-      "Position": "-578.7006,3679.758,3528.724",
-      "Rotation": "0.01810057,0.3838691,-0.04348379,0.9221855",
+      "Position": "-422.7993,3010.459,3528.724",
+      "Rotation": "-0.1498456,-0.3538777,0.3599807,-0.8501357",
       "Enabled": true,
       "Components": [
         {
-          "__version": 0,
           "__type": "DirectionalLight",
-          "__enabled": true,
           "FogMode": "Enabled",
           "FogStrength": 1,
           "LightColor": "0.42326,0.42326,0.42326,1",
@@ -42,9 +38,7 @@
       "Enabled": true,
       "Components": [
         {
-          "__version": 0,
           "__type": "ModelRenderer",
-          "__enabled": true,
           "BodyGroups": 18446744073709551615,
           "MaterialGroup": null,
           "MaterialOverride": null,
@@ -53,9 +47,7 @@
           "Tint": "1,1,1,1"
         },
         {
-          "__version": 0,
           "__type": "Rigidbody",
-          "__enabled": true,
           "AngularDamping": 0,
           "Gravity": true,
           "LinearDamping": 0,
@@ -64,9 +56,7 @@
           "StartAsleep": false
         },
         {
-          "__version": 0,
           "__type": "BoxCollider",
-          "__enabled": true,
           "Center": "0,0,0",
           "IsTrigger": false,
           "Scale": "50,50,50",
@@ -81,9 +71,7 @@
       "Enabled": true,
       "Components": [
         {
-          "__version": 0,
           "__type": "SkyBox2D",
-          "__enabled": true,
           "SkyMaterial": "materials/skybox/skybox_workshop.vmat",
           "Tint": "1,1,1,1"
         }
@@ -97,9 +85,7 @@
       "Enabled": true,
       "Components": [
         {
-          "__version": 0,
-          "__type": "Player",
-          "__enabled": true
+          "__type": "Player"
         }
       ],
       "Children": [
@@ -111,9 +97,7 @@
           "Enabled": true,
           "Components": [
             {
-              "__version": 0,
               "__type": "CameraComponent",
-              "__enabled": true,
               "BackgroundColor": "0.33333,0.46275,0.52157,1",
               "ClearFlags": "All",
               "FieldOfView": 95,

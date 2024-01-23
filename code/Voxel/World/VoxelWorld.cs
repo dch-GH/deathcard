@@ -29,12 +29,6 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	public Vector3 VoxelScale { get; set; } = Utility.Scale;
 	public TextureAtlas Atlas { get; set; } = TextureAtlas.Get( "resources/textures/default.atlas" );
 
-	protected override void OnValidate()
-	{
-		if ( !GameManager.IsPlaying )
-			Reset();
-	}
-
 	public void AssignAttributes( RenderAttributes attributes )
 	{
 		attributes.Set( "VoxelScale", VoxelScale );
@@ -140,6 +134,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 				buffer.AddCube( pos, scale, Rotation.Identity );
 			}
 
+			// Build vertices.
 			voxel.Build( this, chunk, position, ref vertices, ref indices, ref offset, buffer );
 		}
 
@@ -152,7 +147,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			var builder = Model.Builder
 				.AddMesh( mesh );
 
-			if ( vxChunk == null )
+			if ( vxChunk == null ) // We are in editor.
 			{
 				gizmoCache.Add( chunk.Position, builder.Create() );
 				return;
@@ -163,7 +158,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 				.Create();
 		}
 	}
-
+	
 	public override async void Reset()
 	{
 		gizmoCache.Clear();
@@ -176,25 +171,29 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 
 	#region DEBUG
 	private readonly Dictionary<Vector3S, Model> gizmoCache = new();
+
 	protected override void DrawGizmos()
 	{
 		// Display all chunks.
+		Gizmo.Draw.Model( Model.Sphere, new Transform( Vector3.Up * 2000, Rotation.Identity, 10 ) );
 		foreach ( var (chunk, model) in gizmoCache )
 		{
 			var pos = (Vector3)chunk * VoxelScale * Chunk.Size;
 
-			AssignAttributes( Gizmo.Camera.Attributes );
-			Gizmo.Draw.Model( model, new Transform( pos + VoxelScale / 2 ) );
+			var obj = Gizmo.Draw.Model( model, new Transform( pos + VoxelScale / 2 ) );
+			AssignAttributes( obj.Attributes );
 
 			Gizmo.Draw.Color = Color.Yellow;
 			Gizmo.Draw.LineThickness = 0.1f;
 			Gizmo.Draw.LineBBox( new BBox( pos, pos + (Vector3)Chunk.Size * VoxelScale ) );
 		}
-		
+
 		// Focus on hovered VoxelWorld.
-		var ray = Scene.Camera.ScreenPixelToRay( Mouse.Position ); // todo: fix
-		var tr = Scene.Trace.Ray( ray, 20000f )
+		var tr = Gizmo.World.Trace.Ray( Gizmo.CurrentRay, 15000f ) // todo: mesh traces don't hit procedural models
 			.Run();
+
+		if ( !tr.Hit )
+			return;
 
 		var position = WorldToVoxel( tr.EndPosition - tr.Normal * VoxelScale / 2f );
 		var data = GetByOffset( position.x, position.y, position.z );

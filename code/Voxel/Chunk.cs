@@ -31,7 +31,7 @@ public class Chunk : IEquatable<Chunk>
 	public IVoxel GetVoxel( byte x, byte y, byte z )
 		=> voxels[x, y, z];
 
-	public IVoxel?[,,] GetVoxels()
+	public IVoxel[,,] GetVoxels()
 		=> voxels;
 
 	public void SetParent( Dictionary<Vector3S, Chunk> parent )
@@ -62,7 +62,7 @@ public class Chunk : IEquatable<Chunk>
 		);
 	}
 
-	public void SetVoxel( byte x, byte y, byte z, IVoxel? voxel = null )
+	public void SetVoxel( byte x, byte y, byte z, IVoxel voxel = null )
 		=> voxels[x, y, z] = voxel;
 
 	public IEnumerable<Chunk> GetNeighbors( byte x, byte y, byte z, bool includeSelf = true )
