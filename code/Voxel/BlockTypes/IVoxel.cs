@@ -3,6 +3,7 @@
 public enum BlockType : byte
 {
 	Block,
+	TintedBlock,
 	Sprite,
 	Pane,
 	Stair,
@@ -38,7 +39,6 @@ public interface IVoxel
 	/// <param name="indices"></param>
 	/// <param name="offset"></param>
 	/// <param name="buffer"></param>
-	/// <returns>The amount to offset indices.</returns>
 	public abstract void Build( VoxelWorld world, Chunk chunk, Vector3B position,
 		ref List<VoxelVertex> vertices, ref List<int> indices, ref int offset,
 		CollisionBuffer buffer );
@@ -65,10 +65,10 @@ public interface IVoxel
 	/// Utility method for reading an IVoxel's data based on block type.
 	/// </summary>
 	/// <param name="reader"></param>
-	/// <param name="type"></param>
 	/// <returns></returns>
-	public static IVoxel ReadFromType( BinaryReader reader, BlockType type )
+	public static IVoxel TryRead( BinaryReader reader )
 	{
+		var type = (BlockType)reader.ReadByte();
 		if ( !Readers.TryGetValue( type, out var method ) )
 			return null;
 

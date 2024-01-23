@@ -77,7 +77,7 @@ public class VoxImporter : BaseImporter
 			if ( !chunks.TryGetValue( position, out var chunk ) || chunk == null )
 				chunks.Add( position, chunk = new Chunk( position.x, position.y, position.z, chunks ) );
 
-			chunk.SetVoxel( (ushort)(voxel.x % Chunk.Size.x), (ushort)(voxel.y % Chunk.Size.y), (ushort)(voxel.z % Chunk.Size.z), new Voxel( color ) );
+			chunk.SetVoxel( (byte)(voxel.x % Chunk.Size.x), (byte)(voxel.y % Chunk.Size.y), (byte)(voxel.z % Chunk.Size.z), new TintedBlock() { Color = color } );
 		}
 
 		stream.Close();

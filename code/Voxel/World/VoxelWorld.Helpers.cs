@@ -66,7 +66,7 @@ partial class VoxelWorld
 	/// <param name="z"></param>
 	/// <param name="relative"></param>
 	/// <returns></returns>
-	public (Chunk Chunk, Voxel? Voxel) GetByOffset( int x, int y, int z, Chunk relative = null )
+	public (Chunk Chunk, IVoxel? Voxel) GetByOffset( int x, int y, int z, Chunk relative = null )
 	{
 		// Get the new chunk's position based on the offset.
 		var position = new Vector3S(
@@ -80,9 +80,9 @@ partial class VoxelWorld
 		return (
 			Chunk: chunk,
 			Voxel: chunk?.GetVoxel(
-				(ushort)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH ) % Chunk.DEFAULT_WIDTH),
-				(ushort)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH ) % Chunk.DEFAULT_DEPTH),
-				(ushort)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT) )
+				(byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH ) % Chunk.DEFAULT_WIDTH),
+				(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH ) % Chunk.DEFAULT_DEPTH),
+				(byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT) )
 		);
 	}
 }

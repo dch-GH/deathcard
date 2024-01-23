@@ -13,7 +13,7 @@ if ( voxel != null )
 }
 */
 
-public partial class VoxelWorld : Component
+public partial class VoxelWorld : Component, Component.ExecuteInEditor
 {
 	[Property] public string Path { get; set; }
 
@@ -29,7 +29,7 @@ public partial class VoxelWorld : Component
 	public Vector3 VoxelScale { get; set; } = Utility.Scale;
 	public TextureAtlas Atlas { get; set; } = TextureAtlas.Get( "resources/textures/default.atlas" );
 
-	public VoxelWorld()
+	protected override void OnValidate()
 	{
 		if ( !GameManager.IsPlaying )
 			Reset();
@@ -103,9 +103,9 @@ public partial class VoxelWorld : Component
 		buffer.Init( true );
 
 		chunk.Empty = true;
-		for ( ushort x = 0; x < Chunk.DEFAULT_WIDTH; x++ )
-		for ( ushort y = 0; y < Chunk.DEFAULT_DEPTH; y++ )
-		for ( ushort z = 0; z < Chunk.DEFAULT_HEIGHT; z++ )
+		for ( byte x = 0; x < Chunk.DEFAULT_WIDTH; x++ )
+		for ( byte y = 0; y < Chunk.DEFAULT_DEPTH; y++ )
+		for ( byte z = 0; z < Chunk.DEFAULT_HEIGHT; z++ )
 		{
 			var voxel = chunk.GetVoxel( x, y, z );
 			if ( voxel == null )				
@@ -140,34 +140,7 @@ public partial class VoxelWorld : Component
 				buffer.AddCube( pos, scale, Rotation.Identity );
 			}
 
-			// Generate all visible faces for our voxel.
-			var drawCount = 0;
-			for ( var i = 0; i < Utility.Faces; i++ )
-			{
-				var direction = Utility.Directions[i];
-				var neighbour = chunk.GetDataByOffset( x + direction.x, y + direction.y, z + direction.z ).Voxel;
-				if ( neighbour != null )
-					continue;
-			
-				for ( var j = 0; j < 4; ++j )
-				{
-					var vertexIndex = Utility.FaceIndices[(i * 4) + j];
-					var ao = Utility.BuildAO( chunk, position, i, j );
-
-					vertices.Add( new VoxelVertex( position, vertexIndex, (byte)i, ao, voxel.Value.Color, 0 ) );
-				}
-
-				indices.Add( offset + drawCount * 4 + 0 );
-				indices.Add( offset + drawCount * 4 + 2 );
-				indices.Add( offset + drawCount * 4 + 1 );
-				indices.Add( offset + drawCount * 4 + 2 );
-				indices.Add( offset + drawCount * 4 + 0 );
-				indices.Add( offset + drawCount * 4 + 3 );
-
-				drawCount++;
-			}
-
-			offset += 4 * drawCount;
+			voxel.Build( this, chunk, position, ref vertices, ref indices, ref offset, buffer );
 		}
 
 		// Check if we actually end up with vertices.
@@ -217,7 +190,7 @@ public partial class VoxelWorld : Component
 			Gizmo.Draw.LineThickness = 0.1f;
 			Gizmo.Draw.LineBBox( new BBox( pos, pos + (Vector3)Chunk.Size * VoxelScale ) );
 		}
-
+		
 		// Focus on hovered VoxelWorld.
 		var ray = Scene.Camera.ScreenPixelToRay( Mouse.Position ); // todo: fix
 		var tr = Scene.Trace.Ray( ray, 20000f )
@@ -227,7 +200,7 @@ public partial class VoxelWorld : Component
 		var data = GetByOffset( position.x, position.y, position.z );
 
 		// Debug
-		Gizmo.Draw.ScreenText( $"{data.Voxel?.Color ?? default}", 20, "Consolas", 18, TextFlag.LeftTop );
+		Gizmo.Draw.ScreenText( $"{(data.Voxel?.GetType().ToString() ?? "unknown")}", 20, "Consolas", 18, TextFlag.LeftTop );
 		Gizmo.Draw.ScreenText( $"XYZ: {position}", 20 + Vector2.Up * 20, "Consolas", 18, TextFlag.LeftTop );
 		Gizmo.Draw.ScreenText( $"Chunk: {data.Chunk?.Position}", 20 + Vector2.Up * 40, "Consolas", 18, TextFlag.LeftTop );
 

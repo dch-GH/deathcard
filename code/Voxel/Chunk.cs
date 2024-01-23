@@ -10,7 +10,7 @@ public class Chunk : IEquatable<Chunk>
 		= new Vector3B( Chunk.DEFAULT_WIDTH, Chunk.DEFAULT_DEPTH, Chunk.DEFAULT_HEIGHT );
 
 	private Dictionary<Vector3S, Chunk> chunks;
-	private Voxel?[,,] voxels;
+	private IVoxel[,,] voxels;
 
 	public short x;
 	public short y;
@@ -25,19 +25,19 @@ public class Chunk : IEquatable<Chunk>
 		this.z = z;
 
 		this.chunks = chunks;
-		voxels = new Voxel?[DEFAULT_WIDTH, DEFAULT_DEPTH, DEFAULT_HEIGHT];
+		voxels = new IVoxel[DEFAULT_WIDTH, DEFAULT_DEPTH, DEFAULT_HEIGHT];
 	}
 
-	public Voxel? GetVoxel( ushort x, ushort y, ushort z )
+	public IVoxel GetVoxel( byte x, byte y, byte z )
 		=> voxels[x, y, z];
 
-	public Voxel?[,,] GetVoxels()
+	public IVoxel?[,,] GetVoxels()
 		=> voxels;
 
 	public void SetParent( Dictionary<Vector3S, Chunk> parent )
 		=> chunks = parent;
 
-	public (Chunk Chunk, Voxel? Voxel) GetDataByOffset( int x, int y, int z )
+	public (Chunk Chunk, IVoxel Voxel) GetDataByOffset( int x, int y, int z )
 	{
 		if ( chunks == null )
 			return (null, null);
@@ -56,16 +56,16 @@ public class Chunk : IEquatable<Chunk>
 		return (
 			Chunk: chunk,
 			Voxel: chunk?.voxels[ 
-				(ushort)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH ) % Chunk.DEFAULT_WIDTH ),
-				(ushort)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH ) % Chunk.DEFAULT_DEPTH ),
-				(ushort)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT )] 
+				(byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH ) % Chunk.DEFAULT_WIDTH ),
+				(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH ) % Chunk.DEFAULT_DEPTH ),
+				(byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT )] 
 		);
 	}
 
-	public void SetVoxel( ushort x, ushort y, ushort z, Voxel? voxel = null )
+	public void SetVoxel( byte x, byte y, byte z, IVoxel? voxel = null )
 		=> voxels[x, y, z] = voxel;
 
-	public IEnumerable<Chunk> GetNeighbors( ushort x, ushort y, ushort z, bool includeSelf = true )
+	public IEnumerable<Chunk> GetNeighbors( byte x, byte y, byte z, bool includeSelf = true )
 	{
 		// Let's include this chunk too if we want.
 		if ( includeSelf )

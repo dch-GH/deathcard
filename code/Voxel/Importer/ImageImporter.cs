@@ -32,7 +32,7 @@ public class ImageImporter : BaseImporter
 			if ( !chunks.TryGetValue( chunkPosition, out var chunk ) )
 				chunks.Add( chunkPosition, chunk = new Chunk( (short)x, 0, (short)y, chunks ) );
 
-			chunk.SetVoxel( x, 0, y, new Voxel( color ) );
+			chunk.SetVoxel( (byte)(x % 16), 0, (byte)(y % 16), new TintedBlock() { Color = color } );
 		}
 
 		return chunks;

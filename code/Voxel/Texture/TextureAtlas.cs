@@ -8,10 +8,10 @@ public class TextureAtlas : GameResource
 {
 	private static List<TextureAtlas> all = new();
 
-	[HideInEditor, JsonIgnore]
+	[Hide, JsonIgnore]
 	public Texture Albedo { get; private set; }
 
-	[HideInEditor, JsonIgnore]
+	[Hide, JsonIgnore]
 	public Texture RAE { get; private set; }
 
 	/// <summary>
@@ -32,13 +32,13 @@ public class TextureAtlas : GameResource
 	/// <summary>
 	/// Single pixel's size as a fraction.
 	/// </summary>
-	[HideInEditor, JsonIgnore]
+	[Hide, JsonIgnore]
 	public Vector2 Step => 1f / Size;
 
 	/// <summary>
 	/// The size of the whole TextureAtlas.
 	/// </summary>
-	[HideInEditor, JsonIgnore]
+	[Hide, JsonIgnore]
 	public Vector2 Size => new Vector2(
 		(int)(TextureSize.x * Utility.Faces),
 		(int)TextureSize.y );
