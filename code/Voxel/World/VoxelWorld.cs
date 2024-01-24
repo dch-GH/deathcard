@@ -16,6 +16,8 @@ if ( voxel != null )
 public partial class VoxelWorld : Component, Component.ExecuteInEditor
 {
 	[Property] public string Path { get; set; }
+	[Property] public TextureAtlas Atlas { get; set; } = TextureAtlas.Get( "resources/textures/default.atlas" );
+	[Property] public Vector3 VoxelScale { get; set; } = Utility.Scale;
 
 	public static IReadOnlyList<VoxelWorld> All => all;
 	private static List<VoxelWorld> all = new();
@@ -26,8 +28,6 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 
 	private Material material = Material.FromShader( "shaders/voxel.shader" );
 
-	public Vector3 VoxelScale { get; set; } = Utility.Scale;
-	public TextureAtlas Atlas { get; set; } = TextureAtlas.Get( "resources/textures/default.atlas" );
 
 	public void AssignAttributes( RenderAttributes attributes )
 	{
@@ -66,6 +66,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			obj.Parent = GameObject;
 			obj.Name = $"Chunk {chunk.Position}";
 			obj.Transform.LocalPosition = (Vector3)chunk.Position * VoxelScale * Chunk.Size + VoxelScale / 2f;
+
 			objects.Add( chunk, vxChunk = obj.Components.GetOrCreate<VoxelChunk>() );
 		}
 
@@ -178,17 +179,25 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	protected override void DrawGizmos()
 	{
 		// Display all chunks.
-		foreach ( var (chunk, model) in gizmoCache )
-		{
-			var pos = (Vector3)chunk * VoxelScale * Chunk.Size;
+		if ( !GameManager.IsPlaying )
+			foreach ( var (chunk, model) in gizmoCache )
+			{
+				var pos = (Vector3)chunk * VoxelScale * Chunk.Size;
 
-			var obj = Gizmo.Draw.Model( model, new Transform( pos + VoxelScale / 2 ) );
-			AssignAttributes( obj.Attributes );
+				var obj = Gizmo.Draw.Model( model, new Transform( pos + VoxelScale / 2 ) );
+				AssignAttributes( obj.Attributes );
 
-			Gizmo.Draw.Color = Color.Yellow;
-			Gizmo.Draw.LineThickness = 0.1f;
-			Gizmo.Draw.LineBBox( new BBox( pos, pos + (Vector3)Chunk.Size * VoxelScale ) );
-		}
+				Gizmo.Draw.Color = Color.Yellow;
+				Gizmo.Draw.LineThickness = 0.1f;
+				Gizmo.Draw.LineBBox( new BBox( pos, pos + (Vector3)Chunk.Size * VoxelScale ) );
+			}
+		else
+			foreach ( var (_, chunk) in objects )
+			{
+				Gizmo.Draw.Color = Color.Yellow;
+				Gizmo.Draw.LineThickness = 0.1f;
+				Gizmo.Draw.LineBBox( new BBox( chunk.Transform.Position, chunk.Transform.Position + (Vector3)Chunk.Size * VoxelScale ) );
+			}
 
 		// Focus on hovered VoxelWorld.
 		var tr = Trace( Gizmo.CurrentRay, 50000f );
