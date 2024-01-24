@@ -188,7 +188,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		}
 
 		// Focus on hovered VoxelWorld.
-		var tr = Trace( Gizmo.CurrentRay, 100000f );
+		var tr = Trace( Gizmo.CurrentRay, 50000f );
 		if ( !tr.Hit )
 			return;
 

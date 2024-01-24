@@ -1,5 +1,17 @@
 ﻿namespace Deathcard;
 
+public struct VoxelTraceResult
+{
+	public Vector3B LocalPosition;
+	public Vector3S GlobalPosition;
+
+	public Chunk Chunk;
+	public IVoxel Voxel;
+	public bool Hit;
+
+	public Vector3 Normal;
+}
+
 partial class VoxelWorld
 {
 	private bool trySpreadX( Chunk chunk, bool canSpreadX, ref bool[,,] tested, (byte x, byte y, byte z) start, ref (int x, int y, int z) size )
@@ -90,5 +102,44 @@ partial class VoxelWorld
 		}
 
 		return canSpreadZ;
+	}
+
+	/// <summary>
+	/// Traces a ray in our VoxelWorld, used mostly for editor stuff.
+	/// </summary>
+	/// <param name="ray"></param>
+	/// <param name="distance"></param>
+	/// <param name="precision"></param>
+	/// <returns></returns>
+	public VoxelTraceResult Trace( Ray ray, float distance, float? precision = null )
+	{
+		var result = new VoxelTraceResult();
+		var stepSize = precision ?? VoxelScale / 4f;
+
+		var start = ray.Position;
+		var position = start;
+		var direction = ray.Forward;
+
+		while ( position.Distance( start ) <= distance )
+		{
+			var pos = WorldToVoxel( ApplyTransforms( position ) );
+			var local = GetLocalSpace( pos.x, pos.y, pos.z, out var chunk );
+			var voxel = chunk?.GetVoxel( local.x, local.y, local.z );
+
+			if ( voxel != null ) // We had a collision.
+				return result with // todo @ceitine: add normal aswell
+				{
+					Chunk = chunk,
+					LocalPosition = local,
+					GlobalPosition = pos,
+					Hit = true,
+					Voxel = voxel
+				};
+
+			// Keep moving forward, we didn't hit anything.
+			position += direction * stepSize;
+		}
+
+		return result;
 	}
 }
