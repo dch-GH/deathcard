@@ -92,6 +92,16 @@
           "Name": "Chat",
           "KeyboardCode": "enter",
           "GroupName": "Other"
+        },
+        {
+          "Name": "Noclip",
+          "KeyboardCode": "V",
+          "GroupName": "Movement"
+        },
+        {
+          "Name": "Jump",
+          "KeyboardCode": "SPACE",
+          "GroupName": "Movement"
         }
       ]
     }

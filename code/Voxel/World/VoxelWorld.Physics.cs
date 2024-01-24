@@ -111,10 +111,9 @@ partial class VoxelWorld
 	/// <param name="distance"></param>
 	/// <param name="precision"></param>
 	/// <returns></returns>
-	public VoxelTraceResult Trace( Ray ray, float distance, float? precision = null )
+	public VoxelTraceResult Trace( Ray ray, float distance, float precision = Utility.Scale / 4f)
 	{
 		var result = new VoxelTraceResult();
-		var stepSize = precision ?? VoxelScale / 4f;
 
 		var start = ray.Position;
 		var position = start;
@@ -137,7 +136,7 @@ partial class VoxelWorld
 				};
 
 			// Keep moving forward, we didn't hit anything.
-			position += direction * stepSize;
+			position += direction * precision;
 		}
 
 		return result;

@@ -1,0 +1,70 @@
+{
+  "RootObject": {
+    "Id": "043d594e-ba58-4d57-9487-80298d2399f0",
+    "Name": "player",
+    "Enabled": true,
+    "Components": [
+      {
+        "__type": "Player"
+      }
+    ],
+    "Children": [
+      {
+        "Id": "8508e081-406d-4537-ba56-2b18a6b8a1dd",
+        "Name": "Model",
+        "Position": "0,0,38",
+        "Scale": "0.75,0.75,1.5",
+        "Tags": "localplayer",
+        "Enabled": true,
+        "Components": [
+          {
+            "__type": "ModelRenderer",
+            "BodyGroups": 18446744073709551615,
+            "MaterialGroup": null,
+            "MaterialOverride": null,
+            "Model": "models/dev/box.vmdl",
+            "RenderType": "On",
+            "Tint": "1,1,1,1"
+          },
+          {
+            "__type": "BoxCollider",
+            "Center": "0,0,0",
+            "IsTrigger": false,
+            "Scale": "50,50,50",
+            "Static": false,
+            "Surface": null
+          }
+        ]
+      },
+      {
+        "Id": "6484510a-2269-425f-b15a-285d66081618",
+        "Name": "Camera",
+        "Position": "0,0,72",
+        "Tags": "maincamera",
+        "Enabled": true,
+        "Components": [
+          {
+            "__type": "CameraComponent",
+            "BackgroundColor": "0.33333,0.46275,0.52157,1",
+            "ClearFlags": "All",
+            "FieldOfView": 95,
+            "IsMainCamera": true,
+            "Orthographic": false,
+            "OrthographicHeight": 1204,
+            "Priority": 1,
+            "RenderExcludeTags": "localplayer",
+            "RenderTags": "",
+            "TargetEye": "None",
+            "Viewport": "0,0,1,1",
+            "ZFar": 10000,
+            "ZNear": 10
+          }
+        ]
+      }
+    ]
+  },
+  "ShowInMenu": false,
+  "MenuPath": null,
+  "MenuIcon": null,
+  "__references": []
+}

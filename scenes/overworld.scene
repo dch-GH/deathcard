@@ -78,43 +78,11 @@
       ]
     },
     {
-      "Id": "80bf0db3-b5a6-4358-9bc2-660b76ef8e3a",
+      "Id": "043d594e-ba58-4d57-9487-80298d2399f0",
       "Name": "Player",
-      "Position": "1000,2500,2500",
-      "Rotation": "0,-0,-0.3826835,0.9238795",
+      "Position": "1641.115,2653.382,1906.474",
       "Enabled": true,
-      "Components": [
-        {
-          "__type": "Player"
-        }
-      ],
-      "Children": [
-        {
-          "Id": "3864774b-59ae-4617-8256-7cdc043a2d62",
-          "Name": "Camera",
-          "Position": "0,0,0",
-          "Tags": "maincamera",
-          "Enabled": true,
-          "Components": [
-            {
-              "__type": "CameraComponent",
-              "BackgroundColor": "0.33333,0.46275,0.52157,1",
-              "ClearFlags": "All",
-              "FieldOfView": 95,
-              "IsMainCamera": true,
-              "Orthographic": false,
-              "OrthographicHeight": 1204,
-              "Priority": 1,
-              "RenderExcludeTags": "",
-              "RenderTags": "",
-              "TargetEye": "None",
-              "Viewport": "0,0,1,1",
-              "ZFar": 15000,
-              "ZNear": 10
-            }
-          ]
-        }
-      ]
+      "__Prefab": "prefabs/player.prefab"
     }
   ],
   "SceneProperties": {
