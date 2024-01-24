@@ -1,6 +1,4 @@
-﻿using Deathcard.Importer;
-
-namespace Deathcard;
+﻿namespace Deathcard;
 
 public class Explosive : Component
 {
@@ -17,31 +15,45 @@ public class Explosive : Component
 		Rigidbody = Components.Get<Rigidbody>();
 	}
 
-	protected override void OnFixedUpdate()
+	protected override void OnUpdate()
 	{
 		Move();
 
+		Gizmo.Draw.LineSphere( new Sphere( Transform.Position, Utility.Scale * Radius ), 6 );
+
 		if ( _shouldExplode )
+		{
 			Explode();
+			GameObject.Destroy();
+		}
 	}
 
 	private void Move() // todo @ceitine: custom physics
 	{
-
+		var target = Rotation.LookAt( Rigidbody.Velocity );
+		Transform.Rotation = Rotation.Lerp( Transform.Rotation, target, 10f * Time.Delta );
 	}
 
 	public bool Explode()
 	{
 		var chunks = new Collection<Chunk>();
-		var closest = VoxelWorld.All
-			.OrderBy( v => v.Transform.Position.Distance( Transform.Position ) )
-			.FirstOrDefault();
+		var world = VoxelWorld.All.FirstOrDefault();
+		/*var hit = Scene.Trace.Sphere( Utility.Scale * Radius, new Ray( Transform.Position, Vector3.Down ), 5f )
+			.IgnoreGameObject( GameObject )
+			.RunAll();
+		
+		foreach ( var obj in hit )
+		{
+			if ( world == null && obj.Component is VoxelChunk chunk )
+				world = chunk.Parent;
+			Log.Error( obj.GameObject );
+		}*/
 
-		// Get position in voxel space.
-		if ( closest == null )
+		if ( world == null )
 			return false;
 
-		var position = closest.WorldToVoxel( Transform.Position + Vector3.Down * closest.VoxelScale / 2f );
+		// Get position in voxel space.
+		var position = world.WorldToVoxel( Transform.Position + Vector3.Down * world.VoxelScale / 2f );
 
 		// Remove voxels in a sphere.
 		var center = new Vector3( position.x, position.y, position.z );
@@ -63,18 +75,14 @@ public class Explosive : Component
 				y: (pos.y + 0.5f).FloorToInt(),
 				z: (pos.z + 0.5f).FloorToInt()
 			);
-			
-			var data = closest.GetByOffset( target.x, target.y, target.z );
-			data.Chunk?.SetVoxel( data.Position.x, data.Position.y, data.Position.z, null );
-			// set voxel not working?
-			if ( data.Chunk != null && !chunks.Contains( data.Chunk ) )
-				chunks.Add( data.Chunk );
+
+			var chunk = world.SetVoxel( target.x, target.y, target.z, null ); // todo @ceitine: fix???
+			if ( chunk != null && !chunks.Contains( chunk ) )
+				chunks.Add( chunk );
 		}
 
 		foreach ( var chunk in chunks )
-			closest.GenerateChunk( chunk );
-
-		GameObject.Destroy();
+			world.GenerateChunk( chunk );
 
 		return true;
 	}

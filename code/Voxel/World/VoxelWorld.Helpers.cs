@@ -97,6 +97,51 @@ partial class VoxelWorld
 		};
 	}
 
+	private Chunk GetOrCreateChunk( int x, int y, int z, Vector3B? local = null, Chunk relative = null )
+	{
+		// Calculate new chunk position.
+		var position = new Vector3S(
+			((relative?.Position.x ?? 0) + (float)x / Chunk.Size.x - (float)(local?.x ?? 0) / Chunk.Size.x).CeilToInt(),
+			((relative?.Position.y ?? 0) + (float)y / Chunk.Size.y - (float)(local?.y ?? 0) / Chunk.Size.y).CeilToInt(),
+			((relative?.Position.z ?? 0) + (float)z / Chunk.Size.z - (float)(local?.z ?? 0) / Chunk.Size.z).CeilToInt()
+		);
+
+		// Check if we have a chunk already or are out of bounds.
+		if ( Chunks.TryGetValue( position, out var chunk ) && chunk != null )
+			return chunk;
+
+		// Create new chunk.
+		Chunks.Add(
+			position,
+			chunk = new Chunk( position.x, position.y, position.z, Chunks )
+		);
+
+		return chunk;
+	}
+
+	/// <summary>
+	/// Sets voxel by offset, relative to the chunk parameter or Chunks[0, 0, 0].
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <param name="z"></param>
+	/// <param name="voxel"></param>
+	/// <param name="relative"></param>
+	/// <returns></returns>
+	public Chunk SetVoxel( int x, int y, int z, IVoxel voxel, Chunk relative = null )
+	{
+		// Convert to local space.
+		var pos = GetLocalSpace( x, y, z, out var chunk, relative );
+
+		// Create new chunk if needed.
+		if ( chunk == null && voxel != null )
+			chunk = GetOrCreateChunk( x, y, z, pos, relative );
+
+		// Set voxel.
+		chunk?.SetVoxel( pos.x, pos.y, pos.z, voxel );
+		return chunk;
+	}
+
 	/// <summary>
 	/// Apply our VoxelWorld's transform to a worldspace vector.
 	/// </summary>

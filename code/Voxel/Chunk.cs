@@ -37,10 +37,11 @@ public class Chunk : IEquatable<Chunk>
 	public void SetParent( Dictionary<Vector3S, Chunk> parent )
 		=> chunks = parent;
 
-	public (Chunk Chunk, IVoxel Voxel) GetDataByOffset( int x, int y, int z )
+	public VoxelQueryData GetDataByOffset( int x, int y, int z )
 	{
+		var data = new VoxelQueryData { };
 		if ( chunks == null )
-			return (null, null);
+			return data;
 
 		// Get the new chunk's position based on the offset.
 		var position = new Vector3S(
@@ -51,15 +52,18 @@ public class Chunk : IEquatable<Chunk>
 
 		// Calculate new voxel position.
 		if ( !chunks.TryGetValue( position, out var chunk ) )
-			return (null, null);
+			return data;
 
-		return (
-			Chunk: chunk,
-			Voxel: chunk?.voxels[ 
-				(byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH ) % Chunk.DEFAULT_WIDTH ),
-				(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH ) % Chunk.DEFAULT_DEPTH ),
-				(byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT )] 
-		);
+		var vx = (byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH) % Chunk.DEFAULT_WIDTH);
+		var vy = (byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH) % Chunk.DEFAULT_DEPTH);
+		var vz = (byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT);
+
+		return data with
+		{
+			Chunk = chunk,
+			Voxel = chunk?.voxels[vx, vy, vz],
+			Position = new( vx, vy, vz )
+		};
 	}
 
 	public void SetVoxel( byte x, byte y, byte z, IVoxel voxel = null )

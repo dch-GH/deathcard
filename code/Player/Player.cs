@@ -52,6 +52,7 @@ public class Player : Component
 
 			var dir = Camera.Transform.Rotation.Forward;
 			var obj = Shootable.Clone();
+			obj.Parent = Scene;
 			obj.Transform.Position = Camera.Transform.Position + dir * 100f;
 
 			var rb = obj.Components.Get<Rigidbody>();
