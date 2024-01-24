@@ -50,7 +50,7 @@ partial class VoxelWorld
 	/// <param name="z"></param>
 	/// <param name="relative"></param>
 	/// <returns></returns>
-	public Vector3S GetGlobalSpace( byte x, byte y, byte z, Chunk? relative )
+	public Vector3S GetGlobalSpace( byte x, byte y, byte z, Chunk relative )
 	{
 		return new Vector3S(
 			(short)(x + (relative?.x ?? 0) * Chunk.DEFAULT_WIDTH),
