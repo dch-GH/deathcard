@@ -1,5 +1,17 @@
 ﻿namespace Deathcard;
 
+public struct VoxelTraceResult
+{
+	public Vector3B LocalPosition;
+	public Vector3S GlobalPosition;
+
+	public Chunk Chunk;
+	public IVoxel Voxel;
+	public bool Hit;
+
+	public Vector3 Normal;
+}
+
 partial class VoxelWorld
 {
 	/// <summary>
@@ -84,5 +96,44 @@ partial class VoxelWorld
 				(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH ) % Chunk.DEFAULT_DEPTH),
 				(byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT) )
 		);
+	}
+
+	/// <summary>
+	/// Traces a ray in our VoxelWorld, used mostly for editor stuff.
+	/// </summary>
+	/// <param name="ray"></param>
+	/// <param name="distance"></param>
+	/// <param name="precision"></param>
+	/// <returns></returns>
+	public VoxelTraceResult Trace( Ray ray, float distance, float? precision = null ) // todo @ceitine: this doesn't actually take any rotations / scales into account.
+	{
+		var result = new VoxelTraceResult();
+		var stepSize = precision ?? VoxelScale / 4f;
+
+		var start = ray.Position;
+		var position = start;
+		var direction = ray.Forward;
+
+		while ( position.Distance( start ) <= distance )
+		{
+			var pos = WorldToVoxel( position );
+			var local = GetLocalSpace( pos.x, pos.y, pos.z, out var chunk );
+			var voxel = chunk?.GetVoxel( local.x, local.y, local.z );
+
+			if ( voxel != null ) // We had a collision.
+				return result with
+				{
+					Chunk = chunk,
+					LocalPosition = local,
+					GlobalPosition = pos,
+					Hit = true,
+					Voxel = voxel
+				};
+
+			// Keep moving forward, we didn't hit anything.
+			position += direction * stepSize;
+		}
+
+		return result;
 	}
 }

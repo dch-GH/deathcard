@@ -175,7 +175,6 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	protected override void DrawGizmos()
 	{
 		// Display all chunks.
-		Gizmo.Draw.Model( Model.Sphere, new Transform( Vector3.Up * 2000, Rotation.Identity, 10 ) );
 		foreach ( var (chunk, model) in gizmoCache )
 		{
 			var pos = (Vector3)chunk * VoxelScale * Chunk.Size;
@@ -189,27 +188,21 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		}
 
 		// Focus on hovered VoxelWorld.
-		var tr = Gizmo.World.Trace.Ray( Gizmo.CurrentRay, 15000f ) // todo: mesh traces don't hit procedural models
-			.Run();
-
+		var tr = Trace( Gizmo.CurrentRay, 100000f );
 		if ( !tr.Hit )
 			return;
 
-		var position = WorldToVoxel( tr.EndPosition - tr.Normal * VoxelScale / 2f );
-		var data = GetByOffset( position.x, position.y, position.z );
-
 		// Debug
-		Gizmo.Draw.ScreenText( $"{(data.Voxel?.GetType().ToString() ?? "unknown")}", 20, "Consolas", 18, TextFlag.LeftTop );
-		Gizmo.Draw.ScreenText( $"XYZ: {position}", 20 + Vector2.Up * 20, "Consolas", 18, TextFlag.LeftTop );
-		Gizmo.Draw.ScreenText( $"Chunk: {data.Chunk?.Position}", 20 + Vector2.Up * 40, "Consolas", 18, TextFlag.LeftTop );
+		Gizmo.Draw.ScreenText( $"{(tr.Voxel?.GetType().Name ?? "unknown")}", 20, "Consolas", 18, TextFlag.LeftTop );
+		Gizmo.Draw.ScreenText( $"XYZ: {tr.GlobalPosition}", 20 + Vector2.Up * 20, "Consolas", 18, TextFlag.LeftTop );
+		Gizmo.Draw.ScreenText( $"Chunk: {tr.Chunk?.Position}", 20 + Vector2.Up * 40, "Consolas", 18, TextFlag.LeftTop );
 
-		var voxelCenter = (Vector3)position * VoxelScale
-			+ VoxelScale / 2f
-			+ Gizmo.Transform.Position;
-
+		var center = (Vector3)tr.GlobalPosition * VoxelScale
+			+ VoxelScale / 2f;
+		
 		Gizmo.Draw.Color = Color.Black;
 		Gizmo.Draw.LineThickness = 1;
-		Gizmo.Draw.LineBBox( new BBox( voxelCenter - VoxelScale / 2f, voxelCenter + VoxelScale / 2f ) );
+		Gizmo.Draw.LineBBox( new BBox( center - VoxelScale / 2f, center + VoxelScale / 2f ) );
 	}
 	#endregion
 }
