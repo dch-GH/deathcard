@@ -37,9 +37,6 @@ public class VoxelChunk : Component, IEquatable<VoxelChunk>
 		Parent = Components.Get<VoxelWorld>( FindMode.InParent );
 	}
 
-	public void Delete()
-		=> GameObject.Destroy();
-
 	public bool Equals( VoxelChunk other )
 	{
 		return other.Position3D.Equals( Position3D );

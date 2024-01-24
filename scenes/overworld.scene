@@ -10,6 +10,2626 @@
           "__type": "VoxelWorld",
           "Path": "vox/maps/monument.vox"
         }
+      ],
+      "Children": [
+        {
+          "Id": "8f320ed3-e40c-4d6d-a417-27bfdd379e41",
+          "Name": "Chunk (2, 1, 1)",
+          "Position": "1279.528,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c4b60379-0a5d-4ee5-a614-29cc82a81e9c",
+          "Name": "Chunk (2, 2, 1)",
+          "Position": "1279.528,1279.528,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "1fba5a2a-2698-46dd-9161-b25bfd5b88fd",
+          "Name": "Chunk (3, 1, 1)",
+          "Position": "1909.449,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "0c87cd8b-1660-4637-b39e-7c9376979388",
+          "Name": "Chunk (3, 2, 1)",
+          "Position": "1909.449,1279.528,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b6d8d1eb-9ef6-4c2b-a336-9482080ada35",
+          "Name": "Chunk (1, 0, 2)",
+          "Position": "649.6063,19.68504,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "cbe78e7f-3882-406b-9ccf-6f9685de25bb",
+          "Name": "Chunk (2, 0, 2)",
+          "Position": "1279.528,19.68504,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d3ba5132-fd70-4405-ba50-306e2a59f6ed",
+          "Name": "Chunk (0, 0, 0)",
+          "Position": "19.68504,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "74b2e2e9-1d9e-4dea-a77b-4a0a7cb31b4e",
+          "Name": "Chunk (0, 1, 0)",
+          "Position": "19.68504,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d88436a9-8292-47d9-9448-e201715a8b7d",
+          "Name": "Chunk (1, 0, 0)",
+          "Position": "649.6063,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "6d79c108-0525-4e2e-834f-37ab05fce089",
+          "Name": "Chunk (1, 1, 0)",
+          "Position": "649.6063,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c9dae7fa-61d3-4e3b-90fd-31eb079c9628",
+          "Name": "Chunk (0, 2, 0)",
+          "Position": "19.68504,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "fee98db5-2d53-4f51-b6e5-9650a08555c5",
+          "Name": "Chunk (0, 3, 0)",
+          "Position": "19.68504,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "69ae08db-537f-4b02-8efd-caee856e6871",
+          "Name": "Chunk (0, 4, 0)",
+          "Position": "19.68504,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "663ad283-ad2f-49b3-865e-0aff0b692030",
+          "Name": "Chunk (1, 3, 0)",
+          "Position": "649.6063,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "9ea76a76-f04c-422b-aaf8-2ba60c8ed516",
+          "Name": "Chunk (1, 4, 0)",
+          "Position": "649.6063,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "97d7f2a6-ce9a-44b0-90cb-df0c0ae5aedc",
+          "Name": "Chunk (1, 2, 0)",
+          "Position": "649.6063,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "a23fce00-ad3f-4c3c-8df9-1a93f7947fd7",
+          "Name": "Chunk (2, 1, 0)",
+          "Position": "1279.528,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "666a4154-fec0-47f9-9bca-d0c7145eed5c",
+          "Name": "Chunk (2, 2, 0)",
+          "Position": "1279.528,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c7af8e81-34a0-4163-987f-40086f97d610",
+          "Name": "Chunk (3, 1, 0)",
+          "Position": "1909.449,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "80be48c0-2190-412e-9651-71e5b8b2e02a",
+          "Name": "Chunk (3, 2, 0)",
+          "Position": "1909.449,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "92e76c13-f8d3-4a9f-a295-8ead05b22f45",
+          "Name": "Chunk (2, 0, 0)",
+          "Position": "1279.528,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "37b02855-bb93-4dc3-9a2c-50f3cd1253d4",
+          "Name": "Chunk (0, 1, 1)",
+          "Position": "19.68504,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "8c505c25-83d5-425a-8617-60f6a2f79084",
+          "Name": "Chunk (1, 1, 1)",
+          "Position": "649.6063,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "867c1c42-43e2-4999-92a5-7a36c19f9898",
+          "Name": "Chunk (0, 2, 1)",
+          "Position": "19.68504,1279.528,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "3d08f982-9f71-4595-8b3c-70c2be83e625",
+          "Name": "Chunk (1, 3, 1)",
+          "Position": "649.6063,1909.449,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "7bad7b59-5ea9-4b8e-85cc-4dda0c29d56b",
+          "Name": "Chunk (0, 0, 1)",
+          "Position": "19.68504,19.68504,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "4487373e-89b3-4bc2-8902-ed899f84b12e",
+          "Name": "Chunk (0, 0, 0)",
+          "Position": "19.68504,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "7a9fd004-81ca-40ca-ad4d-6556268dc1a1",
+          "Name": "Chunk (1, 0, 0)",
+          "Position": "649.6063,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "89204273-6030-4150-8ea0-7b6ecc2f9e40",
+          "Name": "Chunk (2, 1, 1)",
+          "Position": "1279.528,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "1a94c3d3-b225-41a3-86db-fd68814f15b2",
+          "Name": "Chunk (2, 1, 2)",
+          "Position": "1279.528,649.6063,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "e57fdf0b-cabd-42d7-b165-429d96facd5c",
+          "Name": "Chunk (2, 2, 1)",
+          "Position": "1279.528,1279.528,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "bc56300e-436d-46b0-b276-eaa18c1db073",
+          "Name": "Chunk (2, 2, 2)",
+          "Position": "1279.528,1279.528,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "16dd7d8b-81b1-4263-8785-c3574d4385b6",
+          "Name": "Chunk (3, 1, 1)",
+          "Position": "1909.449,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "be4c47ec-55f4-4fe8-9457-d4f16508cd2d",
+          "Name": "Chunk (3, 1, 2)",
+          "Position": "1909.449,649.6063,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "331ad8a0-cd01-479b-9e2b-9a05fcaa779e",
+          "Name": "Chunk (3, 2, 1)",
+          "Position": "1909.449,1279.528,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c59c424a-aa36-4f59-a02c-f314b83b23fc",
+          "Name": "Chunk (0, 2, 1)",
+          "Position": "19.68504,1279.528,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "98b4ad04-a7b2-4c63-b248-2a8147fec66f",
+          "Name": "Chunk (0, 2, 2)",
+          "Position": "19.68504,1279.528,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "24d085b3-c949-4d23-94cf-4a8585df984a",
+          "Name": "Chunk (0, 3, 1)",
+          "Position": "19.68504,1909.449,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "8a64f883-b85b-4a35-99ba-5486e51ca241",
+          "Name": "Chunk (0, 3, 2)",
+          "Position": "19.68504,1909.449,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "a3ce9f61-c169-49a0-9551-a819c200ee9d",
+          "Name": "Chunk (1, 2, 2)",
+          "Position": "649.6063,1279.528,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "1cb4adeb-7f98-4b97-8894-ebf01ac20f25",
+          "Name": "Chunk (1, 3, 1)",
+          "Position": "649.6063,1909.449,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "fc895bfa-a2dd-4416-a64b-028928c2be55",
+          "Name": "Chunk (1, 3, 2)",
+          "Position": "649.6063,1909.449,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "25bc5335-f57f-4297-af42-476e6bb02fce",
+          "Name": "Chunk (0, 1, 1)",
+          "Position": "19.68504,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "a603b593-c0ed-4832-a39f-2c94b8d68d31",
+          "Name": "Chunk (0, 1, 2)",
+          "Position": "19.68504,649.6063,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "41cfc0f5-e0ed-43ed-a375-18cb8bcebbce",
+          "Name": "Chunk (1, 1, 1)",
+          "Position": "649.6063,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "89398dac-0bea-4deb-9087-07e7d4d98065",
+          "Name": "Chunk (1, 1, 2)",
+          "Position": "649.6063,649.6063,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "fdcb9901-a21f-4b2c-8e93-2ae2d07d0cb6",
+          "Name": "Chunk (2, 1, 0)",
+          "Position": "1279.528,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "3ddcf820-8343-45ce-9a51-5501ee22b228",
+          "Name": "Chunk (2, 2, 0)",
+          "Position": "1279.528,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c7a87d89-633c-4d08-8793-71f93673aa32",
+          "Name": "Chunk (3, 1, 0)",
+          "Position": "1909.449,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "4b2bee1b-a8f7-4eb6-a4d0-74b5538ba94f",
+          "Name": "Chunk (3, 2, 0)",
+          "Position": "1909.449,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "2f758313-45c4-47ce-86bc-617d26f5c0e9",
+          "Name": "Chunk (2, 3, 3)",
+          "Position": "1279.528,1909.449,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "413e31cb-bf72-4ed9-93d3-de05eb599184",
+          "Name": "Chunk (2, 4, 3)",
+          "Position": "1279.528,2539.37,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "8d5dd2a2-52c5-4921-b7c4-19f6ae800e61",
+          "Name": "Chunk (2, 1, 3)",
+          "Position": "1279.528,649.6063,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "9313dbc5-1e1e-493e-b163-ddbead1ee4e4",
+          "Name": "Chunk (3, 3, 7)",
+          "Position": "1909.449,1909.449,4429.134",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d50ba46a-d0a7-4caa-86ab-5edf879bfd77",
+          "Name": "Chunk (2, 0, 0)",
+          "Position": "1279.528,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "8a4a341b-f7a9-4a37-9e64-56833589aa56",
+          "Name": "Chunk (3, 0, 0)",
+          "Position": "1909.449,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "327bab92-fd1c-4361-9087-c93f68fa6477",
+          "Name": "Chunk (4, 0, 0)",
+          "Position": "2539.37,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "0316b8c3-e524-428e-8202-f559bf3682a6",
+          "Name": "Chunk (0, 1, 0)",
+          "Position": "19.68504,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "dab18859-3dfe-47a7-9a79-77f1095beba4",
+          "Name": "Chunk (1, 1, 0)",
+          "Position": "649.6063,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "f7a3c699-217e-4d4c-a97e-c17fa6ed70f4",
+          "Name": "Chunk (4, 1, 0)",
+          "Position": "2539.37,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "3aa923f3-bbea-4883-8547-321fe055d340",
+          "Name": "Chunk (0, 2, 0)",
+          "Position": "19.68504,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "3db066df-33eb-4258-b356-6a8719dc0a00",
+          "Name": "Chunk (1, 2, 0)",
+          "Position": "649.6063,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "868926c3-4833-49ea-b2f8-62d627619b3c",
+          "Name": "Chunk (4, 2, 0)",
+          "Position": "2539.37,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "070978f9-a939-4835-bb9d-fc5504ddc57b",
+          "Name": "Chunk (0, 3, 0)",
+          "Position": "19.68504,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "72aae5ae-f648-4430-a999-923856c020a1",
+          "Name": "Chunk (1, 3, 0)",
+          "Position": "649.6063,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "785f1fb4-df97-4425-9e26-f5a11baea4f6",
+          "Name": "Chunk (2, 3, 0)",
+          "Position": "1279.528,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "f138a29a-907c-40eb-a26d-398289a9791c",
+          "Name": "Chunk (3, 3, 0)",
+          "Position": "1909.449,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "5a520b7c-3eca-44d1-996d-43c10421edc6",
+          "Name": "Chunk (4, 3, 0)",
+          "Position": "2539.37,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "cc7fae49-4b55-48c6-b813-8d98bfb8d157",
+          "Name": "Chunk (0, 4, 0)",
+          "Position": "19.68504,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c2399836-fbdc-47ea-9286-68c9461fcba1",
+          "Name": "Chunk (1, 4, 0)",
+          "Position": "649.6063,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "5f705836-8426-4b52-b8a8-004f07c5f7e5",
+          "Name": "Chunk (2, 4, 0)",
+          "Position": "1279.528,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "ef09a19a-cc86-4476-8803-3bc1b82d6148",
+          "Name": "Chunk (3, 4, 0)",
+          "Position": "1909.449,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "eda7d9dd-0fbf-44fc-baf1-9d450a87a096",
+          "Name": "Chunk (4, 4, 0)",
+          "Position": "2539.37,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "186aef73-0f33-404d-b389-5d2354bfe48b",
+          "Name": "Chunk (3, 3, 6)",
+          "Position": "1909.449,1909.449,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c44e499c-1e23-4740-b3db-c98bf9b21871",
+          "Name": "Chunk (2, 3, 6)",
+          "Position": "1279.528,1909.449,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "227a7074-e2d7-4c9d-b2af-31d62e546a72",
+          "Name": "Chunk (2, 3, 5)",
+          "Position": "1279.528,1909.449,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "ea3c0798-a1d9-469e-b1d1-c016a3ea82aa",
+          "Name": "Chunk (3, 3, 5)",
+          "Position": "1909.449,1909.449,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "9c68812e-362f-42c0-bff5-faddb820a884",
+          "Name": "Chunk (4, 3, 4)",
+          "Position": "2539.37,1909.449,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "501d79cd-e36f-4422-930d-4ed8ee8b67c8",
+          "Name": "Chunk (3, 3, 4)",
+          "Position": "1909.449,1909.449,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b2eaa4cf-163e-4de6-a65b-3f27820675a0",
+          "Name": "Chunk (2, 3, 4)",
+          "Position": "1279.528,1909.449,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "f9a2d4b4-ab54-42b8-807f-249d1557f55e",
+          "Name": "Chunk (3, 3, 3)",
+          "Position": "1909.449,1909.449,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "1ca4e06c-4af7-40e0-be6c-67475e2d17c3",
+          "Name": "Chunk (3, 3, 2)",
+          "Position": "1909.449,1909.449,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c5267002-384e-4c31-96ec-71a2d13001ee",
+          "Name": "Chunk (3, 3, 1)",
+          "Position": "1909.449,1909.449,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "a83be8bd-b411-4850-8143-c19290381936",
+          "Name": "Chunk (2, 3, 2)",
+          "Position": "1279.528,1909.449,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "da94f487-04de-45a3-80b7-111a0f3c7051",
+          "Name": "Chunk (2, 3, 1)",
+          "Position": "1279.528,1909.449,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b2882543-e8e0-4c30-8510-d538827f7b16",
+          "Name": "Chunk (0, 1, 7)",
+          "Position": "19.68504,649.6063,4429.134",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "582679da-fbea-47e0-abb3-838e5825e999",
+          "Name": "Chunk (0, 1, 6)",
+          "Position": "19.68504,649.6063,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "ce696319-e73f-4e40-a492-f432a4a33ae0",
+          "Name": "Chunk (0, 1, 5)",
+          "Position": "19.68504,649.6063,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "99014f3d-151c-4a2d-abac-56a57606e16b",
+          "Name": "Chunk (1, 1, 6)",
+          "Position": "649.6063,649.6063,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "9351ff76-5fce-4d16-a894-c9982909854c",
+          "Name": "Chunk (1, 1, 5)",
+          "Position": "649.6063,649.6063,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "3d506f69-8902-4722-ba2c-b1fcc71f36f6",
+          "Name": "Chunk (2, 1, 6)",
+          "Position": "1279.528,649.6063,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "84ea1b01-213d-41ef-8c4a-88f3b6330c82",
+          "Name": "Chunk (3, 1, 5)",
+          "Position": "1909.449,649.6063,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "fcc750fb-cd5c-494d-a8bb-f5190cc62c4c",
+          "Name": "Chunk (2, 1, 5)",
+          "Position": "1279.528,649.6063,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "bd7fd8b8-0e6c-40cd-bcb2-8d89781423db",
+          "Name": "Chunk (3, 2, 3)",
+          "Position": "1909.449,1279.528,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "9de1fbf0-c1ec-484d-b3d5-788caf5660a5",
+          "Name": "Chunk (1, 3, 3)",
+          "Position": "649.6063,1909.449,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "4cc74377-30be-41bd-a979-63982a4b5536",
+          "Name": "Chunk (0, 1, 4)",
+          "Position": "19.68504,649.6063,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "a49a5260-0996-4eea-963b-8ace9651aee3",
+          "Name": "Chunk (3, 2, 2)",
+          "Position": "1909.449,1279.528,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d52743b5-cd87-4a00-b969-2766f24a355b",
+          "Name": "Chunk (1, 1, 3)",
+          "Position": "649.6063,649.6063,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "4fb8f510-6183-4829-a50d-aaf0e6508e42",
+          "Name": "Chunk (3, 2, 4)",
+          "Position": "1909.449,1279.528,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b8ed2b5e-ef8e-4cfc-bf41-d26f7cb44857",
+          "Name": "Chunk (2, 0, 2)",
+          "Position": "1279.528,19.68504,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "5fd4407b-9211-43ae-92a4-78572f744954",
+          "Name": "Chunk (2, 2, 4)",
+          "Position": "1279.528,1279.528,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "43866b03-35ff-4fcc-9102-af6a74c1e48c",
+          "Name": "Chunk (0, 0, 1)",
+          "Position": "19.68504,19.68504,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "f3695aef-19a2-4ca6-9fca-5e881403feea",
+          "Name": "Chunk (2, 0, 1)",
+          "Position": "1279.528,19.68504,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "70f1ed16-3907-4ad8-9b55-b12cff7ffd8e",
+          "Name": "Chunk (1, 0, 2)",
+          "Position": "649.6063,19.68504,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "1f339602-a7c5-46df-b18e-b6e7b8591eef",
+          "Name": "Chunk (0, 0, 4)",
+          "Position": "19.68504,19.68504,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "e32c9e38-a5f2-4684-9b35-60fa82cfd5f6",
+          "Name": "Chunk (3, 1, 4)",
+          "Position": "1909.449,649.6063,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "10d6d263-d5f3-4f4d-8c8d-bbdb9f36341f",
+          "Name": "Chunk (3, 0, 2)",
+          "Position": "1909.449,19.68504,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "05fc1427-1c7a-49fd-b73e-cfb8099596e2",
+          "Name": "Chunk (0, 0, 2)",
+          "Position": "19.68504,19.68504,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "722a85d7-3a3b-45cd-8154-2e01bc2b81c3",
+          "Name": "Chunk (2, 0, 4)",
+          "Position": "1279.528,19.68504,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "acb27e62-d7e9-4427-a32c-2ff44d93825b",
+          "Name": "Chunk (0, 0, 3)",
+          "Position": "19.68504,19.68504,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "93326292-a357-4b08-9fed-5fcb0e284120",
+          "Name": "Chunk (3, 0, 1)",
+          "Position": "1909.449,19.68504,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "48c5b9ca-dc89-4550-9fee-e4fb0a6d938b",
+          "Name": "Chunk (1, 0, 1)",
+          "Position": "649.6063,19.68504,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "73ef6176-16b6-4c42-ab00-634d7bebac8e",
+          "Name": "Chunk (1, 1, 4)",
+          "Position": "649.6063,649.6063,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "25500b35-d0ba-40c3-a287-c962c2b0b608",
+          "Name": "Chunk (2, 1, 4)",
+          "Position": "1279.528,649.6063,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b74f8344-aea0-42a1-b614-3fbe292091a9",
+          "Name": "Chunk (1, 0, 3)",
+          "Position": "649.6063,19.68504,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "e5f159f0-e72b-4eaf-af4c-97b1e914627d",
+          "Name": "Chunk (3, 2, 5)",
+          "Position": "1909.449,1279.528,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "56b2f149-4fdd-4ca8-9871-ea8a5f70b6d3",
+          "Name": "Chunk (0, 0, 5)",
+          "Position": "19.68504,19.68504,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "1c96c8eb-58ef-4c9d-abfb-858e4b623301",
+          "Name": "Chunk (0, 1, 3)",
+          "Position": "19.68504,649.6063,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "4698b6cd-1ae7-4b75-b908-a4d0b9d85d4b",
+          "Name": "Chunk (2, 0, 5)",
+          "Position": "1279.528,19.68504,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d1a02c44-2489-4bd2-829c-7fddaa087315",
+          "Name": "Chunk (3, 1, 6)",
+          "Position": "1909.449,649.6063,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "ed44ed9b-a564-4f22-9f3a-1cc3d59722a1",
+          "Name": "Chunk (3, 2, 6)",
+          "Position": "1909.449,1279.528,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "e50cb7b9-9892-4b02-b296-cfd6ad854280",
+          "Name": "Chunk (1, 0, 5)",
+          "Position": "649.6063,19.68504,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "24c165ca-fcbf-40e1-9d66-b8d615a451e1",
+          "Name": "Chunk (0, 0, 6)",
+          "Position": "19.68504,19.68504,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b87aea7c-3484-48cb-8eb2-6f534786677a",
+          "Name": "Chunk (2, 2, 3)",
+          "Position": "1279.528,1279.528,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "87db8999-d9f5-4759-837e-58126c6db5e9",
+          "Name": "Chunk (1, 0, 4)",
+          "Position": "649.6063,19.68504,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "e92c1783-269a-449d-8f6d-de89f6a7728b",
+          "Name": "Chunk (3, 1, 3)",
+          "Position": "1909.449,649.6063,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "fc8f82a7-fa8d-40e0-92ba-8aea2cae4430",
+          "Name": "Chunk (2, 0, 3)",
+          "Position": "1279.528,19.68504,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "bca1b90d-2d2d-4873-a630-8807fd1382da",
+          "Name": "Chunk (3, 0, 4)",
+          "Position": "1909.449,19.68504,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "7cbfef54-7516-49ca-a507-6f16e8a7e901",
+          "Name": "Chunk (2, 4, 2)",
+          "Position": "1279.528,2539.37,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "f062dfdc-8fd9-491c-9b5f-0131bb7ad20b",
+          "Name": "Chunk (3, 4, 6)",
+          "Position": "1909.449,2539.37,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "6e482220-eb83-4668-a1bc-5bf8a654d389",
+          "Name": "Chunk (2, 4, 6)",
+          "Position": "1279.528,2539.37,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "166f730e-424f-4a0d-9e91-9d7d39974d39",
+          "Name": "Chunk (1, 0, 6)",
+          "Position": "649.6063,19.68504,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "391d3744-dc94-4f2c-9d78-331a2d9fb450",
+          "Name": "Chunk (2, 1, 3)",
+          "Position": "1279.528,649.6063,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "22d994ac-1086-406c-85f4-b66761d60c05",
+          "Name": "Chunk (3, 3, 7)",
+          "Position": "1909.449,1909.449,4429.134",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "92329983-9c03-4a96-89df-0ef3c6b64487",
+          "Name": "Chunk (0, 0, 0)",
+          "Position": "19.68504,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "cabe458d-ba17-4aee-af50-51974235471f",
+          "Name": "Chunk (1, 0, 0)",
+          "Position": "649.6063,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "6b0e76fe-1136-4c01-81e3-5c203eb2118f",
+          "Name": "Chunk (2, 0, 0)",
+          "Position": "1279.528,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "a6df9320-a157-4c59-a34e-44ad4998bfb9",
+          "Name": "Chunk (3, 0, 0)",
+          "Position": "1909.449,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "9096bde5-1c19-465f-866c-10e91d1f8dfb",
+          "Name": "Chunk (4, 0, 0)",
+          "Position": "2539.37,19.68504,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "334ae839-f71e-47cb-ab40-e61d60d7bbbb",
+          "Name": "Chunk (0, 1, 0)",
+          "Position": "19.68504,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "2c52e0e5-c0e7-44bb-83ee-b75b71f80cbe",
+          "Name": "Chunk (1, 1, 0)",
+          "Position": "649.6063,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "3326ffa2-56f0-4c1e-8211-18f2e447d303",
+          "Name": "Chunk (2, 1, 0)",
+          "Position": "1279.528,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "33fe8fca-02a1-4656-99b2-0a228ebcb73d",
+          "Name": "Chunk (3, 1, 0)",
+          "Position": "1909.449,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "60558043-efb6-460e-9748-2aee0dd44ec7",
+          "Name": "Chunk (4, 1, 0)",
+          "Position": "2539.37,649.6063,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "85b062cb-7611-4df7-9218-d03d850121bd",
+          "Name": "Chunk (0, 2, 0)",
+          "Position": "19.68504,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b3b69848-10a8-4412-8d82-0e04b8659a3f",
+          "Name": "Chunk (1, 2, 0)",
+          "Position": "649.6063,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "64e0a528-8727-4374-becf-bf05d06495e7",
+          "Name": "Chunk (2, 2, 0)",
+          "Position": "1279.528,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "fc80847e-afc5-40fd-ad42-77c57d01932d",
+          "Name": "Chunk (3, 2, 0)",
+          "Position": "1909.449,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "65400ad2-d58b-43ee-bacc-ddd1cccda5e7",
+          "Name": "Chunk (4, 2, 0)",
+          "Position": "2539.37,1279.528,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "17a83235-71d3-4123-b264-27291c6209df",
+          "Name": "Chunk (0, 3, 0)",
+          "Position": "19.68504,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c3d631fe-5aba-4fcd-9fb4-34f099020760",
+          "Name": "Chunk (1, 3, 0)",
+          "Position": "649.6063,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "3b4909eb-4d48-45a6-8b97-d6e08231bd05",
+          "Name": "Chunk (2, 3, 0)",
+          "Position": "1279.528,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "4ca6ee76-3a58-47c6-83e6-9b2294e258f5",
+          "Name": "Chunk (3, 3, 0)",
+          "Position": "1909.449,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "f353d61b-bbc5-448c-9b87-f4fc66c9a800",
+          "Name": "Chunk (4, 3, 0)",
+          "Position": "2539.37,1909.449,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "76a5d20c-3ad6-447a-972b-4599add817fe",
+          "Name": "Chunk (0, 4, 0)",
+          "Position": "19.68504,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "7ad56319-d51b-4f0f-96c0-8c99a521695f",
+          "Name": "Chunk (1, 4, 0)",
+          "Position": "649.6063,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "04b2345e-b313-439f-8b17-3500e1c3c43c",
+          "Name": "Chunk (2, 4, 0)",
+          "Position": "1279.528,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "643619e0-ff2a-4b7f-8f53-4acd557f56ea",
+          "Name": "Chunk (3, 4, 0)",
+          "Position": "1909.449,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d2d4d862-0c10-4ba5-a895-9a9165cbfaa8",
+          "Name": "Chunk (4, 4, 0)",
+          "Position": "2539.37,2539.37,19.68504",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "e674997a-02f3-44ad-a2e7-fa0bf29841dc",
+          "Name": "Chunk (3, 3, 6)",
+          "Position": "1909.449,1909.449,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d787b861-82ce-4dff-827e-578e8a4d22a6",
+          "Name": "Chunk (2, 3, 6)",
+          "Position": "1279.528,1909.449,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b8475f24-472f-482c-8ea2-ba167c727d7e",
+          "Name": "Chunk (2, 3, 5)",
+          "Position": "1279.528,1909.449,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "a27159ee-dd8a-46bc-87c0-4f8e42a89189",
+          "Name": "Chunk (3, 3, 5)",
+          "Position": "1909.449,1909.449,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "08436e02-e438-42e3-ad8f-5e930e8888be",
+          "Name": "Chunk (4, 3, 4)",
+          "Position": "2539.37,1909.449,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "f08d78cf-0241-4b42-ae7a-1e18f52eb481",
+          "Name": "Chunk (3, 3, 4)",
+          "Position": "1909.449,1909.449,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "73a7c598-9312-4983-8842-d2072b071ef0",
+          "Name": "Chunk (2, 3, 4)",
+          "Position": "1279.528,1909.449,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "282ef26c-31a6-498d-ab7d-0296daf74575",
+          "Name": "Chunk (3, 3, 3)",
+          "Position": "1909.449,1909.449,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "fbf74808-ddc7-47b4-bd73-8e2ac379ef6f",
+          "Name": "Chunk (2, 3, 3)",
+          "Position": "1279.528,1909.449,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "6f272fe3-edde-4f06-8907-9300806ca5a2",
+          "Name": "Chunk (3, 3, 2)",
+          "Position": "1909.449,1909.449,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "fdd89bc1-ebef-4db6-9b25-caec44068869",
+          "Name": "Chunk (3, 3, 1)",
+          "Position": "1909.449,1909.449,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "2301b25f-6c41-4792-b5c5-0f3dd8557aec",
+          "Name": "Chunk (2, 3, 2)",
+          "Position": "1279.528,1909.449,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "7e0113a7-9d52-459e-a6fd-638ef5c58774",
+          "Name": "Chunk (2, 3, 1)",
+          "Position": "1279.528,1909.449,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d8e6fb4a-7c84-41ff-8f43-fb7b0a3403e0",
+          "Name": "Chunk (0, 1, 7)",
+          "Position": "19.68504,649.6063,4429.134",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "9b1cde71-80cc-4319-bd5f-15d885f9e951",
+          "Name": "Chunk (1, 1, 2)",
+          "Position": "649.6063,649.6063,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d5b5d2b3-4032-4eb6-94bd-de60562a04a6",
+          "Name": "Chunk (2, 1, 2)",
+          "Position": "1279.528,649.6063,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "e2ac4bac-e1e2-4002-b682-06b9999347ca",
+          "Name": "Chunk (0, 1, 2)",
+          "Position": "19.68504,649.6063,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d5818fae-4f99-4bc6-81c8-082795428521",
+          "Name": "Chunk (2, 1, 1)",
+          "Position": "1279.528,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "94abde9d-b816-4d34-bcc2-e150c809567e",
+          "Name": "Chunk (0, 1, 6)",
+          "Position": "19.68504,649.6063,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b880cf02-876e-4376-825d-a2721f69278a",
+          "Name": "Chunk (0, 1, 5)",
+          "Position": "19.68504,649.6063,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "89af25cd-50af-4781-adc9-4f0f85abfe4f",
+          "Name": "Chunk (1, 1, 6)",
+          "Position": "649.6063,649.6063,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "543d9faf-0470-42ad-8821-1d33c9efa0d2",
+          "Name": "Chunk (1, 1, 5)",
+          "Position": "649.6063,649.6063,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "01a314ed-5051-4e24-861c-231d5da444e0",
+          "Name": "Chunk (2, 1, 6)",
+          "Position": "1279.528,649.6063,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "a6993cc1-0a64-44b8-83d4-7e478d7201b0",
+          "Name": "Chunk (3, 1, 5)",
+          "Position": "1909.449,649.6063,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "4ae19341-4613-43b6-a270-9d9a4097d9b7",
+          "Name": "Chunk (2, 1, 5)",
+          "Position": "1279.528,649.6063,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d00000c3-df90-4e6d-b217-58abb8506c80",
+          "Name": "Chunk (3, 1, 1)",
+          "Position": "1909.449,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "44858282-412d-423b-8114-b8a7a83332f2",
+          "Name": "Chunk (3, 2, 3)",
+          "Position": "1909.449,1279.528,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "bd31bc13-99bd-49b6-801d-b726b880dae3",
+          "Name": "Chunk (3, 1, 2)",
+          "Position": "1909.449,649.6063,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b3850793-76f5-4bde-a2f9-7144da8889e6",
+          "Name": "Chunk (1, 3, 3)",
+          "Position": "649.6063,1909.449,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c56d606e-d13a-40cd-b9a4-67c01860adcf",
+          "Name": "Chunk (0, 1, 4)",
+          "Position": "19.68504,649.6063,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "f2f78e3a-7622-4bec-b250-e914e6cb2aa3",
+          "Name": "Chunk (2, 2, 2)",
+          "Position": "1279.528,1279.528,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "a148c865-bc7b-4f67-b466-06cee54ec70b",
+          "Name": "Chunk (1, 1, 1)",
+          "Position": "649.6063,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "40733bd2-d2cf-43a5-baba-2d953f99d559",
+          "Name": "Chunk (3, 2, 2)",
+          "Position": "1909.449,1279.528,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "42704580-4ce2-4878-aea1-e7f99ef80720",
+          "Name": "Chunk (1, 1, 3)",
+          "Position": "649.6063,649.6063,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "11389716-cd2e-4ce1-a3e9-956a16a09ac1",
+          "Name": "Chunk (3, 2, 4)",
+          "Position": "1909.449,1279.528,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "76415a95-0977-4561-9fd3-f730f0aa3ea3",
+          "Name": "Chunk (2, 0, 2)",
+          "Position": "1279.528,19.68504,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "ac613111-d059-46b1-aeb5-b4d2cd55906a",
+          "Name": "Chunk (2, 2, 4)",
+          "Position": "1279.528,1279.528,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "fd886b28-dd3c-435b-a4b6-d165792bc0c9",
+          "Name": "Chunk (0, 0, 1)",
+          "Position": "19.68504,19.68504,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "ea1b9fb3-7fbb-4a66-a699-21fb82aa7e0b",
+          "Name": "Chunk (2, 0, 1)",
+          "Position": "1279.528,19.68504,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "df288d9d-9be6-486d-8853-676767fee8c6",
+          "Name": "Chunk (1, 0, 2)",
+          "Position": "649.6063,19.68504,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "38ac218a-2731-4526-9097-3969678035af",
+          "Name": "Chunk (3, 2, 1)",
+          "Position": "1909.449,1279.528,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "71edb2c9-fa16-4367-8b22-e4d055f1d834",
+          "Name": "Chunk (0, 0, 4)",
+          "Position": "19.68504,19.68504,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "d1a99756-9c75-44df-8734-b65de1bff713",
+          "Name": "Chunk (3, 1, 4)",
+          "Position": "1909.449,649.6063,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "409deb33-d765-4b90-9869-7cdaa1af32da",
+          "Name": "Chunk (3, 0, 2)",
+          "Position": "1909.449,19.68504,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "76fd2510-d470-4d17-9634-d45f857168d2",
+          "Name": "Chunk (0, 0, 2)",
+          "Position": "19.68504,19.68504,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "8f609519-2eb9-4ff9-8b06-3307107f26f0",
+          "Name": "Chunk (2, 0, 4)",
+          "Position": "1279.528,19.68504,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "439498ce-253f-40eb-846e-e15cdca82e1a",
+          "Name": "Chunk (0, 0, 3)",
+          "Position": "19.68504,19.68504,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "66ed4658-83a2-4951-b605-1e918b3e93a9",
+          "Name": "Chunk (2, 2, 1)",
+          "Position": "1279.528,1279.528,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "9872dbd7-8d5d-4ef5-93ff-563e0728362f",
+          "Name": "Chunk (3, 0, 1)",
+          "Position": "1909.449,19.68504,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "7ce0261e-b13f-4e61-9114-f8755322205f",
+          "Name": "Chunk (1, 0, 1)",
+          "Position": "649.6063,19.68504,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "f0c29f9a-95e6-44c4-a604-1f08890dc9fe",
+          "Name": "Chunk (1, 1, 4)",
+          "Position": "649.6063,649.6063,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c1e2918a-bc48-4b05-8d8a-3b9787629c64",
+          "Name": "Chunk (2, 1, 4)",
+          "Position": "1279.528,649.6063,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c0a2c494-640a-4e1d-82d3-5b73859e9233",
+          "Name": "Chunk (1, 0, 3)",
+          "Position": "649.6063,19.68504,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "24009049-a6d1-4b43-9135-7663cd8cfa0c",
+          "Name": "Chunk (3, 2, 5)",
+          "Position": "1909.449,1279.528,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b563a627-0b35-4bb5-a3c5-d4fa26854496",
+          "Name": "Chunk (0, 1, 1)",
+          "Position": "19.68504,649.6063,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "5a748f12-0796-4aef-9f55-ad4244afc113",
+          "Name": "Chunk (0, 0, 5)",
+          "Position": "19.68504,19.68504,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "eb212a04-fb81-43f8-9b36-d7fbd33aa862",
+          "Name": "Chunk (0, 2, 2)",
+          "Position": "19.68504,1279.528,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "eef71811-f85e-4e7c-8171-ba0a92063bc0",
+          "Name": "Chunk (1, 3, 2)",
+          "Position": "649.6063,1909.449,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "f994e91d-930f-4ad0-a057-d2e4a138e51d",
+          "Name": "Chunk (0, 1, 3)",
+          "Position": "19.68504,649.6063,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "a4151b3a-8a7e-41c1-9f77-0c869a603b62",
+          "Name": "Chunk (2, 0, 5)",
+          "Position": "1279.528,19.68504,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "e060354f-5aab-4ad2-ad17-0dc3960a271e",
+          "Name": "Chunk (3, 1, 6)",
+          "Position": "1909.449,649.6063,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "7f0b01d5-e487-43e0-a75a-83e20a388802",
+          "Name": "Chunk (3, 2, 6)",
+          "Position": "1909.449,1279.528,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "ffeab159-a550-4d9f-ac77-19134e51ccf4",
+          "Name": "Chunk (1, 2, 2)",
+          "Position": "649.6063,1279.528,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "541675e1-0385-41ae-8df2-7f2c227e547a",
+          "Name": "Chunk (1, 0, 5)",
+          "Position": "649.6063,19.68504,3169.292",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "cf3eb618-3cd2-44f8-a199-85e730dfbbaa",
+          "Name": "Chunk (0, 0, 6)",
+          "Position": "19.68504,19.68504,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "2b8e044e-add3-4e26-ad3d-f8c1cccef3ba",
+          "Name": "Chunk (0, 3, 2)",
+          "Position": "19.68504,1909.449,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "e6630c59-486a-4596-b0bd-b1448127cc3e",
+          "Name": "Chunk (2, 2, 3)",
+          "Position": "1279.528,1279.528,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "0a65f787-a57e-4de1-8818-a77a815c5dd8",
+          "Name": "Chunk (1, 0, 4)",
+          "Position": "649.6063,19.68504,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "fd90418e-ffdd-4779-b477-f22903ef24ba",
+          "Name": "Chunk (3, 1, 3)",
+          "Position": "1909.449,649.6063,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "2a4dcc1b-75bc-44cc-b2f6-c1d2b4cdc42b",
+          "Name": "Chunk (2, 0, 3)",
+          "Position": "1279.528,19.68504,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c1b7f86c-5669-4176-a7ee-90191ab40c15",
+          "Name": "Chunk (3, 0, 4)",
+          "Position": "1909.449,19.68504,2539.37",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "cd9327ee-6ca2-4869-93b4-8cf7e33f94b7",
+          "Name": "Chunk (2, 4, 2)",
+          "Position": "1279.528,2539.37,1279.528",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "0a4fa581-110b-4f36-a8a1-6ce1feeebda2",
+          "Name": "Chunk (0, 2, 1)",
+          "Position": "19.68504,1279.528,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "452c976b-5d1d-48e7-bfd6-7e3cb6f0a14e",
+          "Name": "Chunk (3, 4, 6)",
+          "Position": "1909.449,2539.37,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "3ea19357-e5dc-4a76-9cb6-932664830a67",
+          "Name": "Chunk (2, 4, 6)",
+          "Position": "1279.528,2539.37,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "b0f89b18-be33-4d1c-a7c0-b176384a6e3e",
+          "Name": "Chunk (1, 3, 1)",
+          "Position": "649.6063,1909.449,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "c48fa17e-8617-4b9f-b581-1ebb8e90fdd1",
+          "Name": "Chunk (0, 3, 1)",
+          "Position": "19.68504,1909.449,649.6063",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "070c6340-29db-4bb2-9d4e-ee0840d770c0",
+          "Name": "Chunk (2, 4, 3)",
+          "Position": "1279.528,2539.37,1909.449",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        },
+        {
+          "Id": "8c328607-3d37-42c9-9d1b-2d61045acc73",
+          "Name": "Chunk (1, 0, 6)",
+          "Position": "649.6063,19.68504,3799.213",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "VoxelChunk"
+            }
+          ]
+        }
       ]
     },
     {

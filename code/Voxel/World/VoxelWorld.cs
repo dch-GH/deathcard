@@ -22,7 +22,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 
 	public Dictionary<Vector3S, Chunk> Chunks { get; private set; }
 
-	private Dictionary<Vector3S, VoxelChunk> objects = new();
+	private Dictionary<Chunk, VoxelChunk> objects = new();
 
 	private Material material = Material.FromShader( "shaders/voxel.shader" );
 
@@ -52,7 +52,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		all.Remove( this );
 
 		foreach ( var (_, child) in objects )
-			child.Delete();
+			child.GameObject?.Destroy();
 
 		Chunks = null;
 	}
@@ -60,15 +60,13 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	public VoxelChunk GetVoxelChunk( Chunk chunk )
 	{
 		VoxelChunk vxChunk;
-		if ( !objects.TryGetValue( chunk.Position, out vxChunk ) )
+		if ( !objects.TryGetValue( chunk, out vxChunk ) )
 		{
-			var obj = new GameObject() 
-			{ 
-				Parent = GameObject, 
-				Name = $"Chunk {chunk.Position}",
-			};
-			obj.Transform.LocalPosition = (Vector3)chunk.Position * VoxelScale * Chunk.Size;
-			objects.Add( chunk.Position, vxChunk = obj.Components.GetOrCreate<VoxelChunk>() );
+			var obj = Scene.CreateObject();
+			obj.Parent = GameObject;
+			obj.Name = $"Chunk {chunk.Position}";
+			obj.Transform.LocalPosition = (Vector3)chunk.Position * VoxelScale * Chunk.Size + VoxelScale / 2f;
+			objects.Add( chunk, vxChunk = obj.Components.GetOrCreate<VoxelChunk>() );
 		}
 
 		return vxChunk;
@@ -85,7 +83,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			return;
 
 		var vxChunk = GameManager.IsPlaying ? GetVoxelChunk( chunk ) : null;
-		
+
 		// Let's create a mesh.
 		var mesh = new Mesh( material );
 		var vertices = new List<VoxelVertex>();
@@ -162,6 +160,11 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	public override async void Reset()
 	{
 		gizmoCache.Clear();
+		objects.Clear();
+
+		foreach ( var child in GameObject.Children )
+			child.Destroy();
+
 		Chunks = await BaseImporter.Get<VoxImporter>()
 			.BuildAsync( Path );
 

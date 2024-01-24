@@ -2,6 +2,8 @@
 
 public class Player : Component
 {
+	[Property] public GameObject Shootable { get; set; }
+
 	public const float SPEED = 500f;
 	public const float JUMP_POWER = 250f;
 	public const float STEP_SIZE = Utility.Scale / 4f;
@@ -42,6 +44,19 @@ public class Player : Component
 
 		// Movement
 		Move();
+
+		// Shoot explosives
+		if ( Input.Pressed( "Primary_Attack" ) )
+		{
+			const float FORCE = 2500f;
+
+			var dir = Camera.Transform.Rotation.Forward;
+			var obj = Shootable.Clone();
+			obj.Transform.Position = Camera.Transform.Position + dir * 100f;
+
+			var rb = obj.Components.Get<Rigidbody>();
+			rb.Velocity += dir * FORCE;
+		}
 	}
 
 	private void Move()

@@ -1,5 +1,12 @@
 ﻿namespace Deathcard;
 
+public struct VoxelQueryData
+{
+	public IVoxel Voxel;
+	public Vector3B Position;
+	public Chunk Chunk;
+}
+
 partial class VoxelWorld
 {
 	/// <summary>
@@ -37,8 +44,8 @@ partial class VoxelWorld
 		_ = Chunks.TryGetValue( position, out chunk );
 
 		return new Vector3B(
-			(byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH ) % Chunk.DEFAULT_WIDTH ),
-			(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH ) % Chunk.DEFAULT_DEPTH ),
+			(byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH) % Chunk.DEFAULT_WIDTH ),
+			(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH) % Chunk.DEFAULT_DEPTH ),
 			(byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT ) );
 	}
 
@@ -66,7 +73,7 @@ partial class VoxelWorld
 	/// <param name="z"></param>
 	/// <param name="relative"></param>
 	/// <returns></returns>
-	public (Chunk Chunk, IVoxel Voxel) GetByOffset( int x, int y, int z, Chunk relative = null )
+	public VoxelQueryData GetByOffset( int x, int y, int z, Chunk relative = null )
 	{
 		// Get the new chunk's position based on the offset.
 		var position = new Vector3S(
@@ -77,13 +84,17 @@ partial class VoxelWorld
 
 		// Calculate new voxel position.
 		_ = Chunks.TryGetValue( position, out var chunk );
-		return (
-			Chunk: chunk,
-			Voxel: chunk?.GetVoxel(
-				(byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH ) % Chunk.DEFAULT_WIDTH),
-				(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH ) % Chunk.DEFAULT_DEPTH),
-				(byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT) )
-		);
+
+		var vx = (byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH) % Chunk.DEFAULT_WIDTH);
+		var vy = (byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH) % Chunk.DEFAULT_DEPTH);
+		var vz = (byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT);
+
+		return new VoxelQueryData
+		{
+			Chunk = chunk,
+			Voxel = chunk?.GetVoxel( vx, vy, vz ),
+			Position = new Vector3B( vx, vy, vz )
+		};
 	}
 
 	/// <summary>

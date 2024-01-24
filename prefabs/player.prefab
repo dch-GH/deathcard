@@ -5,7 +5,8 @@
     "Enabled": true,
     "Components": [
       {
-        "__type": "Player"
+        "__type": "Player",
+        "Shootable": "prefabs/explosive.prefab"
       }
     ],
     "Children": [

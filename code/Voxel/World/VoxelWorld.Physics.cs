@@ -111,7 +111,7 @@ partial class VoxelWorld
 	/// <param name="distance"></param>
 	/// <param name="precision"></param>
 	/// <returns></returns>
-	public VoxelTraceResult Trace( Ray ray, float distance, float precision = Utility.Scale / 4f)
+	public VoxelTraceResult Trace( Ray ray, float distance, float precision = Utility.Scale / 4f )
 	{
 		var result = new VoxelTraceResult();
 

@@ -6,5 +6,6 @@ global using System.Threading.Tasks;
 global using Sandbox;
 global using System.Runtime.InteropServices;
 global using System.Text.Json.Serialization;
+global using System.Collections.ObjectModel;
 
 global using Deathcard.Importer;
