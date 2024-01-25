@@ -71,7 +71,7 @@ public class TextureAtlas : GameResource
 		return all.FirstOrDefault( a => a.ResourcePath == path );
 	}
 
-	private void buildTextures()
+	public void Build()
 	{
 		// Calculate required width and height.
 		var width = (int)TextureSize.x;
@@ -149,14 +149,14 @@ public class TextureAtlas : GameResource
 		if ( all.Contains( this ) )
 			return;
 
-		buildTextures();
+		// Build();
 		all.Add( this );
 	}
 
 	protected override void PostReload()
 	{
 		base.PostReload();
-		buildTextures();
+		// Build();
 	}
 }
 

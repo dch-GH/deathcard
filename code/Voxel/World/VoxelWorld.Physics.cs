@@ -2,6 +2,7 @@
 
 public struct VoxelTraceResult
 {
+	public Vector3 Position;
 	public Vector3B LocalPosition;
 	public Vector3S GlobalPosition;
 
@@ -121,18 +122,21 @@ partial class VoxelWorld
 
 		while ( position.Distance( start ) <= distance )
 		{
-			var pos = WorldToVoxel( ApplyTransforms( position ) );
+			var transformed = ApplyTransforms( position );
+			var pos = WorldToVoxel( transformed );
 			var local = GetLocalSpace( pos.x, pos.y, pos.z, out var chunk );
 			var voxel = chunk?.GetVoxel( local.x, local.y, local.z );
 
 			if ( voxel != null ) // We had a collision.
 				return result with // todo @ceitine: add normal aswell
 				{
-					Chunk = chunk,
+					Position = transformed,
 					LocalPosition = local,
 					GlobalPosition = pos,
+
+					Chunk = chunk,
+					Voxel = voxel,
 					Hit = true,
-					Voxel = voxel
 				};
 
 			// Keep moving forward, we didn't hit anything.
