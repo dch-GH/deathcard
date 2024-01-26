@@ -1,7 +1,7 @@
 {
   "RootObject": {
-    "Id": "86fb1c65-29f2-4e0b-a821-1e0ac4d1f1d1",
-    "Name": "Explosive",
+    "Id": "f5a89971-708c-4d71-b0f0-a3905ea192bc",
+    "Name": "explosive",
     "Scale": "0.5,0.5,0.5",
     "Enabled": true,
     "Components": [
@@ -21,19 +21,6 @@
         "Scale": "50,50,50",
         "Static": false,
         "Surface": null
-      },
-      {
-        "__type": "Rigidbody",
-        "AngularDamping": 0,
-        "Gravity": true,
-        "LinearDamping": 0,
-        "Locking": {
-          "Pitch": true,
-          "Yaw": true,
-          "Roll": true
-        },
-        "RigidbodyFlags": 0,
-        "StartAsleep": false
       },
       {
         "__type": "Explosive",
