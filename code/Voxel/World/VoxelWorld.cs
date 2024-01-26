@@ -67,7 +67,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			obj.Parent = GameObject;
 			obj.Name = $"Chunk {chunk.Position}";
 			obj.Transform.LocalPosition = (Vector3)chunk.Position * VoxelScale * Chunk.Size + VoxelScale / 2f;
-
+			
 			objects.Add( chunk, vxChunk = obj.Components.GetOrCreate<VoxelChunk>() );
 		}
 
