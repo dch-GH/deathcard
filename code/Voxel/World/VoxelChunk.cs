@@ -11,30 +11,24 @@ public class VoxelChunk : Component, IEquatable<VoxelChunk>
 	public PhysicsBody Body { get; private set;  }
 	public PhysicsShape Shape { get; set; }
 
-	public Model Model
-	{
-		get => model;
-		set
-		{
-			model = value;
-
-			if ( Renderer?.SceneObject == null )
-				return;
-
-			Renderer.SceneObject.Batchable = false;
-			Parent.AssignAttributes( Renderer.SceneObject.Attributes );
-			Collider.Model = model;
-			Renderer.Model = model;
-		}
-	}
-
-	private Model model;
-
 	protected override void OnAwake()
 	{
 		Collider = Components.GetOrCreate<ModelCollider>();
 		Renderer = Components.GetOrCreate<ModelRenderer>();
 		Parent = Components.Get<VoxelWorld>( FindMode.InParent );
+	}
+
+	public void Rebuild( Model model, bool keepPhysics = false )
+	{
+		if ( Renderer?.SceneObject == null )
+			return;
+
+		Renderer.SceneObject.Batchable = false;
+		Parent.AssignAttributes( Renderer.SceneObject.Attributes );
+		Renderer.Model = model;
+
+		if ( !keepPhysics )
+			Collider.Model = model;
 	}
 
 	public bool Equals( VoxelChunk other )

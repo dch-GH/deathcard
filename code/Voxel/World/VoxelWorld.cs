@@ -28,7 +28,6 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 
 	private Material material = Material.FromShader( "shaders/voxel.shader" );
 
-
 	public void AssignAttributes( RenderAttributes attributes )
 	{
 		attributes.Set( "VoxelScale", VoxelScale );
@@ -78,7 +77,8 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	/// Generates a chunk.
 	/// </summary>
 	/// <param name="chunk"></param>
-	public void GenerateChunk( Chunk chunk )
+	/// <param name="withPhysics"></param>
+	public void GenerateChunk( Chunk chunk, bool withPhysics = true )
 	{
 		// Get our chunk's entity.
 		if ( chunk == null )
@@ -153,9 +153,10 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 				return;
 			}
 
-			vxChunk.Model = builder
-				.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() )
-				.Create();
+			if ( withPhysics )
+				builder = builder.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
+
+			vxChunk.Rebuild( builder.Create(), !withPhysics );
 		}
 	}
 	
