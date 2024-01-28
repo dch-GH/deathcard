@@ -87,16 +87,14 @@ public class Player : Component
 		var pos = parent.GetLocalSpace( value.x, value.y, value.z, out var local );
 
 		var size = 8;
-		var set = Input.Pressed( "Primary_Attack" )
+		var set = Input.Down( "Primary_Attack" )
 			? 1
-			: Input.Pressed( "Secondary_Attack" )
+			: Input.Down( "Secondary_Attack" )
 				? -1
 				: 0;
 
 		if ( set != 0 )
 		{
-			Log.Error( pos );
-
 			var chunks = new Collection<Chunk>();
 
 			for ( int x = 0; x <= size; x++ )

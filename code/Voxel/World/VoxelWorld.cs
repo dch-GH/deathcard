@@ -78,7 +78,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	/// </summary>
 	/// <param name="chunk"></param>
 	/// <param name="withPhysics"></param>
-	public void GenerateChunk( Chunk chunk, bool withPhysics = true )
+	public async Task GenerateChunk( Chunk chunk, bool withPhysics = true )
 	{
 		// Get our chunk's entity.
 		if ( chunk == null )
@@ -139,7 +139,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		}
 
 		// Check if we actually end up with vertices.
-		if ( vertices.Count > 0 )
+		if ( vertices.Count > 0 && !chunk.Empty )
 		{
 			mesh.CreateVertexBuffer<VoxelVertex>( vertices.Count, VoxelVertex.Layout, vertices.ToArray() );
 			mesh.CreateIndexBuffer( indices.Count, indices.ToArray() );
@@ -157,7 +157,15 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 				builder = builder.AddCollisionMesh( buffer.Vertex.ToArray(), buffer.Index.ToArray() );
 
 			vxChunk.Rebuild( builder.Create(), !withPhysics );
+
+			return;
 		}
+
+		// Let's remove our empty chunk!
+		objects.Remove( chunk );
+		Chunks.Remove( chunk.Position );
+
+		vxChunk.Destroy();
 	}
 	
 	public override async void Reset()
@@ -168,11 +176,15 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		foreach ( var child in GameObject.Children )
 			child.Destroy();
 
+		var t = DateTime.Now;
+
 		Chunks = await BaseImporter.Get<VoxImporter>()
 			.BuildAsync( Path );
 
 		foreach ( var (_, chunk) in Chunks )
-			GenerateChunk( chunk );
+			await GenerateChunk( chunk );
+
+		Log.Info( $"Importing and generating VoxelWorld mesh took {(DateTime.Now - t).Milliseconds}ms." );
 	}
 
 	#region DEBUG
@@ -206,6 +218,11 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		// Debug
 		var center = (Vector3)tr.GlobalPosition * VoxelScale + VoxelScale / 2f;
 		var bbox = new BBox( center - VoxelScale / 2f, center + VoxelScale / 2f );
+		/*var surface = center + tr.Normal * VoxelScale / 2f;
+
+		Gizmo.Draw.Color = Color.Red;
+		Gizmo.Draw.LineThickness = 5;
+		Gizmo.Draw.Line( surface, surface + tr.Normal * 50f );*/
 
 		Gizmo.Draw.Color = Color.White;
 		Gizmo.Draw.ScreenText( $"{(tr.Voxel?.GetType().Name ?? "unknown")}", 20, "Consolas", 18, TextFlag.LeftTop );
