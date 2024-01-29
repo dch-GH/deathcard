@@ -7,23 +7,32 @@ public class Explosive : Component
 
 	public Vector3 Velocity { get; set; }
 	public GameObject GroundObject { get; set; }
-	public BoxCollider Collider { get; set; }
+
+	public ModelRenderer Renderer { get; private set; }
+	public BoxCollider Collider { get; private set; }
 
 	TimeUntil _shouldExplode;
 
 	protected override void OnAwake()
 	{
 		Collider = Components.Get<BoxCollider>( true );
+		Renderer = Components.Get<ModelRenderer>( true );
 		_shouldExplode = Duration;
 	}
 
 	protected override void OnUpdate()
 	{
+		// Radius gizmo
 		Gizmo.Draw.Color = Color.Red.WithAlpha( 0.3f );
 		Gizmo.Draw.SolidSphere( Transform.Position, Utility.Scale * Radius / 2 );
 
 		Gizmo.Draw.Color = Color.White;
 		Gizmo.Draw.LineSphere( new Sphere( Transform.Position, Utility.Scale * Radius / 2 ) );
+
+		// Blink tint
+		var t = _shouldExplode.Passed;
+		var f = MathF.Sin( t * t ) / 2f + 0.5f;
+		Renderer.Tint = Color.Lerp( Color.White, Color.Red, f );
 	}
 
 	protected override void OnFixedUpdate()
