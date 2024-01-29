@@ -42,7 +42,9 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		if ( all.Contains( this ) )
 			return;
 		
-		all.Add( this );
+		if ( GameManager.IsPlaying )
+			all.Add( this );
+
 		Atlas.Build();
 		Reset();
 	}

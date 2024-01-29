@@ -14,12 +14,16 @@ public class Explosive : Component
 	protected override void OnAwake()
 	{
 		Collider = Components.Get<BoxCollider>( true );
-		_shouldExplode = 1;
+		_shouldExplode = Duration;
 	}
 
 	protected override void OnUpdate()
 	{
-		Gizmo.Draw.LineSphere( new Sphere( Transform.Position, Utility.Scale * Radius ), 6 );
+		Gizmo.Draw.Color = Color.Red.WithAlpha( 0.3f );
+		Gizmo.Draw.SolidSphere( Transform.Position, Utility.Scale * Radius / 2 );
+
+		Gizmo.Draw.Color = Color.White;
+		Gizmo.Draw.LineSphere( new Sphere( Transform.Position, Utility.Scale * Radius / 2 ) );
 	}
 
 	protected override void OnFixedUpdate()
@@ -93,16 +97,17 @@ public class Explosive : Component
 	{
 		var chunks = new Collection<Chunk>();
 		var world = VoxelWorld.All.FirstOrDefault();
-		/*var hit = Scene.Trace.Sphere( Utility.Scale * Radius, new Ray( Transform.Position, Vector3.Down ), 5f )
-			.IgnoreGameObject( GameObject )
-			.RunAll();
-		
-		foreach ( var obj in hit )
+
+		foreach ( var obj in Scene.FindInPhysics( new Sphere( Transform.Position, Radius * Utility.Scale ) ) )
 		{
-			if ( world == null && obj.Component is VoxelChunk chunk )
+			var chunk = obj.Components.Get<VoxelChunk>();
+
+			if ( chunk != null )
+			{
 				world = chunk.Parent;
-			Log.Error( obj.GameObject );
-		}*/
+				break;
+			}
+		}
 
 		if ( world == null )
 			return false;
@@ -131,13 +136,13 @@ public class Explosive : Component
 				z: (pos.z + 0.5f).FloorToInt()
 			);
 
-			var chunk = world.SetVoxel( target.x, target.y, target.z, null ); // todo @ceitine: fix???
+			var chunk = world.SetVoxel( target.x, target.y, target.z, null );
 			if ( chunk != null && !chunks.Contains( chunk ) )
 				chunks.Add( chunk );
 		}
 
 		foreach ( var chunk in chunks )
-			world.GenerateChunk( chunk );
+			_ = world.GenerateChunk( chunk );
 
 		return true;
 	}

@@ -56,7 +56,6 @@ public class Player : Component
 
 			var dir = Camera.Transform.Rotation.Forward;
 			var obj = Shootable.Clone();
-			obj.Parent = Scene;
 			obj.Transform.Position = Camera.Transform.Position + dir * 100f;
 
 			var c = obj.Components.Get<Explosive>();
@@ -123,7 +122,7 @@ public class Player : Component
 			}
 
 			foreach ( var chunk in chunks )
-				parent.GenerateChunk( chunk );
+				_ = parent.GenerateChunk( chunk );
 		}
 	}
 
