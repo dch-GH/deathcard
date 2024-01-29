@@ -49,7 +49,7 @@ public class Explosive : Component
 
 		// Use move helper to advance.
 		var tr = Scene.Trace
-			.Size( Collider.Scale )
+			.Size( Collider.Scale / 2 )
 			.IgnoreGameObjectHierarchy( GameObject );
 
 		var helper = new CharacterControllerHelper( tr, Transform.Position, Velocity );
@@ -95,17 +95,35 @@ public class Explosive : Component
 
 	public bool Explode()
 	{
+		const float MIN_FORCE = 1000f;
+		const float MAX_FORCE = 2000f;
+
 		var chunks = new Collection<Chunk>();
-		var world = VoxelWorld.All.FirstOrDefault();
+		var world = (VoxelWorld)null;
 
 		foreach ( var obj in Scene.FindInPhysics( new Sphere( Transform.Position, Radius * Utility.Scale ) ) )
 		{
-			var chunk = obj.Components.Get<VoxelChunk>();
+			// Ignore self.
+			if ( obj == GameObject )
+				continue;
 
-			if ( chunk != null )
+			// Get VoxelWorld.
+			if ( world == null && obj.Components.TryGet<VoxelChunk>( out var chunk ) )
 			{
 				world = chunk.Parent;
-				break;
+				continue;
+			}
+
+			// Force variables.
+			var normal = (obj.Transform.Position - Transform.Position).Normal;
+			var distance = obj.Transform.Position.Distance( Transform.Position );
+			var force = MathX.LerpTo( MAX_FORCE, MIN_FORCE, distance / (Radius * Utility.Scale) );
+
+			// Apply velocity to nearby explosives.
+			if ( obj.Components.TryGet<Explosive>( out var explosive ) )
+			{
+				explosive.GroundObject = null;
+				explosive.Velocity += (normal + Vector3.Up * 0.5f) * force;
 			}
 		}
 
