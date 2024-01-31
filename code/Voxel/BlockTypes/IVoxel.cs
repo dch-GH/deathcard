@@ -25,6 +25,17 @@ public interface IVoxel
 		);
 
 	/// <summary>
+	/// All of our BlockTypes.
+	/// </summary>
+	public static IReadOnlyDictionary<Type, BlockType?> BlockTypes = TypeLibrary?
+		.GetTypes<IVoxel>()?
+		.Where( type => !type.IsInterface )
+		.ToDictionary(
+			type => type.TargetType, // Key selector
+			type => (BlockType?)type.GetProperty( "Deathcard.IVoxel.Type" ).GetValue( null ) // Value selector
+		);
+
+	/// <summary>
 	/// The type that our block represents.
 	/// </summary>
 	public virtual static BlockType Type { get; }
@@ -60,7 +71,7 @@ public interface IVoxel
 	{
 		throw new NotImplementedException();
 	}
-
+  
 	/// <summary>
 	/// Utility method for reading an IVoxel's data based on block type.
 	/// </summary>
@@ -74,5 +85,18 @@ public interface IVoxel
 
 		var voxel = method.InvokeWithReturn<IVoxel>( null, new[] { reader } );
 		return voxel;
+	}
+
+	/// <summary>
+	/// Gets BlockType from a type.
+	/// </summary>
+	/// <param name="type"></param>
+	/// <returns></returns>
+	public static BlockType GetBlockType( Type type )
+	{
+		return 0; // TODO: Fix
+
+		_ = BlockTypes.TryGetValue( type, out var block );
+		return block ?? 0;
 	}
 }

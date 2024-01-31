@@ -116,14 +116,14 @@ public class Player : Component
 					target.x.FloorToInt(),
 					target.y.FloorToInt(),
 					target.z.FloorToInt(), voxel, local );
+				
+				if ( data.Chunk == null )
+					continue;
 
-				if ( data.Chunk != null && !chunks.Contains( data.Chunk ) )
-					chunks.Add( data.Chunk );
-
-				var neighbors = data.Chunk.GetNeighbors( data.Position.x, data.Position.y, data.Position.z, true );
+				var neighbors = data.Chunk.GetNeighbors( data.Position.x, data.Position.y, data.Position.z );
 				foreach ( var neighbor in neighbors )
 				{
-					if ( neighbor != null || chunks.Contains( neighbor ) )
+					if ( neighbor == null || chunks.Contains( neighbor ) )
 						continue;
 
 					chunks.Add( neighbor );
