@@ -163,9 +163,9 @@ public class Explosive : Component
 				z: (pos.z + 0.5f).FloorToInt()
 			);
 
-			var chunk = world.SetVoxel( target.x, target.y, target.z, null );
-			if ( chunk != null && !chunks.Contains( chunk ) )
-				chunks.Add( chunk );
+			var data = world.SetVoxel( target.x, target.y, target.z, null );
+			if ( data.Chunk != null && !chunks.Contains( data.Chunk ) )
+				chunks.Add( data.Chunk );
 		}
 
 		foreach ( var chunk in chunks )

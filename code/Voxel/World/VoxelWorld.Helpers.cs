@@ -128,7 +128,7 @@ partial class VoxelWorld
 	/// <param name="voxel"></param>
 	/// <param name="relative"></param>
 	/// <returns></returns>
-	public Chunk SetVoxel( int x, int y, int z, IVoxel voxel, Chunk relative = null )
+	public VoxelQueryData SetVoxel( int x, int y, int z, IVoxel voxel, Chunk relative = null )
 	{
 		// Convert to local space.
 		var pos = GetLocalSpace( x, y, z, out var chunk, relative );
@@ -139,7 +139,12 @@ partial class VoxelWorld
 
 		// Set voxel.
 		chunk?.SetVoxel( pos.x, pos.y, pos.z, voxel );
-		return chunk;
+		return new VoxelQueryData
+		{
+			Chunk = chunk,
+			Position = pos,
+			Voxel = voxel
+		};
 	}
 
 	/// <summary>

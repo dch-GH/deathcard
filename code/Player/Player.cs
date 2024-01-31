@@ -112,13 +112,22 @@ public class Player : Component
 					? new Block() { TextureId = (ushort)Game.Random.Int( 0, 2 ) }
 					: (IVoxel)null;
 
-				var chunk = parent.SetVoxel(
+				var data = parent.SetVoxel(
 					target.x.FloorToInt(),
 					target.y.FloorToInt(),
 					target.z.FloorToInt(), voxel, local );
 
-				if ( chunk != null && !chunks.Contains( chunk ) )
-					chunks.Add( chunk );
+				if ( data.Chunk != null && !chunks.Contains( data.Chunk ) )
+					chunks.Add( data.Chunk );
+
+				var neighbors = data.Chunk.GetNeighbors( data.Position.x, data.Position.y, data.Position.z, true );
+				foreach ( var neighbor in neighbors )
+				{
+					if ( neighbor != null || chunks.Contains( neighbor ) )
+						continue;
+
+					chunks.Add( neighbor );
+				}
 			}
 
 			foreach ( var chunk in chunks )

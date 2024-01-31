@@ -194,6 +194,8 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 
 	protected override void DrawGizmos()
 	{
+		return;
+
 		// Display all chunks.
 		Gizmo.Draw.Color = Color.Yellow;
 		Gizmo.Draw.LineThickness = 0.1f;
