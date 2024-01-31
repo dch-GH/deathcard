@@ -53,7 +53,7 @@ VS
 	//
 	// Main
 	//
-	PixelInput MainVs( INSTANCED_SHADER_PARAMS( VS_INPUT i ) )
+	PixelInput MainVs( VertexInput i )
 	{
 		PixelInput o = ProcessVertex( i );
 		return FinalizeVertex( o );
@@ -122,9 +122,9 @@ PS
 	{
 		float2 UV = i.vTextureCoords.xy;
 
-        Material m;
+        Material m = Material::Init();
         m.Albedo = Tex2DS( g_tColor, Sampler, UV.xy ).rgb;
-        m.Normal = TransformNormal( i, DecodeNormal( Tex2DS( g_tNormal, Sampler, UV.xy ).rgb ) );
+        m.Normal = DecodeNormal( Tex2DS( g_tNormal, Sampler, UV.xy ).rgb );
 
 		float2 rm = Tex2DS( g_tRm, Sampler, UV.xy ).rg;
         m.Roughness = rm.r;
