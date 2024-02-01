@@ -16,24 +16,33 @@ public interface IVoxel
 	/// <summary>
 	/// All of our implemented BlockType readers.
 	/// </summary>
-	public static IReadOnlyDictionary<BlockType?, MethodDescription> Readers = TypeLibrary?
-		.GetTypes<IVoxel>()?
-		.Where( type => !type.IsInterface )
-		.ToDictionary( 
-			type => (BlockType?)type.GetProperty( "Deathcard.IVoxel.Type" ).GetValue( null ), // Key selector
-			type => type.Methods?.FirstOrDefault( method => method.IsNamed( "Deathcard.IVoxel.Read" ) ) // Value selector
-		);
+	public static IReadOnlyDictionary<BlockType?, MethodDescription> Readers { get; private set; }
 
 	/// <summary>
 	/// All of our BlockTypes.
 	/// </summary>
-	public static IReadOnlyDictionary<Type, BlockType?> BlockTypes = TypeLibrary?
-		.GetTypes<IVoxel>()?
-		.Where( type => !type.IsInterface )
-		.ToDictionary(
-			type => type.TargetType, // Key selector
-			type => (BlockType?)type.GetProperty( "Deathcard.IVoxel.Type" ).GetValue( null ) // Value selector
-		);
+	public static IReadOnlyDictionary<Type, BlockType?> BlockTypes { get; private set; }
+
+	public static void ResetTypeLibrary()
+	{
+		// BlockTypes
+		BlockTypes = TypeLibrary?
+			.GetTypes<IVoxel>()
+			.Where( t => t.IsValueType )
+			.ToDictionary(
+				type => type.TargetType, // Key selector
+				type => type.Methods.FirstOrDefault( method => method.IsNamed( "Deathcard.IVoxel.get_Type" ) )?.InvokeWithReturn<BlockType>( null ) // Value selector
+			);
+
+		// Readers
+		Readers = TypeLibrary?
+			.GetTypes<IVoxel>()
+			.Where( t => t.IsValueType )
+			.ToDictionary(
+				type => type.Methods.FirstOrDefault( method => method.IsNamed( "Deathcard.IVoxel.get_Type" ) )?.InvokeWithReturn<BlockType>( null ), // Key selector
+				type => type.Methods?.FirstOrDefault( method => method.IsNamed( "Deathcard.IVoxel.Read" ) ) // Value selector
+			);
+	}
 
 	/// <summary>
 	/// The type that our block represents.
@@ -92,11 +101,9 @@ public interface IVoxel
 	/// </summary>
 	/// <param name="type"></param>
 	/// <returns></returns>
-	public static BlockType GetBlockType( Type type )
+	public static BlockType? GetBlockType( Type type )
 	{
-		return 0; // TODO: Fix
-
 		_ = BlockTypes.TryGetValue( type, out var block );
-		return block ?? 0;
+		return block;
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace Deathcard;
+namespace Deathcard;
 
 partial class VoxelWorld
 {
@@ -20,18 +20,17 @@ partial class VoxelWorld
 
 			// Voxels
 			var i = stream.Position;
-			var voxels = chunk.GetVoxels();
 			var count = (ushort)0;
 
-			stream.Position = i + sizeof( ushort );
+			stream.Seek( i + sizeof( ushort ), SeekOrigin.Begin );
 			for ( byte x = 0; x < Chunk.DEFAULT_WIDTH; x++ )
 			for ( byte y = 0; y < Chunk.DEFAULT_DEPTH; y++ )
 			for ( byte z = 0; z < Chunk.DEFAULT_HEIGHT; z++ )
 			{
-				var voxel = voxels[x, y, z];
+				var voxel = chunk.GetVoxel( x, y, z );
 				if ( voxel == null )
 					continue;
-
+				
 				var type = IVoxel.GetBlockType( voxel.GetType() );
 				writer.Write( x );
 				writer.Write( y );
@@ -43,9 +42,9 @@ partial class VoxelWorld
 			}
 
 			var j = stream.Position;
-			stream.Position = i;
+			stream.Seek( i, SeekOrigin.Begin );
 			writer.Write( count );
-			stream.Position = j;
+			stream.Seek( j, SeekOrigin.Begin );
 		}
 
 		// Convert stream to array.
@@ -79,8 +78,23 @@ partial class VoxelWorld
 				var y = reader.ReadByte();
 				var z = reader.ReadByte();
 				var voxel = IVoxel.TryRead( reader );
+				if ( voxel == null )
+				{
+					Log.Error( $"VoxelWorld - Tried to load invalid voxel." );
+					return;
+				}
+
 				chunk.SetVoxel( x, y, z, voxel );
 			}
 		}
+	}
+
+	[ConCmd]
+	public static void TestLoad()
+	{
+		IVoxel.ResetTypeLibrary();
+		var world = All.FirstOrDefault();
+		var buffer = world.Serialize().Compress();
+		world.Deserialize( buffer.Decompress() );
 	}
 }

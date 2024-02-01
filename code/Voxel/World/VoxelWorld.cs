@@ -225,7 +225,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		Gizmo.Draw.Color = Color.Red;
 		Gizmo.Draw.LineThickness = 5;
 		Gizmo.Draw.Line( surface, surface + tr.Normal * 50f );*/
-#if false
+
 		Gizmo.Draw.Color = Color.White;
 		Gizmo.Draw.ScreenText( $"{(tr.Voxel?.GetType().Name ?? "unknown")}", 20, "Consolas", 18, TextFlag.LeftTop );
 		Gizmo.Draw.ScreenText( $"XYZ: {tr.GlobalPosition}", 20 + Vector2.Up * 20, "Consolas", 18, TextFlag.LeftTop );
@@ -237,7 +237,6 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 
 		Gizmo.Draw.Color = Color.Black.WithAlpha( 0.5f );
 		Gizmo.Draw.SolidBox( bbox );
-#endif 
 	}
 #endregion
 }
