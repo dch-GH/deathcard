@@ -81,7 +81,8 @@ PS
 
 	CreateInputTexture2D( Roughness, Linear, 8, "", "_rough", "Material,10/30", Default( 1 ) );
 	CreateInputTexture2D( Metalness, Linear, 8, "", "_metal",  "Material,10/40", Default( 1.0 ) );
-	CreateTexture2DWithoutSampler( g_tRm ) < Channel( R, Box( Roughness ), Linear ); Channel( G, Box( Metalness ), Linear ); OutputFormat( BC7 ); SrgbRead( false ); >;
+	CreateInputTexture2D( AmbientOcclusion, Linear, 8, "", "_ao",  "Material,10/50", Default( 1.0 ) );
+	CreateTexture2DWithoutSampler( g_tRmo ) < Channel( R, Box( Roughness ), Linear ); Channel( G, Box( Metalness ), Linear ); Channel( B, Box( AmbientOcclusion ), Linear ); OutputFormat( BC7 ); SrgbRead( false ); >;
 
 	#if ( S_EMISSIVE )
 		float EmissionStrength < UiType( Slider ); Default( 1.0f ); Range( 0, 5.0 ); UiGroup( "Emission,20/10" );  >;
@@ -126,10 +127,10 @@ PS
         m.Albedo = Tex2DS( g_tColor, Sampler, UV.xy ).rgb;
         m.Normal = DecodeNormal( Tex2DS( g_tNormal, Sampler, UV.xy ).rgb );
 
-		float2 rm = Tex2DS( g_tRm, Sampler, UV.xy ).rg;
-        m.Roughness = rm.r;
-        m.Metalness = rm.g;
-        m.AmbientOcclusion = 0.1;
+		float3 rmo = Tex2DS( g_tRmo, Sampler, UV.xy ).rgb;
+        m.Roughness = rmo.r;
+        m.Metalness = rmo.g;
+        m.AmbientOcclusion = rmo.b;
         m.TintMask = 0;
         m.Opacity = 1;
 		m.Emission = 0;
