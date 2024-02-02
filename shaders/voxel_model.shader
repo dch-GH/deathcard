@@ -68,6 +68,7 @@ PS
 	
 	#define CUSTOM_TEXTURE_FILTERING
     SamplerState Sampler < Filter( POINT ); AddressU( WRAP ); AddressV( WRAP ); >;
+	SamplerState SamplerAniso < Filter( ANISO ); AddressU( WRAP ); AddressV( WRAP ); >; 
 
 	StaticCombo( S_MODE_DEPTH, 0..1, Sys( ALL ) );
 	StaticCombo( S_EMISSIVE, F_EMISSIVE, Sys( ALL ) );
@@ -125,9 +126,9 @@ PS
 
         Material m = Material::Init();
         m.Albedo = Tex2DS( g_tColor, Sampler, UV.xy ).rgb;
-        m.Normal = DecodeNormal( Tex2DS( g_tNormal, Sampler, UV.xy ).rgb );
+        m.Normal = DecodeNormal( Tex2DS( g_tNormal, SamplerAniso, UV.xy ).rgb );
 
-		float3 rmo = Tex2DS( g_tRmo, Sampler, UV.xy ).rgb;
+		float3 rmo = Tex2DS( g_tRmo, SamplerAniso, UV.xy ).rgb;
         m.Roughness = rmo.r;
         m.Metalness = rmo.g;
         m.AmbientOcclusion = rmo.b;
@@ -135,7 +136,7 @@ PS
         m.Opacity = 1;
 		m.Emission = 0;
 		#if( S_EMISSIVE )
-       	 	m.Emission = Tex2DS( g_tEmission, Sampler, UV.xy ).rgb * EmissionStrength;
+       	 	m.Emission = Tex2DS( g_tEmission, SamplerAniso, UV.xy ).rgb * EmissionStrength;
 		#endif
         m.Transmission = 0;
 
