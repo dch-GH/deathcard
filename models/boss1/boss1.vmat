@@ -1,0 +1,16 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "shaders/voxel_model.shader"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material ----
+	AmbientOcclusion "models/boss1/boss1_ao.png"
+	Color "models/boss1/boss1_color.png"
+	Metalness "materials/default/default_metal.tga"
+	Normal "models/boss1/boss1_normal.png"
+	Roughness "models/boss1/boss1_rough.png"
+}
