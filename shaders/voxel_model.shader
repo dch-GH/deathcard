@@ -128,7 +128,7 @@ PS
 
         Material m = Material::Init();
         m.Albedo = Tex2DS( g_tColor, Sampler, UV.xy ).rgb;
-        m.Normal = DecodeNormal( Tex2DS( g_tNormal, SamplerAniso, UV.xy ).rgb );
+        m.Normal = TransformNormal( DecodeNormal( Tex2DS( g_tNormal, SamplerAniso, UV.xy ).rgb ), i.vNormalWs, i.vTangentUWs, i.vTangentVWs );
 
 		float3 rmo = Tex2DS( g_tRmo, SamplerAniso, UV.xy ).rgb;
         m.Roughness = rmo.r;
