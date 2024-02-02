@@ -9,6 +9,7 @@ Layer0
 
 	//---- Material ----
 	AmbientOcclusion "models/boss1/boss1_ao.png"
+	AmbientOcclusionStrength "5.000"
 	Color "models/boss1/boss1_color.png"
 	Metalness "materials/default/default_metal.tga"
 	Normal "models/boss1/boss1_normal.png"
