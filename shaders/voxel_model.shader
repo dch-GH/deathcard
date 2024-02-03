@@ -75,15 +75,17 @@ PS
 
 	#define CUSTOM_MATERIAL_INPUTS
 	CreateInputTexture2D( Color, Srgb, 8, "", "_color", "Material,10/10", Default3( 1.0, 1.0, 1.0 ) );
+	CreateInputTexture2D( ColorTint, Srgb, 8, "", "_tint", "Material,10/20", Default3( 1.0, 1.0, 1.0 ) );
 	CreateTexture2DWithoutSampler( g_tColor ) < Channel( RGB, Box( Color ), Srgb ); OutputFormat( BC7 ); SrgbRead( true ); Filter( POINT ); >;
+	CreateTexture2DWithoutSampler( g_tColorTint ) < Channel( RGB, Box( ColorTint ), Srgb ); OutputFormat( BC7 ); SrgbRead( true ); Filter( POINT ); >;
 
-    CreateInputTexture2D( Normal, Linear, 8, "NormalizeNormals", "_normal", "Material,10/20", Default3( 0.5, 0.5, 1.0 ) );
+    CreateInputTexture2D( Normal, Linear, 8, "NormalizeNormals", "_normal", "Material,10/30", Default3( 0.5, 0.5, 1.0 ) );
 	CreateTexture2DWithoutSampler( g_tNormal ) < Channel( RGB, Box( Normal ), Linear ); OutputFormat( DXT5 ); SrgbRead( false ); >;
 
-	CreateInputTexture2D( Roughness, Linear, 8, "", "_rough", "Material,10/30", Default( 1 ) );
-	CreateInputTexture2D( Metalness, Linear, 8, "", "_metal",  "Material,10/40", Default( 1.0 ) );
-	CreateInputTexture2D( AmbientOcclusion, Linear, 8, "", "_ao",  "Material,10/50", Default( 1.0 ) );
-	float AmbientOcclusionStrength < UiType( Slider ); Default( 1.0f ); Range( 0, 10.0 ); UiGroup( "Material,10/50" ); >;
+	CreateInputTexture2D( Roughness, Linear, 8, "", "_rough", "Material,10/40", Default( 1 ) );
+	CreateInputTexture2D( Metalness, Linear, 8, "", "_metal",  "Material,10/50", Default( 1.0 ) );
+	CreateInputTexture2D( AmbientOcclusion, Linear, 8, "", "_ao",  "Material,10/60", Default( 1.0 ) );
+	float AmbientOcclusionStrength < UiType( Slider ); Default( 1.0f ); Range( 0, 10.0 ); UiGroup( "Material,10/60" ); >;
 
 	CreateTexture2DWithoutSampler( g_tRmo ) < Channel( R, Box( Roughness ), Linear ); Channel( G, Box( Metalness ), Linear ); Channel( B, Box( AmbientOcclusion ), Linear ); OutputFormat( BC7 ); SrgbRead( false ); >;
 
@@ -107,10 +109,10 @@ PS
 
 		BoolAttribute( translucent, true );
 
-		CreateInputTexture2D( TransparencyMask, Linear, 8, "", "_trans", "Transparency,10/10", Default( 1 ) );
+		CreateInputTexture2D( TransparencyMask, Linear, 8, "", "_trans", "Transparency,30/10", Default( 1 ) );
 		CreateTexture2DWithoutSampler( g_tTransparencyMask ) < Channel( R, Box( TransparencyMask ), Linear ); OutputFormat( BC7 ); SrgbRead( false ); >;
 	
-		float TransparencyRounding< Default( 0.0f ); Range( 0.0f, 1.0f ); UiGroup( "Transparency,10/20" ); >;
+		float TransparencyRounding< Default( 0.0f ); Range( 0.0f, 1.0f ); UiGroup( "Transparency,30/20" ); >;
 	#endif
 
 	RenderState( CullMode, F_RENDER_BACKFACES ? NONE : DEFAULT );
@@ -126,8 +128,9 @@ PS
 	{
 		float2 UV = i.vTextureCoords.xy;
 
+		float3 tint = Tex2DS( g_tColorTint, Sampler, UV.xy ).rgb;
         Material m = Material::Init();
-        m.Albedo = Tex2DS( g_tColor, Sampler, UV.xy ).rgb;
+        m.Albedo = Tex2DS( g_tColor, Sampler, UV.xy ).rgb * tint;
         m.Normal = TransformNormal( DecodeNormal( Tex2DS( g_tNormal, SamplerAniso, UV.xy ).rgb ), i.vNormalWs, i.vTangentUWs, i.vTangentVWs );
 
 		float3 rmo = Tex2DS( g_tRmo, SamplerAniso, UV.xy ).rgb;

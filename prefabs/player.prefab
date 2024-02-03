@@ -6,15 +6,16 @@
     "Components": [
       {
         "__type": "Player",
-        "Shootable": "prefabs/explosive.prefab"
+        "Shootable": {
+          "_type": "gameobject",
+          "prefab": "prefabs/explosive.prefab"
+        }
       }
     ],
     "Children": [
       {
         "Id": "8508e081-406d-4537-ba56-2b18a6b8a1dd",
         "Name": "Model",
-        "Position": "0,0,38",
-        "Scale": "0.75,0.75,1.5",
         "Tags": "localplayer",
         "Enabled": true,
         "Components": [
@@ -23,15 +24,15 @@
             "BodyGroups": 18446744073709551615,
             "MaterialGroup": null,
             "MaterialOverride": null,
-            "Model": "models/dev/box.vmdl",
+            "Model": "models/character2/player2.vmdl",
             "RenderType": "On",
             "Tint": "1,1,1,1"
           },
           {
             "__type": "BoxCollider",
-            "Center": "0,0,0",
+            "Center": "0,0,52",
             "IsTrigger": false,
-            "Scale": "50,50,50",
+            "Scale": "50,50,104",
             "Static": false,
             "Surface": null
           }
