@@ -9,7 +9,7 @@ Layer0
 
 	//---- Emission ----
 	Emission "models/character2/materials/character2_main_em.png"
-	EmissionStrength "1.000"
+	EmissionStrength "0.300"
 
 	//---- Fog ----
 	g_bFogEnabled "1"
