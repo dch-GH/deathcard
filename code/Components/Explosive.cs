@@ -1,13 +1,27 @@
 ﻿namespace Deathcard;
 
+[Flags]
+public enum RotationFlags
+{
+	None = 0,
+	Velocity = 1 << 0,
+	Roll = 1 << 1,
+}
+
 public class Explosive : Component
 {
 	[Property] public float Duration { get; set; } = 4f;
+	[Property] public bool ExplodeOnImpact { get; set; } = false;
 	[Property, Range(1, 100)] public int Radius { get; set; } = 5;
+
+	[Property, Category( "Physics" )] public Vector3 Gravity { get; set; } = Vector3.Down * 650f;
+	[Property, Category( "Physics" )] public float FrictionMultiplier { get; set; } = 0.9f;
+	[Property, Category( "Physics" )] public RotationFlags RotationMode { get; set; } = RotationFlags.Velocity;
 
 	public Vector3 Velocity { get; set; }
 	public GameObject GroundObject { get; set; }
 
+	public float Angle { get; private set; }
 	public ModelRenderer Renderer { get; private set; }
 	public BoxCollider Collider { get; private set; }
 
@@ -15,21 +29,23 @@ public class Explosive : Component
 
 	protected override void OnAwake()
 	{
-		Collider = Components.Get<BoxCollider>( true );
-		Renderer = Components.Get<ModelRenderer>( true );
+		Collider = Components.Get<BoxCollider>( FindMode.EverythingInSelfAndDescendants );
+		Renderer = Components.Get<ModelRenderer>( FindMode.EverythingInSelfAndDescendants );
 		_shouldExplode = Duration;
 	}
 
 	protected override void OnUpdate()
 	{
 		// Radius gizmo
-		Gizmo.Draw.Color = Color.Red.WithAlpha( 0.3f );
+		Gizmo.Draw.Color = Color.Red.WithAlpha( 0.3f );	
 		Gizmo.Draw.SolidSphere( Transform.Position, Utility.Scale * Radius / 2 );
 
-		Gizmo.Draw.Color = Color.White;
+		Gizmo.Draw.Color = Color.White.WithAlpha( 0.1f );
 		Gizmo.Draw.LineSphere( new Sphere( Transform.Position, Utility.Scale * Radius / 2 ) );
 
 		// Blink tint
+		if ( ExplodeOnImpact ) return;
+
 		var t = _shouldExplode.Passed;
 		var f = MathF.Sin( t * t ) / 2f + 0.5f;
 		Renderer.Tint = Color.Lerp( Color.White, Color.Red, f );
@@ -49,12 +65,20 @@ public class Explosive : Component
 	private void Move() // todo @ceitine: custom physics
 	{
 		// Set rotation.
+		Angle += 360f * Time.Delta;
+
 		if ( !Velocity.IsNearlyZero( 1f ) )
-			Transform.Rotation = Rotation.LookAt( Velocity.Normal );
+		{
+			Transform.Rotation = RotationMode.HasFlag( RotationFlags.Roll )
+				? Rotation.LookAt( Velocity.Normal ).RotateAroundAxis( Velocity.Normal, Angle )
+				: RotationMode.HasFlag( RotationFlags.Velocity )
+					? Rotation.LookAt( Velocity.Normal )
+					: Transform.Rotation;
+		}
 
 		// Apply Gravity.
 		if ( !GroundObject.IsValid() )
-			Velocity += Vector3.Down * Player.GRAVITY * Time.Delta;
+			Velocity += Gravity * Time.Delta;
 
 		// Use move helper to advance.
 		var tr = Scene.Trace
@@ -63,7 +87,7 @@ public class Explosive : Component
 
 		var helper = new CharacterControllerHelper( tr, Transform.Position, Velocity );
 		if ( GroundObject.IsValid() )
-			helper.Velocity *= 0.9f;
+			helper.Velocity *= FrictionMultiplier;
 
 		// Apply new helper values and bounce.
 		if ( helper.TryMove( Time.Delta ) > 0 )
@@ -71,6 +95,12 @@ public class Explosive : Component
 
 		// Let's apply some bounce.
 		var velocity = helper.Velocity;
+		if ( ExplodeOnImpact && velocity.Length < Velocity.Length )
+		{
+			Explode();
+			GameObject.Destroy();
+		}
+
 		var bounced = false;
 		if ( MathF.Abs( Velocity.z - velocity.z ) > 10 ) // Bounce on Z-axis.
 		{
@@ -107,7 +137,6 @@ public class Explosive : Component
 		const float MIN_FORCE = 1000f;
 		const float MAX_FORCE = 2000f;
 
-		var chunks = new Collection<Chunk>();
 		var world = (VoxelWorld)null;
 
 		foreach ( var obj in Scene.FindInPhysics( new Sphere( Transform.Position, Radius * Utility.Scale ) ) )
@@ -144,6 +173,7 @@ public class Explosive : Component
 
 		// Remove voxels in a sphere.
 		var center = new Vector3( position.x, position.y, position.z );
+		var chunks = new Collection<Chunk>();
 
 		for ( int x = 0; x <= Radius; x++ )
 		for ( int y = 0; y <= Radius; y++ )
@@ -164,8 +194,17 @@ public class Explosive : Component
 			);
 
 			var data = world.SetVoxel( target.x, target.y, target.z, null );
-			if ( data.Chunk != null && !chunks.Contains( data.Chunk ) )
-				chunks.Add( data.Chunk );
+			if ( data.Chunk == null ) 
+				continue;
+
+			var neighbors = data.Chunk.GetNeighbors( data.Position.x, data.Position.y, data.Position.z );
+			foreach ( var neighbor in neighbors )
+			{
+				if ( neighbor == null || chunks.Contains( neighbor ) )
+					continue;
+
+				chunks.Add( neighbor );
+			}
 		}
 
 		foreach ( var chunk in chunks )

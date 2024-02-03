@@ -52,7 +52,7 @@ public class Player : Component
 		// Shoot explosives
 		if ( Input.Pressed( "Interact" ) )
 		{
-			const float FORCE = 2500f;
+			const float FORCE = 500f;
 
 			var dir = Camera.Transform.Rotation.Forward;
 			var obj = Shootable.Clone();

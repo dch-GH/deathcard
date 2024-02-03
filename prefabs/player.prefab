@@ -8,7 +8,7 @@
         "__type": "Player",
         "Shootable": {
           "_type": "gameobject",
-          "prefab": "prefabs/explosive.prefab"
+          "prefab": "prefabs/projectile.prefab"
         }
       }
     ],
