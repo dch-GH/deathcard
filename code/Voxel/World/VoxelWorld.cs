@@ -167,7 +167,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		objects.Remove( chunk );
 		Chunks.Remove( chunk.Position );
 
-		vxChunk.Destroy();
+		vxChunk?.GameObject?.Destroy();
 	}
 	
 	public override async void Reset()

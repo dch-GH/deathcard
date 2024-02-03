@@ -107,7 +107,7 @@ partial class VoxelWorld
 		);
 
 		// Check if we have a chunk already or are out of bounds.
-		if ( Chunks.TryGetValue( position, out var chunk ) && chunk != null )
+		if ( Chunks.TryGetValue( position, out var chunk ) )
 			return chunk;
 
 		// Create new chunk.
