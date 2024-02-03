@@ -1,0 +1,24 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "shaders/voxel_model.shader"
+
+	//---- Rendering ----
+	F_EMISSIVE 1
+
+	//---- Emission ----
+	Emission "models/character2/materials/character2_main_em.png"
+	EmissionStrength "1.000"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material ----
+	AmbientOcclusion "models/character2/materials/character2_main_ao.png"
+	AmbientOcclusionStrength "3.000"
+	Color "models/character2/materials/character2_main_albedo.png"
+	Metalness "materials/default/default_metal.tga"
+	Normal "models/character2/materials/character2_main_normal.png"
+	Roughness "models/character2/materials/character2_main_rough.png"
+}

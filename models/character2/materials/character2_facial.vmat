@@ -1,0 +1,17 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "shaders/voxel_model.shader"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material ----
+	AmbientOcclusion "models/character2/materials/character2_facedecor_ao.png"
+	AmbientOcclusionStrength "2.000"
+	Color "models/character2/materials/character2_facedecor_albedo.png"
+	Metalness "materials/default/default_metal.tga"
+	Normal "models/character2/materials/character2_facedecor_normal.png"
+	Roughness "models/character2/materials/character2_facedecor_rough.png"
+}
