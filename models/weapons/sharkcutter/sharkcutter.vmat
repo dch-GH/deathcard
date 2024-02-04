@@ -9,7 +9,7 @@ Layer0
 
 	//---- Material ----
 	AmbientOcclusion "models/weapons/sharkcutter/sharkcutter_ao.png"
-	AmbientOcclusionStrength "1.000"
+	AmbientOcclusionStrength "2.000"
 	Color "models/weapons/sharkcutter/sharkcutter_albedo.png"
 	Metalness "materials/default/default_metal.tga"
 	Normal "models/weapons/sharkcutter/sharkcutter_normal.png"

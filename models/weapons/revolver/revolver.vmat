@@ -1,0 +1,17 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "shaders/voxel_model.shader"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material ----
+	AmbientOcclusion "models/weapons/revolver/revolver_ao.png"
+	AmbientOcclusionStrength "1.500"
+	Color "models/weapons/revolver/revolver_albedo.png"
+	Metalness "materials/default/default_metal.tga"
+	Normal "models/weapons/revolver/revolver_normal.png"
+	Roughness "models/weapons/revolver/revolver_rough.png"
+}
