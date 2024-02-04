@@ -102,6 +102,21 @@
           "Name": "Jump",
           "KeyboardCode": "SPACE",
           "GroupName": "Movement"
+        },
+        {
+          "Name": "Sprint",
+          "KeyboardCode": "SHIFT",
+          "GroupName": "Movement"
+        },
+        {
+          "Name": "Walk",
+          "KeyboardCode": "ALT",
+          "GroupName": "Movement"
+        },
+        {
+          "Name": "Crouch",
+          "KeyboardCode": "CTRL",
+          "GroupName": "Movement"
         }
       ]
     }
