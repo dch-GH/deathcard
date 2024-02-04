@@ -1,4 +1,5 @@
 ﻿using Sandbox;
+using Sandbox.Citizen;
 using System.Diagnostics;
 using System.Linq;
 
@@ -8,36 +9,136 @@ public class Player : Component
 {
 	[Property] public GameObject Shootable { get; set; }
 
-	public const float SPEED = 500f;
-	public const float JUMP_POWER = 100f;
-	public const float STEP_SIZE = Utility.Scale / 4f;
-	public const float FLY_SPEED = 1500f;
-	public const float GRAVITY = 800f;
+	[Property]
+	[Category( "Components" )]
+	public GameObject Camera { get; set; }
 
-	public const float MOUSE_SENSITIVITY = 0.15f;
+	[Property]
+	[Category( "Components" )]
+	public Controller WalkController { get; set; }
 
-	public ModelRenderer Renderer { get; private set; }
-	public CameraComponent Camera { get; private set; }
+	/// <summary>
+	/// It's better to have this here and disable when not used so we can tweak the stats in the editor
+	/// </summary>
+	[Property]
+	[Category( "Components" )]
+	public Controller FlyingController { get; set; }
 
-	public Vector3 Velocity { get; private set; }
-	public GameObject GroundObject { get; private set; }
-	public bool Grounded => GroundObject.IsValid();
-	public bool Flying { get; private set; }
-	public BBox Bounds { get; } = new(
-		new Vector3( -Utility.Scale / 2f, -Utility.Scale / 2f, 0 ),
-		new Vector3( Utility.Scale / 2f, Utility.Scale / 2f, 72 ) );
+	/// <summary>
+	/// How fast you can walk (Units per second)
+	/// </summary>
+	[Property]
+	[Category( "Stats" )]
+	[Range( 0f, 400f, 1f )]
+	public float WalkSpeed { get; set; } = 120f;
 
-	protected override void OnAwake()
+	/// <summary>
+	/// How fast you can run (Units per second)
+	/// </summary>
+	[Property]
+	[Category( "Stats" )]
+	[Range( 0f, 800f, 1f )]
+	public float RunSpeed { get; set; } = 250f;
+
+	/// <summary>
+	/// How powerful you can jump (Units per second)
+	/// </summary>
+	[Property]
+	[Category( "Stats" )]
+	[Range( 0f, 1000f, 10f )]
+	public float JumpStrength { get; set; } = 400f;
+
+	/// <summary>
+	/// Where the camera is placed and where rays are casted from
+	/// </summary>
+	[Property]
+	public Vector3 EyePosition { get; set; }
+
+	public Angles EyeAngles { get; set; }
+
+	public bool IsFlying { get; set; } = false;
+
+	protected override void DrawGizmos()
 	{
-		Renderer = Components.Get<ModelRenderer>( FindMode.InDescendants );
-		Camera = Components.Get<CameraComponent>( FindMode.InDescendants );
+		var draw = Gizmo.Draw;
+
+		draw.Arrow( EyePosition, EyePosition + Transform.Rotation.Forward * 25f, arrowWidth: 2f ); // Draw an arrow coming off of the eye position
+	}
+
+	protected override void OnStart()
+	{
+		if ( FlyingController != null )
+			FlyingController.Enabled = IsFlying;
+		if ( WalkController != null )
+			WalkController.Enabled = !IsFlying;
 	}
 
 	protected override void OnUpdate()
 	{
+		EyeAngles += Input.AnalogLook;
+		EyeAngles = EyeAngles.WithPitch( MathX.Clamp( EyeAngles.pitch, -80f, 80f ) );
+		Transform.Rotation = Rotation.FromYaw( EyeAngles.yaw );
+
+		if ( Camera != null )
+		{
+			Camera.Transform.Position = Transform.World.PointToWorld( EyePosition );
+			Camera.Transform.Rotation = EyeAngles;
+		}
+	}
+
+	protected override void OnFixedUpdate()
+	{
+		base.OnFixedUpdate();
+
 		// Toggle noclip
 		if ( Input.Pressed( "Noclip" ) )
-			Flying = !Flying;
+		{
+			IsFlying = !IsFlying;
+
+			if ( WalkController != null )
+				WalkController.Enabled = !IsFlying;
+			if ( FlyingController != null )
+				FlyingController.Enabled = IsFlying;
+		}
+
+		Log.Info( $"Walk: {WalkController.Enabled}" );
+		Log.Info( $"Fly: {FlyingController.Enabled}" );
+
+		/*
+		if ( WalkController == null || !WalkController.Enabled ) return;
+
+		var wishSpeed = Input.Down( "Sprint" ) ? RunSpeed : WalkSpeed;
+		var wishVelocity = Input.AnalogMove.Normal * wishSpeed * Transform.Rotation;
+
+		WalkController.Accelerate( wishVelocity );
+
+		if ( WalkController.IsOnGround )
+		{
+			WalkController.Acceleration = 10f;
+			WalkController.ApplyFriction( 10f, 10f );
+
+			if ( Input.Pressed( "Jump" ) )
+				WalkController.Punch( Vector3.Up * JumpStrength );
+		}
+		else
+		{
+			WalkController.Acceleration = 5f;
+			WalkController.Velocity += Scene.PhysicsWorld.Gravity * Time.Delta;
+		}
+
+		WalkController.Move();
+
+		Log.Info( WalkController.Velocity.Length );*/
+	}
+
+	/*
+	protected override void OnUpdate()
+	{
+		// Toggle noclip
+		if ( Input.Pressed( "Noclip" ) )
+		{
+			IsFlying = !IsFlying;
+		}
 
 		// Rotation
 		var delta = Mouse.Delta * MOUSE_SENSITIVITY;
@@ -97,38 +198,38 @@ public class Player : Component
 			var chunks = new Collection<Chunk>();
 
 			for ( int x = 0; x <= size; x++ )
-			for ( int y = 0; y <= size; y++ )
-			for ( int z = 0; z <= size; z++ )
-			{
-				var center = (Vector3)pos;
-				var target = center
-					+ new Vector3( x, y, z )
-					- size / 2f;
+				for ( int y = 0; y <= size; y++ )
+					for ( int z = 0; z <= size; z++ )
+					{
+						var center = (Vector3)pos;
+						var target = center
+							+ new Vector3( x, y, z )
+							- size / 2f;
 
-				if ( target.Distance( center ) >= size / 2f + 0.5f )
-					continue;
+						if ( target.Distance( center ) >= size / 2f + 0.5f )
+							continue;
 
-				var voxel = set == 1
-					? new Block() { TextureId = (ushort)Game.Random.Int( 0, 2 ) }
-					: (IVoxel)null;
+						var voxel = set == 1
+							? new Block() { TextureId = (ushort)Game.Random.Int( 0, 2 ) }
+							: (IVoxel)null;
 
-				var data = parent.SetVoxel(
-					target.x.FloorToInt(),
-					target.y.FloorToInt(),
-					target.z.FloorToInt(), voxel, local );
-				
-				if ( data.Chunk == null )
-					continue;
+						var data = parent.SetVoxel(
+							target.x.FloorToInt(),
+							target.y.FloorToInt(),
+							target.z.FloorToInt(), voxel, local );
 
-				var neighbors = data.Chunk.GetNeighbors( data.Position.x, data.Position.y, data.Position.z );
-				foreach ( var neighbor in neighbors )
-				{
-					if ( neighbor == null || chunks.Contains( neighbor ) )
-						continue;
+						if ( data.Chunk == null )
+							continue;
 
-					chunks.Add( neighbor );
-				}
-			}
+						var neighbors = data.Chunk.GetNeighbors( data.Position.x, data.Position.y, data.Position.z );
+						foreach ( var neighbor in neighbors )
+						{
+							if ( neighbor == null || chunks.Contains( neighbor ) )
+								continue;
+
+							chunks.Add( neighbor );
+						}
+					}
 
 			foreach ( var chunk in chunks )
 				_ = parent.GenerateChunk( chunk );
@@ -164,7 +265,7 @@ public class Player : Component
 			.IgnoreGameObjectHierarchy( GameObject );
 
 		var helper = new CharacterControllerHelper( tr, Transform.Position, Velocity );
-	
+
 		if ( helper.TryMoveWithStep( Time.Delta, STEP_SIZE ) > 0 )
 		{
 			Transform.Position = helper.Position;
@@ -179,5 +280,5 @@ public class Player : Component
 			Velocity += Vector3.Down * GRAVITY * Time.Delta;
 		else
 			Transform.Position = down.EndPosition;
-	}
+	}*/
 }

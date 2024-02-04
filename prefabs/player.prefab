@@ -6,42 +6,111 @@
     "Components": [
       {
         "__type": "Player",
+        "Camera": {
+          "_type": "gameobject",
+          "go": "6484510a-2269-425f-b15a-285d66081618"
+        },
+        "EyePosition": "0,0,92",
+        "FlyingController": {
+          "_type": "component",
+          "go": "043d594e-ba58-4d57-9487-80298d2399f0",
+          "component_type": "FlyingController"
+        },
+        "JumpStrength": 400,
+        "RunSpeed": 250,
         "Shootable": {
           "_type": "gameobject",
           "prefab": "prefabs/projectile.prefab"
-        }
+        },
+        "WalkController": {
+          "_type": "component",
+          "go": "043d594e-ba58-4d57-9487-80298d2399f0",
+          "component_type": "WalkController"
+        },
+        "WalkSpeed": 120
+      },
+      {
+        "__type": "SkinnedModelRenderer",
+        "BodyGroups": 18446744073709551615,
+        "BoneMergeTarget": null,
+        "CreateBoneObjects": false,
+        "MaterialGroup": null,
+        "MaterialOverride": null,
+        "Model": "models/character2/player2.vmdl",
+        "RenderType": "On",
+        "Tint": "1,1,1,1"
+      },
+      {
+        "__type": "FlyingController",
+        "__enabled": false,
+        "AirAcceleration": 0.1,
+        "AirFriction": 0.05,
+        "Bounce": 0.3,
+        "Collider": null,
+        "EnableUnstuck": true,
+        "FlySpeed": 300,
+        "FrictionApplyAngle": 15,
+        "FrictionStopSpeed": 10,
+        "Gravity": "0,0,0",
+        "GroundAcceleration": 10,
+        "GroundAngle": 45,
+        "GroundFriction": 5,
+        "IgnoreTags": "",
+        "MaxUnstuckTries": 20,
+        "Player": {
+          "_type": "component",
+          "go": "043d594e-ba58-4d57-9487-80298d2399f0",
+          "component_type": "Player"
+        },
+        "SprintFlySpeed": 600,
+        "StepHeight": 18,
+        "StickToGround": false,
+        "TraceHeight": 102,
+        "TraceRadius": 20,
+        "TraceType": "BBox",
+        "UseCollider": false,
+        "UseSceneGravity": false,
+        "WalkFlySpeed": 150
+      },
+      {
+        "__type": "WalkController",
+        "AirAcceleration": 0.05,
+        "AirFriction": 0.01,
+        "Bounce": 0.3,
+        "Collider": null,
+        "CrouchSpeed": 60,
+        "EnableUnstuck": true,
+        "FrictionApplyAngle": 15,
+        "FrictionStopSpeed": 20,
+        "Gravity": "0,0,850",
+        "GroundAcceleration": 5,
+        "GroundAngle": 45,
+        "GroundFriction": 0.3,
+        "IgnoreTags": "",
+        "JumpStrength": 300,
+        "MaxUnstuckTries": 20,
+        "Player": {
+          "_type": "component",
+          "go": "043d594e-ba58-4d57-9487-80298d2399f0",
+          "component_type": "Player"
+        },
+        "Speed": 140,
+        "SprintSpeed": 280,
+        "StepHeight": 18,
+        "StickToGround": true,
+        "TraceHeight": 102,
+        "TraceRadius": 20,
+        "TraceType": "BBox",
+        "UseCollider": false,
+        "UseSceneGravity": true,
+        "WalkSpeed": 80
       }
     ],
     "Children": [
       {
-        "Id": "8508e081-406d-4537-ba56-2b18a6b8a1dd",
-        "Name": "Model",
-        "Tags": "localplayer",
-        "Enabled": true,
-        "Components": [
-          {
-            "__type": "ModelRenderer",
-            "BodyGroups": 18446744073709551615,
-            "MaterialGroup": null,
-            "MaterialOverride": null,
-            "Model": "models/character2/player2.vmdl",
-            "RenderType": "On",
-            "Tint": "1,1,1,1"
-          },
-          {
-            "__type": "BoxCollider",
-            "Center": "0,0,52",
-            "IsTrigger": false,
-            "Scale": "50,50,104",
-            "Static": false,
-            "Surface": null
-          }
-        ]
-      },
-      {
         "Id": "6484510a-2269-425f-b15a-285d66081618",
         "Name": "Camera",
-        "Position": "0,0,72",
+        "Position": "0,0,92",
         "Tags": "maincamera",
         "Enabled": true,
         "Components": [
