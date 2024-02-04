@@ -15,9 +15,12 @@ if ( voxel != null )
 
 public partial class VoxelWorld : Component, Component.ExecuteInEditor
 {
+	public static bool ChunkGizmo { get; set; } = true;
+
 	[Property] public string Path { get; set; }
 	[Property] public TextureAtlas Atlas { get; set; } = TextureAtlas.Get( "resources/textures/default.atlas" );
 	[Property] public Vector3 VoxelScale { get; set; } = Utility.Scale;
+	[Property, Hide] public byte[] Data { get; set; }
 
 	public static IReadOnlyList<VoxelWorld> All => all;
 	private static List<VoxelWorld> all = new();
@@ -202,15 +205,22 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			foreach ( var (chunk, model) in gizmoCache )
 			{
 				var pos = (Vector3)chunk * VoxelScale * Chunk.Size;
+				var bounds = new BBox( pos, pos + (Vector3)Chunk.Size * VoxelScale );
 
 				var obj = Gizmo.Draw.Model( model, new Transform( pos + VoxelScale / 2 ) );
 				AssignAttributes( obj.Attributes );
 
-				Gizmo.Draw.LineBBox( new BBox( pos, pos + (Vector3)Chunk.Size * VoxelScale ) );
+				Gizmo.Hitbox.BBox( bounds ); // Gizmo.Model doesn't work sadly...
+				
+				if ( ChunkGizmo )
+					Gizmo.Draw.LineBBox( bounds );
 			}
-		else
+		else if ( ChunkGizmo )
 			foreach ( var (_, chunk) in objects )
 				Gizmo.Draw.LineBBox( new BBox( chunk.Transform.Position, chunk.Transform.Position + (Vector3)Chunk.Size * VoxelScale ) );
+
+		if ( !Gizmo.IsSelected )
+			return;
 
 		// Focus on hovered VoxelWorld.
 		var tr = Trace( Gizmo.CurrentRay, 50000f );
