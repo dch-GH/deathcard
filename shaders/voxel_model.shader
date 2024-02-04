@@ -75,9 +75,10 @@ PS
 
 	#define CUSTOM_MATERIAL_INPUTS
 	CreateInputTexture2D( Color, Srgb, 8, "", "_color", "Material,10/10", Default3( 1.0, 1.0, 1.0 ) );
-	CreateInputTexture2D( ColorTint, Srgb, 8, "", "_tint", "Material,10/20", Default3( 1.0, 1.0, 1.0 ) );
-	CreateTexture2DWithoutSampler( g_tColor ) < Channel( RGB, Box( Color ), Srgb ); OutputFormat( BC7 ); SrgbRead( true ); Filter( POINT ); >;
-	CreateTexture2DWithoutSampler( g_tColorTint ) < Channel( RGB, Box( ColorTint ), Srgb ); OutputFormat( BC7 ); SrgbRead( true ); Filter( POINT ); >;
+	CreateInputTexture2D( ColorTintMask, Linear, 8, "", "_tint", "Material,10/20", Default3( 1.0, 1.0, 1.0 ) );
+	float3 g_flColorTint < UiType( Color ); Default3( 1.0, 1.0, 1.0 ); UiGroup( "Material,10/20" ); >;
+
+	CreateTexture2DWithoutSampler( g_tColor ) < Channel( RGB, Box( Color ), Srgb ); Channel( A, Box( ColorTintMask ), Linear ); OutputFormat( BC7 ); SrgbRead( true ); Filter( POINT ); >;	
 
     CreateInputTexture2D( Normal, Linear, 8, "NormalizeNormals", "_normal", "Material,10/30", Default3( 0.5, 0.5, 1.0 ) );
 	CreateTexture2DWithoutSampler( g_tNormal ) < Channel( RGB, Box( Normal ), Linear ); OutputFormat( DXT5 ); SrgbRead( false ); >;
@@ -127,17 +128,18 @@ PS
 	float4 MainPs( PixelInput i ) : SV_Target0
 	{
 		float2 UV = i.vTextureCoords.xy;
-
-		float3 tint = Tex2DS( g_tColorTint, Sampler, UV.xy ).rgb;
+		float3 tint = g_flColorTint;
+		
         Material m = Material::Init();
-        m.Albedo = Tex2DS( g_tColor, Sampler, UV.xy ).rgb * tint;
+
+		m.Albedo = lerp( Tex2DS(g_tColor, Sampler, UV.xy).rgb, Tex2DS(g_tColor, Sampler, UV.xy).rgb * tint, Tex2DS(g_tColor, Sampler, UV.xy).a );  
         m.Normal = TransformNormal( DecodeNormal( Tex2DS( g_tNormal, SamplerAniso, UV.xy ).rgb ), i.vNormalWs, i.vTangentUWs, i.vTangentVWs );
 
 		float3 rmo = Tex2DS( g_tRmo, SamplerAniso, UV.xy ).rgb;
         m.Roughness = rmo.r;
         m.Metalness = rmo.g;
         m.AmbientOcclusion = rmo.b / AmbientOcclusionStrength;
-        m.TintMask = 0;
+        m.TintMask = Tex2DS( g_tColor, Sampler, UV.xy ).a;
         m.Opacity = 1;
 		m.Emission = 0;
 		#if( S_EMISSIVE )
