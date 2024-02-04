@@ -1,0 +1,17 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "shaders/voxel_model.shader"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material ----
+	AmbientOcclusion "models/weapons/knightswrath/knightwrath_ao.png"
+	AmbientOcclusionStrength "2.000"
+	Color "models/weapons/knightswrath/knightwrath.png"
+	Metalness "models/weapons/knightswrath/knightwrath_metal.png"
+	Normal "models/weapons/knightswrath/knightwrath_normal.png"
+	Roughness "models/weapons/knightswrath/knightwrath_rough.png"
+}
