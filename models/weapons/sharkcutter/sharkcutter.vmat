@@ -1,0 +1,17 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "shaders/voxel_model.shader"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material ----
+	AmbientOcclusion "models/weapons/sharkcutter/sharkcutter_ao.png"
+	AmbientOcclusionStrength "1.000"
+	Color "models/weapons/sharkcutter/sharkcutter_albedo.png"
+	Metalness "materials/default/default_metal.tga"
+	Normal "models/weapons/sharkcutter/sharkcutter_normal.png"
+	Roughness "models/weapons/sharkcutter/sharkcutter_rough.png"
+}
