@@ -18,6 +18,8 @@ Layer0
 	AmbientOcclusion "models/character2/materials/character2_main_ao.png"
 	AmbientOcclusionStrength "3.000"
 	Color "models/character2/materials/character2_main_albedo.png"
+	ColorTintMask "materials/default/default.tga"
+	g_flColorTint "[1.000000 1.000000 1.000000 0.000000]"
 	Metalness "materials/default/default_metal.tga"
 	Normal "models/character2/materials/character2_main_normal.png"
 	Roughness "models/character2/materials/character2_main_rough.png"

@@ -11,6 +11,8 @@ Layer0
 	AmbientOcclusion "models/weapons/sharkcutter/sharkcutter_ao.png"
 	AmbientOcclusionStrength "2.000"
 	Color "models/weapons/sharkcutter/sharkcutter_albedo.png"
+	ColorTintMask "materials/default/default.tga"
+	g_flColorTint "[1.000000 1.000000 1.000000 0.000000]"
 	Metalness "materials/default/default_metal.tga"
 	Normal "models/weapons/sharkcutter/sharkcutter_normal.png"
 	Roughness "models/weapons/sharkcutter/sharkcutter_rough.png"

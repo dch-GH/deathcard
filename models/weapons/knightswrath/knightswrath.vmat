@@ -11,6 +11,8 @@ Layer0
 	AmbientOcclusion "models/weapons/knightswrath/knightwrath_ao.png"
 	AmbientOcclusionStrength "2.000"
 	Color "models/weapons/knightswrath/knightwrath.png"
+	ColorTintMask "materials/default/default.tga"
+	g_flColorTint "[1.000000 1.000000 1.000000 0.000000]"
 	Metalness "models/weapons/knightswrath/knightwrath_metal.png"
 	Normal "models/weapons/knightswrath/knightwrath_normal.png"
 	Roughness "models/weapons/knightswrath/knightwrath_rough.png"
