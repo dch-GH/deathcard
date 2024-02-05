@@ -9,6 +9,7 @@
         {
           "__type": "VoxelWorld",
           "Atlas": "resources/textures/default.atlas",
+          "Data": null,
           "Path": "vox/maps/monument.vox",
           "VoxelScale": "39.37008,39.37008,39.37008"
         }
@@ -110,6 +111,6 @@
   },
   "Title": "overworld",
   "Description": "",
-  "LastSaved": "2024-02-05T00:15:17.9040985\u002B01:00",
+  "LastSaved": "2024-02-05T18:05:26.5850009\u002B01:00",
   "__references": []
 }

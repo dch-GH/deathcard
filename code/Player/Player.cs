@@ -14,39 +14,76 @@ public class Player : Component
 	public GameObject Camera { get; set; }
 
 	[Property]
-	[Category( "Components" )]
-	public Controller WalkController { get; set; }
+	[Category( "Walk Mode" )]
+	public MoveHelper WalkMoveHelper { get; set; }
 
 	/// <summary>
-	/// It's better to have this here and disable when not used so we can tweak the stats in the editor
+	/// How fast you move normally
 	/// </summary>
 	[Property]
-	[Category( "Components" )]
-	public Controller FlyingController { get; set; }
-
-	/// <summary>
-	/// How fast you can walk (Units per second)
-	/// </summary>
-	[Property]
-	[Category( "Stats" )]
+	[Category( "Walk Mode" )]
 	[Range( 0f, 400f, 1f )]
-	public float WalkSpeed { get; set; } = 120f;
+	public float Speed { get; set; } = 140f;
 
 	/// <summary>
-	/// How fast you can run (Units per second)
+	/// How fast you move when holding the sprint button
 	/// </summary>
 	[Property]
-	[Category( "Stats" )]
+	[Category( "Walk Mode" )]
 	[Range( 0f, 800f, 1f )]
-	public float RunSpeed { get; set; } = 250f;
+	public float SprintSpeed { get; set; } = 280f;
 
 	/// <summary>
-	/// How powerful you can jump (Units per second)
+	/// How fast you move when holding the walk button
 	/// </summary>
 	[Property]
-	[Category( "Stats" )]
+	[Category( "Walk Mode" )]
+	[Range( 0f, 200f, 1f )]
+	public float WalkSpeed { get; set; } = 80f;
+
+	/// <summary>
+	/// How fast you move when holding the crouch button
+	/// </summary>
+	[Property]
+	[Category( "Walk Mode" )]
+	[Range( 0f, 200f, 1f )]
+	public float CrouchSpeed { get; set; } = 60f;
+
+	/// <summary>
+	/// How high you can jump
+	/// </summary>
+	[Property]
+	[Category( "Walk Mode" )]
+	[Range( 0f, 800f, 1f )]
+	public float JumpStrength { get; set; } = 200f;
+
+	[Property]
+	[Category( "Fly Mode" )]
+	public MoveHelper FlyMoveHelper { get; set; }
+
+	/// <summary>
+	/// How fast you fly
+	/// </summary>
+	[Property]
+	[Category( "Fly Mode" )]
+	[Range( 0f, 2000f, 10f )]
+	public float FlySpeed { get; set; } = 300f;
+
+	/// <summary>
+	/// How fast you fly when sprinting
+	/// </summary>
+	[Property]
+	[Category( "Fly Mode" )]
+	[Range( 0f, 4000f, 10f )]
+	public float SprintFlySpeed { get; set; } = 600f;
+
+	/// <summary>
+	/// How fast you fly when walking
+	/// </summary>
+	[Property]
+	[Category( "Fly Mode" )]
 	[Range( 0f, 1000f, 10f )]
-	public float JumpStrength { get; set; } = 400f;
+	public float WalkFlySpeed { get; set; } = 150f;
 
 	/// <summary>
 	/// Where the camera is placed and where rays are casted from
@@ -67,10 +104,14 @@ public class Player : Component
 
 	protected override void OnStart()
 	{
-		if ( FlyingController != null )
-			FlyingController.Enabled = IsFlying;
-		if ( WalkController != null )
-			WalkController.Enabled = !IsFlying;
+		// Stupid workaround until they fix the component id stuff
+		foreach ( var moveHelper in Components.GetAll<MoveHelper>() )
+		{
+			if ( moveHelper.Gravity.Length > 0 )
+				WalkMoveHelper = moveHelper;
+			else
+				FlyMoveHelper = moveHelper;
+		}
 	}
 
 	protected override void OnUpdate()
@@ -92,17 +133,18 @@ public class Player : Component
 
 		// Toggle noclip
 		if ( Input.Pressed( "Noclip" ) )
-		{
 			IsFlying = !IsFlying;
 
-			if ( WalkController != null )
-				WalkController.Enabled = !IsFlying;
-			if ( FlyingController != null )
-				FlyingController.Enabled = IsFlying;
+		if ( IsFlying )
+		{
+			if ( FlyMoveHelper != null )
+				SimulateFlight();
 		}
-
-		Log.Info( $"Walk: {WalkController.Enabled}" );
-		Log.Info( $"Fly: {FlyingController.Enabled}" );
+		else
+		{
+			if ( WalkMoveHelper != null )
+				SimulateWalk();
+		}
 
 		/*
 		if ( WalkController == null || !WalkController.Enabled ) return;
@@ -129,6 +171,39 @@ public class Player : Component
 		WalkController.Move();
 
 		Log.Info( WalkController.Velocity.Length );*/
+	}
+
+	public virtual void SimulateWalk()
+	{
+		var isWalking = Input.Down( "Walk" );
+		var isSprinting = Input.Down( "Sprint" );
+		var isCrouching = Input.Down( "Crouch" );
+
+		var wishSpeed = isCrouching ? CrouchSpeed : (isWalking ? WalkSpeed : (isSprinting ? SprintSpeed : Speed));
+		var wishVelocity = Input.AnalogMove.Normal * wishSpeed * EyeAngles.WithPitch( 0f );
+
+		WalkMoveHelper.WishVelocity = wishVelocity;
+
+		if ( Input.Pressed( "Jump" ) && WalkMoveHelper.IsOnGround )
+			WalkMoveHelper.Punch( Vector3.Up * JumpStrength );
+
+		WalkMoveHelper.Move();
+	}
+
+	public virtual void SimulateFlight()
+	{
+		var isWalking = Input.Down( "Walk" );
+		var isSprinting = Input.Down( "Sprint" );
+		var isCrouching = Input.Down( "Crouch" );
+		var isJumping = Input.Down( "Jump" );
+
+		var wishSpeed = isWalking ? WalkFlySpeed : (isSprinting ? SprintFlySpeed : FlySpeed); // If walking use walk speed, else if sprinting use sprint speed, else use normal speed
+		var wishVerticalSpeed = wishSpeed * ((isCrouching ? -1 : 0) + (isJumping ? 1 : 0)); // If crouching go down, if jumping go up, if both do nothing
+		var wishVelocity = Input.AnalogMove.Normal * wishSpeed * EyeAngles + Vector3.Up * wishVerticalSpeed;
+
+		FlyMoveHelper.WishVelocity = wishVelocity;
+
+		FlyMoveHelper.Move();
 	}
 
 	/*
