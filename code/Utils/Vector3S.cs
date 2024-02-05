@@ -60,6 +60,12 @@ public struct Vector3S : IEquatable<Vector3S>
 	public static Vector3S operator +( Vector3S a, Vector3S b )
 		=> new Vector3S( a.x + b.x, a.y + b.y, a.z + b.z );
 
+	public static bool operator ==( Vector3S a, Vector3S b )
+		=> a.Equals( b );
+
+	public static bool operator !=( Vector3S a, Vector3S b )
+		=> !(a == b);
+
 	public bool Equals( Vector3S other )
 	{
 		return x == other.x
