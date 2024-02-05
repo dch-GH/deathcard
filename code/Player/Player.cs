@@ -116,6 +116,8 @@ public class Player : Component
 
 	protected override void OnUpdate()
 	{
+		if ( IsProxy ) return;
+
 		EyeAngles += Input.AnalogLook;
 		EyeAngles = EyeAngles.WithPitch( MathX.Clamp( EyeAngles.pitch, -80f, 80f ) );
 		Transform.Rotation = Rotation.FromYaw( EyeAngles.yaw );
@@ -125,11 +127,13 @@ public class Player : Component
 			Camera.Transform.Position = Transform.World.PointToWorld( EyePosition );
 			Camera.Transform.Rotation = EyeAngles;
 		}
+
+		Tags.Set( "localplayer", true ); // For the camera to exlude
 	}
 
 	protected override void OnFixedUpdate()
 	{
-		base.OnFixedUpdate();
+		if ( IsProxy ) return;
 
 		// Toggle noclip
 		if ( Input.Pressed( "Noclip" ) )

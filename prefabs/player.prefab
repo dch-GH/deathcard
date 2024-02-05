@@ -44,7 +44,6 @@
       },
       {
         "__type": "BoxCollider",
-        "__enabled": false,
         "Center": "0,0,51",
         "IsTrigger": false,
         "Scale": "40,40,102",
@@ -96,7 +95,7 @@
             "Orthographic": false,
             "OrthographicHeight": 1204,
             "Priority": 1,
-            "RenderExcludeTags": "localplayer",
+            "RenderExcludeTags": "localplayer,player",
             "RenderTags": "",
             "TargetEye": "None",
             "Viewport": "0,0,1,1",

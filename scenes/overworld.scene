@@ -81,9 +81,10 @@
       ]
     },
     {
-      "Id": "043d594e-ba58-4d57-9487-80298d2399f0",
-      "Name": "Player",
-      "Position": "1641.115,2653.382,1906.474",
+      "Id": "ad837c71-765d-4aa2-8683-7742385591ec",
+      "Name": "player",
+      "Position": "1334.098,2705.119,1892.779",
+      "Tags": "player",
       "Enabled": true,
       "__Prefab": "prefabs/player.prefab"
     }
@@ -111,6 +112,6 @@
   },
   "Title": "overworld",
   "Description": "",
-  "LastSaved": "2024-02-05T18:05:26.5850009\u002B01:00",
+  "LastSaved": "2024-02-05T19:48:56.3084028\u002B01:00",
   "__references": []
 }
