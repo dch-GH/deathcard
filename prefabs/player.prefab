@@ -2,7 +2,7 @@
   "RootObject": {
     "Id": "043d594e-ba58-4d57-9487-80298d2399f0",
     "Name": "player",
-    "Tags": "player",
+    "Tags": "player,localplayer",
     "Enabled": true,
     "Components": [
       {
@@ -52,9 +52,9 @@
       },
       {
         "__type": "MoveHelper",
-        "AirAcceleration": 0.05,
-        "AirFriction": 0.01,
-        "Bounce": 0.3,
+        "AirAcceleration": 0.1,
+        "AirFriction": 0,
+        "Bounce": 0,
         "Collider": {
           "_type": "component",
           "go": "043d594e-ba58-4d57-9487-80298d2399f0",

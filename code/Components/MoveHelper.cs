@@ -64,7 +64,7 @@ public class MoveHelper : Component
 	public float GroundAngle { get; set; } = 45f;
 
 	/// <summary>
-	/// How bouncy you are??
+	/// How much you bounce off of walls when colliding against them
 	/// </summary>
 	[Property]
 	[Category( "Values" )]
@@ -102,7 +102,7 @@ public class MoveHelper : Component
 	[Property]
 	[Category( "Values" )]
 	[Range( 0f, 10f, 0.1f, true, true )]
-	public float AirAcceleration { get; set; } = 0.05f;
+	public float AirAcceleration { get; set; } = 0.1f;
 
 	/// <summary>
 	/// Default friction when in the air
@@ -110,7 +110,7 @@ public class MoveHelper : Component
 	[Property]
 	[Category( "Values" )]
 	[Range( 0f, 1, 0.01f, true, true )]
-	public float AirFriction { get; set; } = 0.01f;
+	public float AirFriction { get; set; } = 0.0f;
 
 	/// <summary>
 	/// If your speed falls below this, you're going to stop
@@ -249,8 +249,10 @@ public class MoveHelper : Component
 		}
 
 		IsOnGround = true;
-		if ( isOnGround && !physicsTraceResult.StartedSolid && physicsTraceResult.Fraction > 0f && physicsTraceResult.Fraction < 1f )
-			base.Transform.Position = physicsTraceResult.EndPosition + physicsTraceResult.Normal * 0.01f;
+
+		if ( StickToGround )
+			if ( isOnGround && !physicsTraceResult.StartedSolid && physicsTraceResult.Fraction > 0f && physicsTraceResult.Fraction < 1f )
+				base.Transform.Position = physicsTraceResult.EndPosition + physicsTraceResult.Normal * 0.01f;
 	}
 
 	//
@@ -303,8 +305,7 @@ public class MoveHelper : Component
 			else
 				Move( step: false );
 
-			if ( StickToGround )
-				CategorizePosition();
+			CategorizePosition();
 		}
 	}
 
