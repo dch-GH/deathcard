@@ -97,6 +97,17 @@ partial class VoxelWorld
 		};
 	}
 
+	/// <summary>
+	/// Gets chunk and voxel by offset relative to a chunk, or Chunks[0, 0, 0]
+	/// </summary>
+	/// <param name="offset"></param>
+	/// <param name="relative"></param>
+	/// <returns></returns>
+	public VoxelQueryData GetByOffset( Vector3S offset, Chunk relative = null )
+	{
+		return GetByOffset( (int)offset.x, (int)offset.y, (int)offset.z, relative );
+	}
+
 	private Chunk GetOrCreateChunk( int x, int y, int z, Vector3B? local = null, Chunk relative = null )
 	{
 		// Calculate new chunk position.
