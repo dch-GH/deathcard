@@ -44,9 +44,9 @@ partial class VoxelWorld
 		_ = Chunks.TryGetValue( position, out chunk );
 
 		return new Vector3B(
-			(byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH) % Chunk.DEFAULT_WIDTH ),
-			(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH) % Chunk.DEFAULT_DEPTH ),
-			(byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT ) );
+			(byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH) % Chunk.DEFAULT_WIDTH),
+			(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH) % Chunk.DEFAULT_DEPTH),
+			(byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT) );
 	}
 
 	/// <summary>
