@@ -35,7 +35,6 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		attributes.Set( "Albedo", Atlas.Albedo );
 		attributes.Set( "RAE", Atlas.RAE );
 		attributes.Set( "TextureSize", Atlas.TextureSize );
-		attributes.Set( "AtlasSize", Atlas.Size );
 	}
 
 	protected override void OnAwake()
@@ -50,8 +49,8 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 
 		GameTask.RunInThreadAsync( async () =>
 		{
+			var success = Load();
 			await GameTask.MainThread();
-			var success = await Load();
 			if ( success )
 				Reset();
 		} );

@@ -5,7 +5,7 @@ HEADER
 
 FEATURES
 {
-    #include "common/features.hlsl"
+    #include "common/features.hlsl"	
 }
 
 MODES
@@ -14,7 +14,7 @@ MODES
     VrForward();
     Depth( "depth_only.shader" ); 
 	ToolsVis( S_MODE_TOOLS_VIS );
-    ToolsShadingComplexity( "tools_shading_complexity.shader" );
+	ToolsShadingComplexity( "tools_shading_complexity.shader" );
 }
 
 COMMON
@@ -23,7 +23,6 @@ COMMON
 
     float3 g_vVoxelScale < Attribute( "VoxelScale" ); Default3( 1.0, 1.0, 1.0 ); >;
     float2 g_vTextureSize < Attribute( "TextureSize" ); Default2( 32.0, 32.0 ); >;
-    float2 g_vAtlasSize < Attribute( "AtlasSize" ); Default2( 32.0, 32.0 ); >;
 }
 
 struct VertexInput
@@ -188,6 +187,7 @@ VS
 
 PS
 {
+    #include "sbox_pixel.fxc"
     #include "common/pixel.hlsl"
 
     CreateTexture2DArray( g_tAlbedo ) < Attribute( "Albedo" ); SrgbRead( true ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
@@ -195,7 +195,12 @@ PS
 
     SamplerState g_sSampler < Filter( POINT ); AddressU( CLAMP ); AddressV( CLAMP ); >;
 
-    RenderState( CullMode, DEFAULT );
+    RenderState( CullMode, DEFAULT );		
+    BoolAttribute( translucent, true );
+
+    #if ( S_MODE_DEPTH )
+        #define MainPs Disabled
+    #endif
 
     float4 MainPs( PixelInput i ) : SV_Target0
 	{   
@@ -204,16 +209,15 @@ PS
 
         Material m = Material::Init();
         m.Albedo = albedo.rgb * i.vColor.rgb * i.fOcclusion;
-        m.Normal = i.vNormal; // todo: fix, bugged for some reason?
+        m.Normal = i.vNormal;
         m.Roughness = rae.r;
 		m.Metalness = 0;
 		m.AmbientOcclusion = 1;
 		m.TintMask = 1;
-		m.Opacity = rae.g; // rae.g
-		m.Emission = rae.b;
-		m.Transmission = 1;
+		m.Opacity = rae.g;
+		m.Emission = rae.b * albedo.rgb;
+		m.Transmission = 0;
 
-        float4 result = ShadingModelStandard::Shade( i, m );
-        return result;
+        return ShadingModelStandard::Shade( i, m );
     }
 }

@@ -13,6 +13,13 @@
     {
       "Name": "Dirt",
       "Albedo": "resources/textures/dirt_albedo.png"
+    },
+    {
+      "Name": "Glass",
+      "Albedo": "resources/textures/glass_albedo.png",
+      "Roughness": true,
+      "Alpha": true,
+      "RAE": "resources/textures/glass_rae.png"
     }
   ],
   "__references": []

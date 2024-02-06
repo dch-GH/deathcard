@@ -5,7 +5,7 @@ partial class VoxelWorld
 	public void Save()
 		=> Data = Convert.ToBase64String( Serialize().Compress() );
 
-	public async Task<bool> Load()
+	public bool Load()
 		=> (Chunks = Deserialize( Convert.FromBase64String( Data ).Decompress() )) != null;
 
 	public byte[] Serialize()

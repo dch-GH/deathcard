@@ -8,6 +8,10 @@
 
 public interface IBlock
 {
+	bool ShouldDraw( VoxelWorld world, IBlock neighbor )
+		=> (this is not Block self || !world.Atlas.Items[self.TextureId].Alpha)
+		&& neighbor is Block block && world.Atlas.Items[block.TextureId].Alpha;
+
 	public void BuildBlock( VoxelWorld world, Chunk chunk, Vector3B position,
 		ref List<VoxelVertex> vertices, ref List<int> indices, ref int offset,
 		CollisionBuffer buffer, Color32? color = null, ushort texId = 0 )
@@ -20,7 +24,8 @@ public interface IBlock
 		{
 			var direction = Utility.Directions[i];
 			var neighbour = chunk.GetDataByOffset( position.x + direction.x, position.y + direction.y, position.z + direction.z ).Voxel;
-			if ( neighbour is IBlock ) // Let's ignore all of the IBlocks, since they can touch eachother on each face.
+
+			if ( neighbour is IBlock block && !ShouldDraw( world, block ) )
 				continue;
 
 			for ( var j = 0; j < 4; ++j )

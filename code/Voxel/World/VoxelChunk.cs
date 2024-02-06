@@ -23,7 +23,8 @@ public class VoxelChunk : Component, IEquatable<VoxelChunk>
 		if ( Renderer?.SceneObject == null )
 			return;
 
-		Renderer.SceneObject.Batchable = false;
+		Renderer.SceneObject.Batchable = false;		
+
 		Parent.AssignAttributes( Renderer.SceneObject.Attributes );
 		Renderer.Model = model;
 
