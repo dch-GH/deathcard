@@ -1,9 +1,4 @@
-﻿using Sandbox;
-using Sandbox.Citizen;
-using System.Diagnostics;
-using System.Linq;
-
-namespace Deathcard;
+﻿namespace Deathcard;
 
 public class Player : Component
 {
