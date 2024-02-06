@@ -44,9 +44,9 @@ partial class VoxelWorld
 		_ = Chunks.TryGetValue( position, out chunk );
 
 		return new Vector3B(
-			(byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH) % Chunk.DEFAULT_WIDTH ),
-			(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH) % Chunk.DEFAULT_DEPTH ),
-			(byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT ) );
+			(byte)((x % Chunk.DEFAULT_WIDTH + Chunk.DEFAULT_WIDTH) % Chunk.DEFAULT_WIDTH),
+			(byte)((y % Chunk.DEFAULT_DEPTH + Chunk.DEFAULT_DEPTH) % Chunk.DEFAULT_DEPTH),
+			(byte)((z % Chunk.DEFAULT_HEIGHT + Chunk.DEFAULT_HEIGHT) % Chunk.DEFAULT_HEIGHT) );
 	}
 
 	/// <summary>
@@ -95,6 +95,17 @@ partial class VoxelWorld
 			Voxel = chunk?.GetVoxel( vx, vy, vz ),
 			Position = new Vector3B( vx, vy, vz )
 		};
+	}
+
+	/// <summary>
+	/// Gets chunk and voxel by offset relative to a chunk, or Chunks[0, 0, 0]
+	/// </summary>
+	/// <param name="offset"></param>
+	/// <param name="relative"></param>
+	/// <returns></returns>
+	public VoxelQueryData GetByOffset( Vector3S offset, Chunk relative = null )
+	{
+		return GetByOffset( (int)offset.x, (int)offset.y, (int)offset.z, relative );
 	}
 
 	private Chunk GetOrCreateChunk( int x, int y, int z, Vector3B? local = null, Chunk relative = null )

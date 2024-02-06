@@ -17,10 +17,9 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 {
 	public static bool ChunkGizmo { get; set; } = true;
 
-	[Property] public string Path { get; set; }
 	[Property] public TextureAtlas Atlas { get; set; } = TextureAtlas.Get( "resources/textures/default.atlas" );
 	[Property] public Vector3 VoxelScale { get; set; } = Utility.Scale;
-	[Property, Hide] public byte[] Data { get; set; }
+	[Property, Hide] public string Data { get; set; }
 
 	public static IReadOnlyList<VoxelWorld> All => all;
 	private static List<VoxelWorld> all = new();
@@ -28,7 +27,6 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	public Dictionary<Vector3S, Chunk> Chunks { get; private set; }
 
 	private Dictionary<Chunk, VoxelChunk> objects = new();
-
 	private Material material = Material.FromShader( "shaders/voxel.shader" );
 
 	public void AssignAttributes( RenderAttributes attributes )
@@ -49,7 +47,14 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			all.Add( this );
 
 		Atlas.Build();
-		Reset();
+
+		GameTask.RunInThreadAsync( async () =>
+		{
+			await GameTask.MainThread();
+			var success = await Load();
+			if ( success )
+				Reset();
+		} );
 	}
 
 	protected override void OnDestroy()
@@ -182,17 +187,14 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			child.Destroy();
 
 		var t = DateTime.Now;
-
-		Chunks = await BaseImporter.Get<VoxImporter>()
-			.BuildAsync( Path );
-
 		foreach ( var (_, chunk) in Chunks )
+		{
 			await GenerateChunk( chunk );
-
+		}
 		Log.Info( $"Importing and generating VoxelWorld mesh took {(DateTime.Now - t).Milliseconds}ms." );
 	}
 
-	#region DEBUG
+	#region DRAW GIZMOS IN EDITOR
 	private readonly Dictionary<Vector3S, Model> gizmoCache = new();
 
 	protected override void DrawGizmos()
@@ -218,35 +220,6 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		else if ( ChunkGizmo )
 			foreach ( var (_, chunk) in objects )
 				Gizmo.Draw.LineBBox( new BBox( chunk.Transform.Position, chunk.Transform.Position + (Vector3)Chunk.Size * VoxelScale ) );
-
-		if ( !Gizmo.IsSelected )
-			return;
-
-		// Focus on hovered VoxelWorld.
-		var tr = Trace( Gizmo.CurrentRay, 50000f );
-		if ( !tr.Hit )
-			return;
-
-		// Debug
-		var center = (Vector3)tr.GlobalPosition * VoxelScale + VoxelScale / 2f;
-		var bbox = new BBox( center - VoxelScale / 2f, center + VoxelScale / 2f );
-		/*var surface = center + tr.Normal * VoxelScale / 2f;
-
-		Gizmo.Draw.Color = Color.Red;
-		Gizmo.Draw.LineThickness = 5;
-		Gizmo.Draw.Line( surface, surface + tr.Normal * 50f );*/
-
-		Gizmo.Draw.Color = Color.White;
-		Gizmo.Draw.ScreenText( $"{(tr.Voxel?.GetType().Name ?? "unknown")}", 20, "Consolas", 18, TextFlag.LeftTop );
-		Gizmo.Draw.ScreenText( $"XYZ: {tr.GlobalPosition}", 20 + Vector2.Up * 20, "Consolas", 18, TextFlag.LeftTop );
-		Gizmo.Draw.ScreenText( $"Chunk: {tr.Chunk?.Position}", 20 + Vector2.Up * 40, "Consolas", 18, TextFlag.LeftTop );
-
-		Gizmo.Draw.Color = Color.Black;
-		Gizmo.Draw.LineThickness = 1;
-		Gizmo.Draw.LineBBox( bbox );
-
-		Gizmo.Draw.Color = Color.Black.WithAlpha( 0.5f );
-		Gizmo.Draw.SolidBox( bbox );
 	}
 #endregion
 }

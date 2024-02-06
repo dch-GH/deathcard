@@ -1,9 +1,4 @@
-﻿using Sandbox;
-using Sandbox.Citizen;
-using System.Diagnostics;
-using System.Linq;
-
-namespace Deathcard;
+﻿namespace Deathcard;
 
 public enum TraceType
 {
@@ -13,7 +8,7 @@ public enum TraceType
 	Capsule,
 }
 
-public class Controller : Component
+public class MoveHelper : Component
 {
 	[Property]
 	[Category( "Collider" )]
@@ -64,7 +59,7 @@ public class Controller : Component
 	public float GroundAngle { get; set; } = 45f;
 
 	/// <summary>
-	/// How bouncy you are??
+	/// How much you bounce off of walls when colliding against them
 	/// </summary>
 	[Property]
 	[Category( "Values" )]
@@ -102,7 +97,7 @@ public class Controller : Component
 	[Property]
 	[Category( "Values" )]
 	[Range( 0f, 10f, 0.1f, true, true )]
-	public float AirAcceleration { get; set; } = 0.05f;
+	public float AirAcceleration { get; set; } = 0.1f;
 
 	/// <summary>
 	/// Default friction when in the air
@@ -110,7 +105,7 @@ public class Controller : Component
 	[Property]
 	[Category( "Values" )]
 	[Range( 0f, 1, 0.01f, true, true )]
-	public float AirFriction { get; set; } = 0.01f;
+	public float AirFriction { get; set; } = 0.0f;
 
 	/// <summary>
 	/// If your speed falls below this, you're going to stop
@@ -189,13 +184,15 @@ public class Controller : Component
 		if ( IsCapsuleCollider )
 		{
 			return source.Capsule( CollisionCapsule )
-				.WithoutTags( IgnoreTags );
+				.WithoutTags( IgnoreTags )
+				.IgnoreGameObjectHierarchy( GameObject );
 		}
 		else
 		{
 			BBox hull = CollisionBBox;
 			return source.Size( in hull )
-				.WithoutTags( IgnoreTags );
+				.WithoutTags( IgnoreTags )
+				.IgnoreGameObjectHierarchy( GameObject );
 		}
 	}
 
@@ -247,8 +244,10 @@ public class Controller : Component
 		}
 
 		IsOnGround = true;
-		if ( isOnGround && !physicsTraceResult.StartedSolid && physicsTraceResult.Fraction > 0f && physicsTraceResult.Fraction < 1f )
-			base.Transform.Position = physicsTraceResult.EndPosition + physicsTraceResult.Normal * 0.01f;
+
+		if ( StickToGround )
+			if ( isOnGround && !physicsTraceResult.StartedSolid && physicsTraceResult.Fraction > 0f && physicsTraceResult.Fraction < 1f )
+				base.Transform.Position = physicsTraceResult.EndPosition + physicsTraceResult.Normal * 0.01f;
 	}
 
 	//
@@ -266,6 +265,34 @@ public class Controller : Component
 	//     Move a character, with this velocity
 	public void Move()
 	{
+		if ( IsOnGround ) // If we're touching the ground VVV
+		{
+			if ( StickToGround )
+				Velocity = Velocity.WithZ( 0 ); // Nullify any vertical velocity to stick to the ground
+
+			Velocity = Velocity.WithAcceleration( WishVelocity, GroundAcceleration );
+
+			var velocityAngle = Vector3.GetAngle( WishVelocity.WithZ( 0f ).Normal, Velocity.WithZ( 0f ).Normal );
+
+			if ( velocityAngle > FrictionApplyAngle )
+				Velocity = Velocity.WithFriction( GroundFriction, FrictionStopSpeed );
+			else
+				Velocity = Velocity.WithFriction( GroundFriction / 10f, FrictionStopSpeed );
+		}
+		else // If we're in air VVV
+		{
+			var gravity = UseSceneGravity ? Scene.PhysicsWorld.Gravity : Gravity;
+			Velocity += gravity * Time.Delta; // Apply the scene's gravity to the controller
+			Velocity = Velocity.WithAcceleration( WishVelocity, AirAcceleration );
+
+			var velocityAngle = Vector3.GetAngle( WishVelocity.WithZ( 0f ).Normal, Velocity.WithZ( 0f ).Normal );
+
+			if ( velocityAngle > FrictionApplyAngle )
+				Velocity = Velocity.WithFriction( AirFriction, FrictionStopSpeed );
+			else
+				Velocity = Velocity.WithFriction( AirFriction / 10f, FrictionStopSpeed );
+		}
+
 		if ( !EnableUnstuck || !TryUnstuck() )
 		{
 			if ( IsOnGround )
@@ -273,8 +300,7 @@ public class Controller : Component
 			else
 				Move( step: false );
 
-			if ( StickToGround )
-				CategorizePosition();
+			CategorizePosition();
 		}
 	}
 
@@ -348,39 +374,5 @@ public class Controller : Component
 
 		CollisionBBox = DefineBBox();
 		CollisionCapsule = DefineCapsule();
-	}
-
-	protected override void OnFixedUpdate() // Called every tick
-	{
-		base.OnFixedUpdate();
-
-		if ( IsOnGround ) // If we're touching the ground VVV
-		{
-			if ( StickToGround )
-				Velocity = Velocity.WithZ( 0 ); // Nullify any vertical velocity to stick to the ground
-
-			Velocity = Velocity.WithAcceleration( WishVelocity, GroundAcceleration );
-
-			var velocityAngle = Vector3.GetAngle( WishVelocity.WithZ( 0f ).Normal, Velocity.WithZ( 0f ).Normal );
-
-			if ( velocityAngle > FrictionApplyAngle )
-				Velocity = Velocity.WithFriction( GroundFriction, FrictionStopSpeed );
-			else
-				Velocity = Velocity.WithFriction( GroundFriction / 10f, FrictionStopSpeed );
-		}
-		else // If we're in air VVV
-		{
-			var gravity = UseSceneGravity ? Scene.PhysicsWorld.Gravity : Gravity;
-			Velocity += gravity * Time.Delta; // Apply the scene's gravity to the controller
-			Velocity = Velocity.WithAcceleration( WishVelocity, AirAcceleration );
-
-			var velocityAngle = Vector3.GetAngle( WishVelocity.WithZ( 0f ).Normal, Velocity.WithZ( 0f ).Normal );
-
-			if ( velocityAngle > FrictionApplyAngle )
-				Velocity = Velocity.WithFriction( AirFriction, FrictionStopSpeed );
-			else
-				Velocity = Velocity.WithFriction( AirFriction / 10f, FrictionStopSpeed );
-		}
-		Move(); // Move our character
 	}
 }

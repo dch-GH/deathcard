@@ -2,6 +2,7 @@
   "RootObject": {
     "Id": "043d594e-ba58-4d57-9487-80298d2399f0",
     "Name": "player",
+    "Tags": "player,localplayer",
     "Enabled": true,
     "Components": [
       {
@@ -10,22 +11,23 @@
           "_type": "gameobject",
           "go": "6484510a-2269-425f-b15a-285d66081618"
         },
+        "CrouchSpeed": 60,
         "EyePosition": "0,0,92",
-        "FlyingController": {
-          "_type": "component",
-          "go": "043d594e-ba58-4d57-9487-80298d2399f0",
-          "component_type": "FlyingController"
-        },
+        "FlyMoveHelper": null,
+        "FlySpeed": 300,
         "JumpStrength": 400,
-        "RunSpeed": 250,
         "Shootable": {
           "_type": "gameobject",
           "prefab": "prefabs/projectile.prefab"
         },
-        "WalkController": {
+        "Speed": 140,
+        "SprintFlySpeed": 600,
+        "SprintSpeed": 280,
+        "WalkFlySpeed": 150,
+        "WalkMoveHelper": {
           "_type": "component",
           "go": "043d594e-ba58-4d57-9487-80298d2399f0",
-          "component_type": "WalkController"
+          "component_type": "MoveHelper"
         },
         "WalkSpeed": 120
       },
@@ -41,44 +43,23 @@
         "Tint": "1,1,1,1"
       },
       {
-        "__type": "FlyingController",
-        "__enabled": false,
-        "AirAcceleration": 0.1,
-        "AirFriction": 0.05,
-        "Bounce": 0.3,
-        "Collider": null,
-        "EnableUnstuck": true,
-        "FlySpeed": 300,
-        "FrictionApplyAngle": 15,
-        "FrictionStopSpeed": 10,
-        "Gravity": "0,0,0",
-        "GroundAcceleration": 10,
-        "GroundAngle": 45,
-        "GroundFriction": 5,
-        "IgnoreTags": "",
-        "MaxUnstuckTries": 20,
-        "Player": {
-          "_type": "component",
-          "go": "043d594e-ba58-4d57-9487-80298d2399f0",
-          "component_type": "Player"
-        },
-        "SprintFlySpeed": 600,
-        "StepHeight": 18,
-        "StickToGround": false,
-        "TraceHeight": 102,
-        "TraceRadius": 20,
-        "TraceType": "BBox",
-        "UseCollider": false,
-        "UseSceneGravity": false,
-        "WalkFlySpeed": 150
+        "__type": "BoxCollider",
+        "Center": "0,0,51",
+        "IsTrigger": false,
+        "Scale": "40,40,102",
+        "Static": false,
+        "Surface": null
       },
       {
-        "__type": "WalkController",
-        "AirAcceleration": 0.05,
-        "AirFriction": 0.01,
-        "Bounce": 0.3,
-        "Collider": null,
-        "CrouchSpeed": 60,
+        "__type": "MoveHelper",
+        "AirAcceleration": 0.1,
+        "AirFriction": 0,
+        "Bounce": 0,
+        "Collider": {
+          "_type": "component",
+          "go": "043d594e-ba58-4d57-9487-80298d2399f0",
+          "component_type": "BoxCollider"
+        },
         "EnableUnstuck": true,
         "FrictionApplyAngle": 15,
         "FrictionStopSpeed": 20,
@@ -86,24 +67,15 @@
         "GroundAcceleration": 5,
         "GroundAngle": 45,
         "GroundFriction": 0.3,
-        "IgnoreTags": "",
-        "JumpStrength": 300,
+        "IgnoreTags": "player",
         "MaxUnstuckTries": 20,
-        "Player": {
-          "_type": "component",
-          "go": "043d594e-ba58-4d57-9487-80298d2399f0",
-          "component_type": "Player"
-        },
-        "Speed": 140,
-        "SprintSpeed": 280,
         "StepHeight": 18,
         "StickToGround": true,
-        "TraceHeight": 102,
-        "TraceRadius": 20,
+        "TraceHeight": 72,
+        "TraceRadius": 16,
         "TraceType": "BBox",
-        "UseCollider": false,
-        "UseSceneGravity": true,
-        "WalkSpeed": 80
+        "UseCollider": true,
+        "UseSceneGravity": true
       }
     ],
     "Children": [
@@ -123,7 +95,7 @@
             "Orthographic": false,
             "OrthographicHeight": 1204,
             "Priority": 1,
-            "RenderExcludeTags": "localplayer",
+            "RenderExcludeTags": "localplayer,player",
             "RenderTags": "",
             "TargetEye": "None",
             "Viewport": "0,0,1,1",
