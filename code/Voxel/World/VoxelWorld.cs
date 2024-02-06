@@ -17,10 +17,9 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 {
 	public static bool ChunkGizmo { get; set; } = true;
 
-	[Property] public string Path { get; set; }
 	[Property] public TextureAtlas Atlas { get; set; } = TextureAtlas.Get( "resources/textures/default.atlas" );
 	[Property] public Vector3 VoxelScale { get; set; } = Utility.Scale;
-	[Property, Hide] public byte[] Data { get; set; }
+	[Property, Hide] public string Data { get; set; }
 
 	public static IReadOnlyList<VoxelWorld> All => all;
 	private static List<VoxelWorld> all = new();
@@ -28,7 +27,6 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	public Dictionary<Vector3S, Chunk> Chunks { get; private set; }
 
 	private Dictionary<Chunk, VoxelChunk> objects = new();
-
 	private Material material = Material.FromShader( "shaders/voxel.shader" );
 
 	public void AssignAttributes( RenderAttributes attributes )
@@ -49,7 +47,14 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			all.Add( this );
 
 		Atlas.Build();
-		Reset();
+
+		GameTask.RunInThreadAsync( async () =>
+		{
+			await GameTask.MainThread();
+			var success = await Load();
+			if ( success )
+				Reset();
+		} );
 	}
 
 	protected override void OnDestroy()
@@ -182,17 +187,14 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			child.Destroy();
 
 		var t = DateTime.Now;
-
-		Chunks = await BaseImporter.Get<VoxImporter>()
-			.BuildAsync( Path );
-
 		foreach ( var (_, chunk) in Chunks )
+		{
 			await GenerateChunk( chunk );
-
+		}
 		Log.Info( $"Importing and generating VoxelWorld mesh took {(DateTime.Now - t).Milliseconds}ms." );
 	}
 
-	#region DEBUG
+	#region DRAW GIZMOS IN EDITOR
 	private readonly Dictionary<Vector3S, Model> gizmoCache = new();
 
 	protected override void DrawGizmos()

@@ -2,7 +2,12 @@ namespace Deathcard;
 
 partial class VoxelWorld
 {
-	// TODO @ceitine: add compression
+	public void Save()
+		=> Data = Convert.ToBase64String( Serialize().Compress() );
+
+	public async Task<bool> Load()
+		=> (Chunks = Deserialize( Convert.FromBase64String( Data ).Decompress() )) != null;
+
 	public byte[] Serialize()
 	{
 		using var stream = new MemoryStream();
@@ -51,7 +56,7 @@ partial class VoxelWorld
 		return stream.ToArray();
 	}
 
-	public void Deserialize( byte[] data )
+	public Dictionary<Vector3S, Chunk> Deserialize( byte[] data )
 	{
 		using var stream = new MemoryStream( data );
 		using var reader = new BinaryReader( stream );
@@ -60,15 +65,15 @@ partial class VoxelWorld
 		var amount = reader.ReadInt32();
 
 		// Chunks
-		Chunks = new();
+		var chunks = new Dictionary<Vector3S, Chunk>();
 		for ( int i = 0; i < amount; i++ )
 		{
 			var chunkX = reader.ReadInt16();
 			var chunkY = reader.ReadInt16();
 			var chunkZ = reader.ReadInt16();
 
-			var chunk = new Chunk( chunkX, chunkY, chunkZ, Chunks );
-			Chunks.Add( new( chunkX, chunkY, chunkZ ), chunk );
+			var chunk = new Chunk( chunkX, chunkY, chunkZ, chunks );
+			chunks.Add( new( chunkX, chunkY, chunkZ ), chunk );
 
 			// Voxels
 			var count = reader.ReadUInt16();
@@ -81,20 +86,13 @@ partial class VoxelWorld
 				if ( voxel == null )
 				{
 					Log.Error( $"VoxelWorld - Tried to load invalid voxel." );
-					return;
+					return null;
 				}
 
 				chunk.SetVoxel( x, y, z, voxel );
 			}
 		}
-	}
 
-	[ConCmd]
-	public static void TestLoad()
-	{
-		IVoxel.ResetTypeLibrary();
-		var world = All.FirstOrDefault();
-		var buffer = world.Serialize().Compress();
-		world.Deserialize( buffer.Decompress() );
+		return chunks;
 	}
 }

@@ -88,6 +88,8 @@ public interface IVoxel
 	/// <returns></returns>
 	public static IVoxel TryRead( BinaryReader reader )
 	{
+		if ( Readers == null ) ResetTypeLibrary();
+
 		var type = (BlockType)reader.ReadByte();
 		if ( !Readers.TryGetValue( type, out var method ) )
 			return null;
@@ -103,6 +105,8 @@ public interface IVoxel
 	/// <returns></returns>
 	public static BlockType? GetBlockType( Type type )
 	{
+		if ( BlockTypes == null ) ResetTypeLibrary();
+
 		_ = BlockTypes.TryGetValue( type, out var block );
 		return block;
 	}
