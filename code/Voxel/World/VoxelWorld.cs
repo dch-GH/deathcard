@@ -218,35 +218,6 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		else if ( ChunkGizmo )
 			foreach ( var (_, chunk) in objects )
 				Gizmo.Draw.LineBBox( new BBox( chunk.Transform.Position, chunk.Transform.Position + (Vector3)Chunk.Size * VoxelScale ) );
-
-		if ( !Gizmo.IsSelected )
-			return;
-
-		// Focus on hovered VoxelWorld.
-		var tr = Trace( Gizmo.CurrentRay, 50000f );
-		if ( !tr.Hit )
-			return;
-
-		// Debug
-		var center = (Vector3)tr.GlobalPosition * VoxelScale + VoxelScale / 2f;
-		var bbox = new BBox( center - VoxelScale / 2f, center + VoxelScale / 2f );
-		/*var surface = center + tr.Normal * VoxelScale / 2f;
-
-		Gizmo.Draw.Color = Color.Red;
-		Gizmo.Draw.LineThickness = 5;
-		Gizmo.Draw.Line( surface, surface + tr.Normal * 50f );*/
-
-		Gizmo.Draw.Color = Color.White;
-		Gizmo.Draw.ScreenText( $"{(tr.Voxel?.GetType().Name ?? "unknown")}", 20, "Consolas", 18, TextFlag.LeftTop );
-		Gizmo.Draw.ScreenText( $"XYZ: {tr.GlobalPosition}", 20 + Vector2.Up * 20, "Consolas", 18, TextFlag.LeftTop );
-		Gizmo.Draw.ScreenText( $"Chunk: {tr.Chunk?.Position}", 20 + Vector2.Up * 40, "Consolas", 18, TextFlag.LeftTop );
-
-		Gizmo.Draw.Color = Color.Black;
-		Gizmo.Draw.LineThickness = 1;
-		Gizmo.Draw.LineBBox( bbox );
-
-		Gizmo.Draw.Color = Color.Black.WithAlpha( 0.5f );
-		Gizmo.Draw.SolidBox( bbox );
 	}
 #endregion
 }
