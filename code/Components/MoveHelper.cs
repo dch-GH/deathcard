@@ -105,7 +105,7 @@ public class MoveHelper : Component
 	[Property]
 	[Category( "Values" )]
 	[Range( 0f, 1, 0.01f, true, true )]
-	public float AirFriction { get; set; } = 0.0f;
+	public float AirFriction { get; set; } = 0.05f;
 
 	/// <summary>
 	/// If your speed falls below this, you're going to stop
@@ -122,6 +122,13 @@ public class MoveHelper : Component
 	[Category( "Values" )]
 	[Range( 0f, 90f, 1f, true, true )]
 	public float FrictionApplyAngle { get; set; } = 15f;
+
+	/// <summary>
+	/// Apply friction to the Z axis as well, this affects stuff like falling or jumping
+	/// </summary>
+	[Property]
+	[Category( "Values" )]
+	public bool VerticalFriction { get; set; } = false;
 
 	/// <summary>
 	/// Use the scene's gravity or our own
@@ -260,6 +267,31 @@ public class MoveHelper : Component
 		Velocity += amount;
 	}
 
+	Vector3 ApplyFriction( Vector3 velocity, float frictionAmount, float stopSpeed, bool includeVertical )
+	{
+		float length = includeVertical ? velocity.Length : velocity.WithZ( 0 ).Length;
+		if ( length < 0.01f )
+		{
+			return velocity;
+		}
+
+		float num = ((length < stopSpeed) ? stopSpeed : length);
+		float num2 = num * frictionAmount;
+		float num3 = length - num2;
+		if ( num3 < 0f )
+		{
+			num3 = 0f;
+		}
+
+		if ( num3 == length )
+		{
+			return velocity;
+		}
+
+		num3 /= length;
+		return includeVertical ? (velocity * num3) : (velocity.WithZ( 0 ) * num3).WithZ( velocity.z );
+	}
+
 	//
 	// Summary:
 	//     Move a character, with this velocity
@@ -275,9 +307,9 @@ public class MoveHelper : Component
 			var velocityAngle = Vector3.GetAngle( WishVelocity.WithZ( 0f ).Normal, Velocity.WithZ( 0f ).Normal );
 
 			if ( velocityAngle > FrictionApplyAngle )
-				Velocity = Velocity.WithFriction( GroundFriction, FrictionStopSpeed );
+				Velocity = ApplyFriction( Velocity, GroundFriction, FrictionStopSpeed, VerticalFriction );
 			else
-				Velocity = Velocity.WithFriction( GroundFriction / 10f, FrictionStopSpeed );
+				Velocity = ApplyFriction( Velocity, GroundFriction / 10f, FrictionStopSpeed, VerticalFriction );
 		}
 		else // If we're in air VVV
 		{
@@ -288,9 +320,9 @@ public class MoveHelper : Component
 			var velocityAngle = Vector3.GetAngle( WishVelocity.WithZ( 0f ).Normal, Velocity.WithZ( 0f ).Normal );
 
 			if ( velocityAngle > FrictionApplyAngle )
-				Velocity = Velocity.WithFriction( AirFriction, FrictionStopSpeed );
+				Velocity = ApplyFriction( Velocity, AirFriction, FrictionStopSpeed, VerticalFriction );
 			else
-				Velocity = Velocity.WithFriction( AirFriction / 10f, FrictionStopSpeed );
+				Velocity = ApplyFriction( Velocity, AirFriction / 10f, FrictionStopSpeed, VerticalFriction );
 		}
 
 		if ( !EnableUnstuck || !TryUnstuck() )

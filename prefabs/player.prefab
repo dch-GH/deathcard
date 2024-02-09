@@ -53,7 +53,7 @@
       {
         "__type": "MoveHelper",
         "AirAcceleration": 0.1,
-        "AirFriction": 0,
+        "AirFriction": 0.05,
         "Bounce": 0,
         "Collider": {
           "_type": "component",
@@ -75,7 +75,8 @@
         "TraceRadius": 16,
         "TraceType": "BBox",
         "UseCollider": true,
-        "UseSceneGravity": true
+        "UseSceneGravity": true,
+        "VerticalFriction": false
       }
     ],
     "Children": [
