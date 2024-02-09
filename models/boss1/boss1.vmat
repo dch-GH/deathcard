@@ -11,7 +11,10 @@ Layer0
 	AmbientOcclusion "models/boss1/boss1_ao.png"
 	AmbientOcclusionStrength "1.500"
 	Color "models/boss1/boss1_color.png"
+	ColorTintMask "materials/default/default.tga"
+	g_flColorTint "[1.000000 1.000000 1.000000 0.000000]"
 	Metalness "materials/default/default_metal.tga"
 	Normal "models/boss1/boss1_normal.png"
+	NormalStrength "12.389"
 	Roughness "models/boss1/boss1_rough.png"
 }
