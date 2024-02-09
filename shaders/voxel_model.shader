@@ -82,6 +82,7 @@ PS
 
     CreateInputTexture2D( Normal, Linear, 8, "NormalizeNormals", "_normal", "Material,10/30", Default3( 0.5, 0.5, 1.0 ) );
 	CreateTexture2DWithoutSampler( g_tNormal ) < Channel( RGB, Box( Normal ), Linear ); OutputFormat( DXT5 ); SrgbRead( false ); >;
+	float NormalStrength < UiType( Slider ); Default( 1.0f ); Range ( 0, 50.0 ); UiGroup( "Material,10/30"); >; 
 
 	CreateInputTexture2D( Roughness, Linear, 8, "", "_rough", "Material,10/40", Default( 1 ) );
 	CreateInputTexture2D( Metalness, Linear, 8, "", "_metal",  "Material,10/50", Default( 1.0 ) );
@@ -129,11 +130,14 @@ PS
 	{
 		float2 UV = i.vTextureCoords.xy;
 		float3 tint = g_flColorTint;
-		
+
         Material m = Material::Init();
 
 		m.Albedo = lerp( Tex2DS(g_tColor, Sampler, UV.xy).rgb, Tex2DS(g_tColor, Sampler, UV.xy).rgb * tint, Tex2DS(g_tColor, Sampler, UV.xy).a );  
-        m.Normal = TransformNormal( DecodeNormal( Tex2DS( g_tNormal, SamplerAniso, UV.xy ).rgb ), i.vNormalWs, i.vTangentUWs, i.vTangentVWs );
+
+		// Multiplies red and green channels of decoded normal map, then packs it into single float3 texture. Blue channel is unaffected. Not the best solution, probably.
+		float3 l_tNormalMap = DecodeNormal( Tex2DS( g_tNormal, SamplerAniso, UV.xy ).rgb );
+		m.Normal = TransformNormal( float3( l_tNormalMap.rg * NormalStrength, l_tNormalMap.b ), i.vNormalWs, i.vTangentUWs, i.vTangentVWs );
 
 		float3 rmo = Tex2DS( g_tRmo, SamplerAniso, UV.xy ).rgb;
         m.Roughness = rmo.r;
