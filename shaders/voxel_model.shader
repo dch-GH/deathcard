@@ -129,11 +129,11 @@ PS
 	float4 MainPs( PixelInput i ) : SV_Target0
 	{
 		float2 UV = i.vTextureCoords.xy;
-		float3 tint = g_flColorTint;
+		float4 l_tColorMap = Tex2DS(g_tColor, Sampler, UV.xy).rgba;
 
         Material m = Material::Init();
 
-		m.Albedo = lerp( Tex2DS(g_tColor, Sampler, UV.xy).rgb, Tex2DS(g_tColor, Sampler, UV.xy).rgb * tint, Tex2DS(g_tColor, Sampler, UV.xy).a );  
+		m.Albedo = lerp( l_tColorMap.rgb, l_tColorMap.rgb * g_flColorTint, l_tColorMap.a );  
 
 		// Multiplies red and green channels of decoded normal map, then packs it into single float3 texture. Blue channel is unaffected. Not the best solution, probably.
 		float3 l_tNormalMap = DecodeNormal( Tex2DS( g_tNormal, SamplerAniso, UV.xy ).rgb );
