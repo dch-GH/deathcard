@@ -2,6 +2,7 @@
 
 public class VoxelToolbarWidget : ToolbarGroup
 {
+
 	public VoxelToolbarWidget( Widget parent ) : base( parent, "view_in_ar" )
 	{
 		ToolTip = "Voxel Editor";
@@ -17,7 +18,7 @@ public class VoxelToolbarWidget : ToolbarGroup
 	[Event( "tools.headerbar.build", Priority = 110 )]
 	public static void OnBuildHeaderToolbar( HeadBarEvent e )
 	{
-		e.RightCenter.AddSpacingCell( 8f );
 		e.RightCenter.Add( new VoxelToolbarWidget( null ) );
+		e.RightCenter.AddSpacingCell( 8f );
 	}
 }

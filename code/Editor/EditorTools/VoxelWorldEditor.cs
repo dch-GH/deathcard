@@ -1,4 +1,18 @@
-﻿namespace Deathcard.Editor;
+namespace Deathcard.Editor;
+
+public enum VoxelTool
+{
+	Sphere,
+	Rectangle,
+	Line
+}
+
+public enum ToolMode
+{
+	Place,
+	Paint,
+	Erase
+}
 
 class VoxelWorldEditor : EditorTool<VoxelWorld>
 {
@@ -20,6 +34,9 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 	private static bool windowOpen;
 	private static WidgetWindow window;
 
+	private EnumProperty<VoxelTool> tool;
+	private EnumProperty<ToolMode> mode;
+
 	public VoxelWorldEditor() : base()
 	{
 		instance = this;
@@ -30,8 +47,42 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 		window = new WidgetWindow( SceneOverlay, "VoxelWorld Tools" );
 		window.MinimumWidth = 400;
 		window.MinimumHeight = SceneOverlay.Height;
+		
+		// Tools
+		var layout = Layout.Column();
+		layout.Margin = 8f;
+		layout.Alignment = TextFlag.Top;
+		tool = layout.Add( new EnumProperty<VoxelTool>( window ) );
+		layout.AddSpacingCell( 8f );
+		mode = layout.Add( new EnumProperty<ToolMode>( window ) );
+		layout.AddSpacingCell( 8f );
 
-		window.Layout = Layout.Row();
+		// TextureAtlas
+		layout.Add( new Label( "Textures", window ) );
+
+		var atlas = Selected.Atlas;
+		var list = layout.Add( new ListView( window ) );
+		foreach ( var item in atlas.Items )
+		{
+			var widget = list.AddItem( new Widget( list )
+			{
+				
+			} );
+			
+			widget.OnPaintOverride = () =>
+			{
+				// Fuck this shit
+				/*var path = $"{CodeEditor.AddonSolutionPath().TrimEnd( "deathcard.sln".ToCharArray() )}/{item.Albedo}";
+				var pixmap = Pixmap.FromFile( path )
+					.Cut( new Rect( 0, 0, 32, 32 ) );
+
+				Paint.Draw( new Rect( 0, 0, 32, 32 ), pixmap );	*/
+				return false;
+			};
+		}
+
+		// Assign layout to window.
+		window.Layout = layout;
 		AddOverlay( window, TextFlag.RightCenter, 0 );
 	}
 
