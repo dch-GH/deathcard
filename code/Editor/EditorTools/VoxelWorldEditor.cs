@@ -68,6 +68,9 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 				Position = new Vector2( 10, 30 ),
 			} );
 
+			window.Layout = layout;
+			AddOverlay( window, TextFlag.RightCenter, 0 );
+
 			return;
 		}
 
@@ -139,7 +142,6 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 
 		// Assign layout to window.
 		window.Layout = layout;
-		AddOverlay( window, TextFlag.RightCenter, 0 );
 	}
 
 	public override void OnSelectionChanged()
