@@ -52,8 +52,19 @@
       },
       {
         "__type": "MoveHelper",
-        "AirAcceleration": 0.1,
-        "AirFriction": 0.05,
+        "AccelerationCurve": [
+          {
+            "y": 0.17553191,
+            "in": -2.4516134,
+            "out": 2.4516134
+          },
+          {
+            "x": 1,
+            "y": 1
+          }
+        ],
+        "AirAcceleration": 800,
+        "AirFriction": 1,
         "Bounce": 0,
         "Collider": {
           "_type": "component",
@@ -61,22 +72,20 @@
           "component_type": "BoxCollider"
         },
         "EnableUnstuck": true,
-        "FrictionApplyAngle": 15,
-        "FrictionStopSpeed": 20,
         "Gravity": "0,0,850",
-        "GroundAcceleration": 5,
+        "GroundAcceleration": 2000,
         "GroundAngle": 45,
-        "GroundFriction": 0.3,
+        "GroundFriction": 30,
         "IgnoreTags": "player",
         "MaxUnstuckTries": 20,
         "StepHeight": 18,
         "StickToGround": true,
+        "StopSpeed": 10,
         "TraceHeight": 72,
         "TraceRadius": 16,
         "TraceType": "BBox",
         "UseCollider": true,
-        "UseSceneGravity": true,
-        "VerticalFriction": false
+        "UseSceneGravity": true
       }
     ],
     "Children": [

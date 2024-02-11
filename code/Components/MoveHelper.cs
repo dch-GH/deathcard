@@ -1,4 +1,7 @@
-﻿namespace Deathcard;
+﻿using System;
+using System.ComponentModel.Design;
+
+namespace Deathcard;
 
 public enum TraceType
 {
@@ -74,61 +77,52 @@ public class MoveHelper : Component
 	public bool StickToGround { get; set; } = true;
 
 	/// <summary>
-	/// How fast you go from 0 to intended speed on the ground
+	/// How fast you accelerate on the ground
 	/// </summary>
 	[Property]
 	[Category( "Values" )]
 	[ShowIf( "StickToGround", true )]
-	[Range( 0f, 10f, 0.1f, true, true )]
-	public float GroundAcceleration { get; set; } = 5f;
+	[Range( 0f, 3000f, 5f, true, true )]
+	public float GroundAcceleration { get; set; } = 2000f;
 
 	/// <summary>
-	/// Default friction when on the ground
+	/// How fast you decelerate on the ground (Exponential)
 	/// </summary>
 	[Property]
 	[Category( "Values" )]
-	[ShowIf( "StickToGround", true )]
-	[Range( 0f, 1f, 0.01f, true, true )]
-	public float GroundFriction { get; set; } = 0.3f;
+	[Range( 0f, 100f, 0.1f, true, true )]
+	public float GroundFriction { get; set; } = 30f;
 
 	/// <summary>
-	/// How fast you go from 0 to intended speed in the air
+	/// How fast you accelerate in the air
 	/// </summary>
 	[Property]
 	[Category( "Values" )]
-	[Range( 0f, 10f, 0.1f, true, true )]
-	public float AirAcceleration { get; set; } = 0.1f;
+	[Range( 0f, 1500f, 5f, true, true )]
+	public float AirAcceleration { get; set; } = 800f;
 
 	/// <summary>
-	/// Default friction when in the air
+	/// How fast you decelerate in the air (Exponential)
 	/// </summary>
 	[Property]
 	[Category( "Values" )]
-	[Range( 0f, 1, 0.01f, true, true )]
-	public float AirFriction { get; set; } = 0.05f;
+	[Range( 0f, 100f, 0.1f, true, true )]
+	public float AirFriction { get; set; } = 1f;
 
 	/// <summary>
-	/// If your speed falls below this, you're going to stop
+	/// How fast you accelerate based on the speed/wish-speed ratio.
 	/// </summary>
 	[Property]
 	[Category( "Values" )]
-	[Range( 0f, 120f, 1f, true, true )]
-	public float FrictionStopSpeed { get; set; } = 20f;
+	public Curve AccelerationCurve { get; set; }
 
 	/// <summary>
-	/// At which angle difference between wish velocity and current velocity the friction kicks in
+	/// Stops you if you're under this speed
 	/// </summary>
 	[Property]
 	[Category( "Values" )]
-	[Range( 0f, 90f, 1f, true, true )]
-	public float FrictionApplyAngle { get; set; } = 15f;
-
-	/// <summary>
-	/// Apply friction to the Z axis as well, this affects stuff like falling or jumping
-	/// </summary>
-	[Property]
-	[Category( "Values" )]
-	public bool VerticalFriction { get; set; } = false;
+	[Range( 0f, 50f, 1f, true, true )]
+	public float StopSpeed { get; set; } = 10f;
 
 	/// <summary>
 	/// Use the scene's gravity or our own
@@ -267,62 +261,41 @@ public class MoveHelper : Component
 		Velocity += amount;
 	}
 
-	Vector3 ApplyFriction( Vector3 velocity, float frictionAmount, float stopSpeed, bool includeVertical )
-	{
-		float length = includeVertical ? velocity.Length : velocity.WithZ( 0 ).Length;
-		if ( length < 0.01f )
-		{
-			return velocity;
-		}
-
-		float num = ((length < stopSpeed) ? stopSpeed : length);
-		float num2 = num * frictionAmount;
-		float num3 = length - num2;
-		if ( num3 < 0f )
-		{
-			num3 = 0f;
-		}
-
-		if ( num3 == length )
-		{
-			return velocity;
-		}
-
-		num3 /= length;
-		return includeVertical ? (velocity * num3) : (velocity.WithZ( 0 ) * num3).WithZ( velocity.z );
-	}
-
 	//
 	// Summary:
 	//     Move a character, with this velocity
 	public void Move()
 	{
-		if ( IsOnGround ) // If we're touching the ground VVV
+		var wishSpeed = WishVelocity.Length;
+		var horizontalSpeed = Velocity.WithZ( 0f ).Length;
+
+		if ( wishSpeed >= horizontalSpeed ) // Accelerating
 		{
-			if ( StickToGround )
-				Velocity = Velocity.WithZ( 0 ); // Nullify any vertical velocity to stick to the ground
+			var wishAcceleration = IsOnGround ? GroundAcceleration : AirAcceleration;
+			var acceleration = wishAcceleration * AccelerationCurve.Evaluate( Time.Delta + horizontalSpeed / wishSpeed );
 
-			Velocity = Velocity.WithAcceleration( WishVelocity, GroundAcceleration );
+			Velocity += WishVelocity.WithZ( 0 ).Normal * acceleration * Time.Delta;
 
-			var velocityAngle = Vector3.GetAngle( WishVelocity.WithZ( 0f ).Normal, Velocity.WithZ( 0f ).Normal );
-
-			if ( velocityAngle > FrictionApplyAngle )
-				Velocity = ApplyFriction( Velocity, GroundFriction, FrictionStopSpeed, VerticalFriction );
-			else
-				Velocity = ApplyFriction( Velocity, GroundFriction / 10f, FrictionStopSpeed, VerticalFriction );
 		}
-		else // If we're in air VVV
+		else // Decelerating
+		{
+			var wishDeceleration = IsOnGround ? GroundFriction : AirFriction;
+			var newVelocity = Velocity / (1f + wishDeceleration * Time.Delta);
+
+			if ( newVelocity.Length <= StopSpeed )
+				Velocity = new Vector3( 0f, 0f, Velocity.z );
+			else
+				Velocity = newVelocity.WithZ( Velocity.z );
+		}
+
+		if ( IsOnGround )
+		{
+			Velocity = Velocity.WithZ( 0f );
+		}
+		else
 		{
 			var gravity = UseSceneGravity ? Scene.PhysicsWorld.Gravity : Gravity;
 			Velocity += gravity * Time.Delta; // Apply the scene's gravity to the controller
-			Velocity = Velocity.WithAcceleration( WishVelocity, AirAcceleration );
-
-			var velocityAngle = Vector3.GetAngle( WishVelocity.WithZ( 0f ).Normal, Velocity.WithZ( 0f ).Normal );
-
-			if ( velocityAngle > FrictionApplyAngle )
-				Velocity = ApplyFriction( Velocity, AirFriction, FrictionStopSpeed, VerticalFriction );
-			else
-				Velocity = ApplyFriction( Velocity, AirFriction / 10f, FrictionStopSpeed, VerticalFriction );
 		}
 
 		if ( !EnableUnstuck || !TryUnstuck() )
