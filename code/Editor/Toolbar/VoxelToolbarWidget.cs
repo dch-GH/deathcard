@@ -2,7 +2,6 @@
 
 public class VoxelToolbarWidget : ToolbarGroup
 {
-
 	public VoxelToolbarWidget( Widget parent ) : base( parent, "view_in_ar" )
 	{
 		ToolTip = "Voxel Editor";
