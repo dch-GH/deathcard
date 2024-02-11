@@ -210,12 +210,12 @@ PS
         Material m = Material::Init();
         m.Albedo = albedo.rgb * i.vColor.rgb * i.fOcclusion;
         m.Normal = i.vNormal;
-        m.Roughness = rae.r;
+        // m.Roughness = rae.r;
 		m.Metalness = 0;
 		m.AmbientOcclusion = 1;
 		m.TintMask = 1;
-		m.Opacity = rae.g;
-		m.Emission = rae.b * albedo.rgb;
+		// m.Opacity = rae.g;
+		// m.Emission = rae.r * albedo.rgb;
 		m.Transmission = 0;
 
         return ShadingModelStandard::Shade( i, m );
