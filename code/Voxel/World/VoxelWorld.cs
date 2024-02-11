@@ -87,7 +87,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	/// </summary>
 	/// <param name="chunk"></param>
 	/// <param name="withPhysics"></param>
-	public async Task GenerateChunk( Chunk chunk, bool withPhysics = true )
+	public void GenerateChunk( Chunk chunk, bool withPhysics = true )
 	{
 		// Get our chunk's entity.
 		if ( chunk == null )
@@ -187,9 +187,8 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 
 		var t = DateTime.Now;
 		foreach ( var (_, chunk) in Chunks )
-		{
-			await GenerateChunk( chunk );
-		}
+			GenerateChunk( chunk );
+
 		Log.Info( $"Importing and generating VoxelWorld mesh took {(DateTime.Now - t).Milliseconds}ms." );
 	}
 

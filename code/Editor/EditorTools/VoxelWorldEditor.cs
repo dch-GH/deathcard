@@ -24,10 +24,10 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 		set
 		{
 			windowOpen = value;
-			window?.Close();
-
-			if ( value )
+			if ( window == null )
 				instance.CreateWindow();
+
+			window.Visible = value;
 		}
 	}
 
@@ -36,6 +36,14 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 
 	private EnumProperty<VoxelTool> tool;
 	private EnumProperty<ToolMode> mode;
+	private AtlasItem selected;
+
+	struct AtlasItem
+	{
+		public Guid Guid;
+		public SerializedTexture Data;
+		public Pixmap Icon;
+	}
 
 	public VoxelWorldEditor() : base()
 	{
@@ -58,28 +66,63 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 		layout.AddSpacingCell( 8f );
 
 		// TextureAtlas
-		layout.Add( new Label( "Textures", window ) );
+		layout.Add( new global::Editor.Label( "Textures", window ) );
 
 		var atlas = Selected.Atlas;
-		var list = layout.Add( new ListView( window ) );
-		foreach ( var item in atlas.Items )
+		var list = layout.Add( new ListView( window ) 
 		{
-			var widget = list.AddItem( new Widget( list )
-			{
-				
-			} );
-			
-			widget.OnPaintOverride = () =>
-			{
-				// Fuck this shit
-				/*var path = $"{CodeEditor.AddonSolutionPath().TrimEnd( "deathcard.sln".ToCharArray() )}/{item.Albedo}";
-				var pixmap = Pixmap.FromFile( path )
-					.Cut( new Rect( 0, 0, 32, 32 ) );
+			ItemSize = 60, 
+			ItemSpacing = 10,
+			ItemAlign = Align.FlexStart
+		} );
 
-				Paint.Draw( new Rect( 0, 0, 32, 32 ), pixmap );	*/
-				return false;
-			};
-		}
+		list.ItemPaint = ( widget ) =>
+		{
+			var item = (AtlasItem)widget.Object;
+			Paint.SetFont( "Consolas", 8 );
+
+			Paint.Antialiasing = true;
+			Paint.TextAntialiasing = true;
+			Paint.Draw( widget.Rect, item.Icon );
+
+			if ( item.Guid == selected.Guid )
+			{
+				Paint.ClearPen();
+				Paint.SetBrush( Theme.Blue.WithAlpha( 0.30f ) );
+				Paint.SetPen( Theme.Blue.WithAlpha( 0.90f ) );
+				Paint.DrawRect( widget.Rect.Grow( 0 ) );
+			}
+
+			var text = $"{item.Data.Name}";
+			var rect = Paint.MeasureText( widget.Rect, text, TextFlag.Left );
+
+			Paint.ClearPen();
+			Paint.SetBrush( Color.Black.WithAlpha( 0.8f ) );
+			Paint.DrawRect( widget.Rect.Shrink( 0f, widget.Rect.Height - 20, 0f, 0f ) );
+			Paint.SetPen( Theme.White );
+
+			var pos = rect.Position + Vector2.Up * (widget.Rect.Height - 20);
+			Paint.DrawText( new Rect( pos, widget.Rect.Size.WithY( 20 ) ), text );
+		};
+
+		list.ItemSelected = ( oitem ) =>
+		{
+			if ( oitem is not AtlasItem item )
+				return;
+
+			selected = item;
+		};
+
+		var items = atlas.Items
+			.Select( x => (object)new AtlasItem()
+			{
+				Data = x,
+				Icon = AssetSystem.FindByPath( x.Albedo ).GetAssetThumb(),
+				Guid = Guid.NewGuid()
+			} );
+
+		list.SetItems( items );
+		list.Update();
 
 		// Assign layout to window.
 		window.Layout = layout;
@@ -97,7 +140,10 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 	public override void OnUpdate()
 	{
 		if ( Selected == null )
+		{
+			Selected = VoxelWorld.All.FirstOrDefault();
 			return;
+		}
 
 		// Focus on hovered VoxelWorld.
 		var tr = Selected.Trace( Gizmo.CurrentRay, 50000f );

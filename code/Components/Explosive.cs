@@ -208,7 +208,7 @@ public class Explosive : Component
 		}
 
 		foreach ( var chunk in chunks )
-			_ = world.GenerateChunk( chunk );
+			world.GenerateChunk( chunk );
 
 		return true;
 	}
