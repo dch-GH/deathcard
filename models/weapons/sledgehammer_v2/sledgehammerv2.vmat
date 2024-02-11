@@ -1,0 +1,19 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "shaders/voxel_model.shader"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material ----
+	AmbientOcclusion "models/weapons/sledgehammer_v2/materials/sledgehammer_v2_ao.png"
+	AmbientOcclusionStrength "1.150"
+	Color "models/weapons/sledgehammer_v2/materials/sledgehammer_v2.png"
+	ColorTintMask "materials/default/default.tga"
+	g_flColorTint "[1.000000 1.000000 1.000000 0.000000]"
+	Metalness "materials/default/default_metal.tga"
+	Normal "models/weapons/sledgehammer_v2/materials/sledgehammer_v2_normal.png"
+	Roughness "models/weapons/sledgehammer_v2/materials/sledgehammer_v2_convex.png"
+}

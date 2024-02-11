@@ -1,0 +1,26 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "shaders/voxel_model.shader"
+
+	//---- Rendering ----
+	F_EMISSIVE 1
+
+	//---- Emission ----
+	Emission "models/zombie/materials/zombie_em.png"
+	EmissionStrength "2.000"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material ----
+	AmbientOcclusion "models/zombie/materials/zombie_ao.png"
+	AmbientOcclusionStrength "1.000"
+	Color "models/zombie/materials/zombie_albedo.png"
+	ColorTintMask "materials/default/default.tga"
+	g_flColorTint "[1.000000 1.000000 1.000000 0.000000]"
+	Metalness "materials/default/default_metal.tga"
+	Normal "models/zombie/materials/zombie_normal.png"
+	Roughness "models/zombie/materials/zombie_rough.png"
+}

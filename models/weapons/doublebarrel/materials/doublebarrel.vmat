@@ -1,0 +1,19 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "shaders/voxel_model.shader"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material ----
+	AmbientOcclusion "models/weapons/doublebarrel/materials/doublebarrel_ao.png"
+	AmbientOcclusionStrength "1.500"
+	Color "models/weapons/doublebarrel/materials/doublebarrel_albedo.png"
+	ColorTintMask "materials/default/default.tga"
+	g_flColorTint "[1.000000 1.000000 1.000000 0.000000]"
+	Metalness "models/weapons/doublebarrel/materials/doublebarrel_metal.png"
+	Normal "models/weapons/doublebarrel/materials/doublebarrel_normal.png"
+	Roughness "models/weapons/doublebarrel/materials/doublebarrel_rough.png"
+}

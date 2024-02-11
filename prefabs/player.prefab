@@ -1,0 +1,113 @@
+{
+  "RootObject": {
+    "Id": "043d594e-ba58-4d57-9487-80298d2399f0",
+    "Name": "player",
+    "Tags": "player,localplayer",
+    "Enabled": true,
+    "Components": [
+      {
+        "__type": "Player",
+        "Camera": {
+          "_type": "gameobject",
+          "go": "6484510a-2269-425f-b15a-285d66081618"
+        },
+        "CrouchSpeed": 60,
+        "EyePosition": "0,0,92",
+        "FlyMoveHelper": null,
+        "FlySpeed": 300,
+        "JumpStrength": 400,
+        "Shootable": {
+          "_type": "gameobject",
+          "prefab": "prefabs/projectile.prefab"
+        },
+        "Speed": 140,
+        "SprintFlySpeed": 600,
+        "SprintSpeed": 280,
+        "WalkFlySpeed": 150,
+        "WalkMoveHelper": {
+          "_type": "component",
+          "go": "043d594e-ba58-4d57-9487-80298d2399f0",
+          "component_type": "MoveHelper"
+        },
+        "WalkSpeed": 120
+      },
+      {
+        "__type": "SkinnedModelRenderer",
+        "BodyGroups": 18446744073709551615,
+        "BoneMergeTarget": null,
+        "CreateBoneObjects": false,
+        "MaterialGroup": null,
+        "MaterialOverride": null,
+        "Model": "models/character2/player2.vmdl",
+        "RenderType": "On",
+        "Tint": "1,1,1,1"
+      },
+      {
+        "__type": "BoxCollider",
+        "Center": "0,0,51",
+        "IsTrigger": false,
+        "Scale": "40,40,102",
+        "Static": false,
+        "Surface": null
+      },
+      {
+        "__type": "MoveHelper",
+        "AirAcceleration": 0.1,
+        "AirFriction": 0,
+        "Bounce": 0,
+        "Collider": {
+          "_type": "component",
+          "go": "043d594e-ba58-4d57-9487-80298d2399f0",
+          "component_type": "BoxCollider"
+        },
+        "EnableUnstuck": true,
+        "FrictionApplyAngle": 15,
+        "FrictionStopSpeed": 20,
+        "Gravity": "0,0,850",
+        "GroundAcceleration": 5,
+        "GroundAngle": 45,
+        "GroundFriction": 0.3,
+        "IgnoreTags": "player",
+        "MaxUnstuckTries": 20,
+        "StepHeight": 18,
+        "StickToGround": true,
+        "TraceHeight": 72,
+        "TraceRadius": 16,
+        "TraceType": "BBox",
+        "UseCollider": true,
+        "UseSceneGravity": true
+      }
+    ],
+    "Children": [
+      {
+        "Id": "6484510a-2269-425f-b15a-285d66081618",
+        "Name": "Camera",
+        "Position": "0,0,92",
+        "Tags": "maincamera",
+        "Enabled": true,
+        "Components": [
+          {
+            "__type": "CameraComponent",
+            "BackgroundColor": "0.33333,0.46275,0.52157,1",
+            "ClearFlags": "All",
+            "FieldOfView": 95,
+            "IsMainCamera": true,
+            "Orthographic": false,
+            "OrthographicHeight": 1204,
+            "Priority": 1,
+            "RenderExcludeTags": "localplayer,player",
+            "RenderTags": "",
+            "TargetEye": "None",
+            "Viewport": "0,0,1,1",
+            "ZFar": 10000,
+            "ZNear": 10
+          }
+        ]
+      }
+    ]
+  },
+  "ShowInMenu": false,
+  "MenuPath": null,
+  "MenuIcon": null,
+  "__references": []
+}

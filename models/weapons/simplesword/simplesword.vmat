@@ -1,0 +1,19 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "shaders/voxel_model.shader"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material ----
+	AmbientOcclusion "models/weapons/simplesword/materials/simplesword_ao.png"
+	AmbientOcclusionStrength "1.500"
+	Color "models/weapons/simplesword/materials/simplesword_albedo.png"
+	ColorTintMask "materials/default/default.tga"
+	g_flColorTint "[1.000000 1.000000 1.000000 0.000000]"
+	Metalness "models/weapons/simplesword/materials/simplesword_metal.png"
+	Normal "models/weapons/simplesword/materials/simplesword_normal.png"
+	Roughness "models/weapons/simplesword/materials/simplesword_rough.png"
+}

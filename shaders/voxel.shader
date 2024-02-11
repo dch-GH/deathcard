@@ -5,7 +5,7 @@ HEADER
 
 FEATURES
 {
-    #include "common/features.hlsl"
+    #include "common/features.hlsl"	
 }
 
 MODES
@@ -14,7 +14,7 @@ MODES
     VrForward();
     Depth( "depth_only.shader" ); 
 	ToolsVis( S_MODE_TOOLS_VIS );
-    ToolsShadingComplexity( "tools_shading_complexity.shader" );
+	ToolsShadingComplexity( "tools_shading_complexity.shader" );
 }
 
 COMMON
@@ -23,7 +23,6 @@ COMMON
 
     float3 g_vVoxelScale < Attribute( "VoxelScale" ); Default3( 1.0, 1.0, 1.0 ); >;
     float2 g_vTextureSize < Attribute( "TextureSize" ); Default2( 32.0, 32.0 ); >;
-    float2 g_vAtlasSize < Attribute( "AtlasSize" ); Default2( 32.0, 32.0 ); >;
 }
 
 struct VertexInput
@@ -65,6 +64,16 @@ VS
         1.0f, 1.0f,
 		0.85f, 0.7f,
 		0.85f, 0.7f
+    };
+
+    static const float3 faceNormals[6] = 
+    {
+        float3(0, 0, 1),
+        float3(0, 0, -1),
+        float3(-1, 0, 0),
+        float3(0, 1, 0),
+        float3(1, 0, 0),
+        float3(0, -1, 0)
     };
 
     static const int2 uvTable[6][8] = 
@@ -142,7 +151,7 @@ VS
         },
     };
 
-    PixelInput MainVs( INSTANCED_SHADER_PARAMS( VertexInput i ) )
+    PixelInput MainVs( VertexInput i )
 	{
         // Turn our 32-bit unsigned integers back to the actual data.
         int3 position = int3( i.vData.x & 0xF, (i.vData.x >> 4) & 0xF, (i.vData.x >> 8) & 0xF );
@@ -152,14 +161,8 @@ VS
 
         float ao = pow( 0.75, (i.vData.x >> 15) & 0x3 );
 
-        float3 normal = float3( 0, 0, 0 );
         uint face = (i.vData.x >> 12) & 0x7;
-        if ( face == 0 ) normal = float3( 0, 0, 1 );
-        else if ( face == 1 ) normal = float3( 0, 0, -1 );
-        else if ( face == 2 ) normal = float3( -1, 0, 0 );
-        else if ( face == 3 ) normal = float3( 0, 1, 0 );
-        else if ( face == 4 ) normal = float3( 1, 0, 0 );
-        else if ( face == 5 ) normal = float3( 0, -1, 0 );
+        float3 normal = faceNormals[face];
 
         float4 color = float4( 
             (i.vData.y & 0xFFu),
@@ -184,6 +187,7 @@ VS
 
 PS
 {
+    #include "sbox_pixel.fxc"
     #include "common/pixel.hlsl"
 
     CreateTexture2DArray( g_tAlbedo ) < Attribute( "Albedo" ); SrgbRead( true ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
@@ -191,25 +195,29 @@ PS
 
     SamplerState g_sSampler < Filter( POINT ); AddressU( CLAMP ); AddressV( CLAMP ); >;
 
-    RenderState( CullMode, DEFAULT );
+    RenderState( CullMode, DEFAULT );		
+    BoolAttribute( translucent, true );
+
+    #if ( S_MODE_DEPTH )
+        #define MainPs Disabled
+    #endif
 
     float4 MainPs( PixelInput i ) : SV_Target0
 	{   
         float3 albedo = Tex2DArrayS( g_tAlbedo, g_sSampler, i.vTexCoord.xyz ).rgb;
         float3 rae = Tex2DArrayS( g_tRAE, g_sSampler, i.vTexCoord.xyz ).rgb;
 
-        Material m;
+        Material m = Material::Init();
         m.Albedo = albedo.rgb * i.vColor.rgb * i.fOcclusion;
-        m.Normal = 1;
+        m.Normal = i.vNormal;
         m.Roughness = rae.r;
 		m.Metalness = 0;
 		m.AmbientOcclusion = 1;
 		m.TintMask = 1;
-		m.Opacity = rae.g; // rea.g
-		m.Emission = rae.b;
-		m.Transmission = 1;
+		m.Opacity = rae.g;
+		m.Emission = rae.b * albedo.rgb;
+		m.Transmission = 0;
 
-        float4 result = ShadingModelStandard::Shade( i, m );
-        return result;
+        return ShadingModelStandard::Shade( i, m );
     }
 }
