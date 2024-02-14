@@ -87,13 +87,15 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 	/// </summary>
 	/// <param name="chunk"></param>
 	/// <param name="withPhysics"></param>
-	public void GenerateChunk( Chunk chunk, bool withPhysics = true )
+	public async Task GenerateChunk( Chunk chunk, bool withPhysics = true )
 	{
 		// Get our chunk's entity.
 		if ( chunk == null )
 			return;
 
+		await GameTask.MainThread();
 		var vxChunk = GameManager.IsPlaying ? GetVoxelChunk( chunk ) : null;
+		await GameTask.WorkerThread();
 
 		// Let's create a mesh.
 		var mesh = new Mesh( material );
@@ -147,6 +149,8 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			voxel.Build( this, chunk, position, ref vertices, ref indices, ref offset, buffer );
 		}
 
+		await GameTask.MainThread();
+
 		// Check if we actually end up with vertices.
 		if ( vertices.Count > 0 && !chunk.Empty )
 		{
@@ -185,11 +189,8 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		foreach ( var child in GameObject.Children )
 			child.Destroy();
 
-		var t = DateTime.Now;
 		foreach ( var (_, chunk) in Chunks )
-			GenerateChunk( chunk );
-
-		Log.Info( $"Importing and generating VoxelWorld mesh took {(DateTime.Now - t).Milliseconds}ms." );
+			await GameTask.RunInThreadAsync( () => GenerateChunk( chunk ) );
 	}
 
 	#region DRAW GIZMOS IN EDITOR
