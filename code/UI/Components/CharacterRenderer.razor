@@ -1,0 +1,74 @@
+﻿@using Sandbox;
+@using Sandbox.UI;
+
+@namespace Deathcard.UI
+@inherits Image
+
+<root />
+
+@code {
+	public bool RenderOnce { get; set; }
+	public Texture RenderTarget { get; private set; }
+	public Vector2 Size { get; set; } = 512;
+	public SceneCamera Camera { get; private set; }
+
+	private bool _rendered;
+	private SceneModel _character;
+
+	public CharacterRenderer()
+	{
+		RenderTarget = Texture.CreateRenderTarget()
+			.WithSize( Size )
+			.Create( "Character" );
+
+		CreateScene();
+	}
+
+	private void FitCamera()
+	{
+		var bounds = _character.Bounds;
+		var max = bounds.Size;
+		var radius = MathF.Max( max.x, MathF.Max( max.y, max.z ) );
+		var dist = radius / MathF.Sin( Camera.FieldOfView.DegreeToRadian() );
+
+		var viewDirection = Vector3.Forward;
+		var pos = viewDirection * dist + bounds.Center;
+
+		Camera.Position = pos;
+		Camera.Rotation = Rotation.LookAt( bounds.Center - Camera.Position ).RotateAroundAxis( -viewDirection, 90 );
+	}
+
+	private void CreateScene()
+	{
+		var world = new SceneWorld();
+		Camera = new SceneCamera()
+		{
+			World = world,
+			AmbientLightColor = Color.White,
+			BackgroundColor = Color.Transparent,
+			FieldOfView = 30,
+			Size = Size
+		};
+
+		_ = new SceneDirectionalLight( world, Rotation.From( 45, 0, 0 ), Color.White );
+		_character = new SceneModel( world, "models/character2/player2.vmdl", Transform.Zero );
+
+		FitCamera();
+	}
+
+	protected override void OnAfterTreeRender( bool firstTime )
+	{
+		base.OnAfterTreeRender( firstTime );
+		Texture = RenderTarget;
+	}
+
+	public override void DrawBackground( ref RenderState state )
+	{
+		if ( RenderOnce && _rendered )
+			return;
+
+		_character.Update( Time.Delta );
+		Graphics.RenderToTexture( Camera, RenderTarget );
+		_rendered = true;
+	}
+}

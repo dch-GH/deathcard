@@ -1,0 +1,65 @@
+﻿@using Sandbox;
+@using Sandbox.UI;
+
+@namespace Deathcard.UI
+@inherits PanelComponent
+
+<root>
+	@* Local Character Information *@
+	<panel class="local-character">
+		<panel class="model">
+			<panel class="rectangle" />
+			<CharacterRenderer RenderOnce="@true" />
+		</panel>
+	</panel>
+</root>
+
+@code {
+
+}
+
+<style>
+	$blue: #0e42b5;
+	$light-blue: #6c92e6;
+
+	HUD {
+		.local-character {
+			position: absolute;
+			bottom: 0px;
+			left: 100px;
+			width: 500px;
+			height: 200px;
+			flex-direction: row;
+			text-shadow: 2px 2px 2px rgba(black, 0.5);
+			image-rendering: pixelated;
+			
+			.model {
+				height: 100%;
+				width: 150px;
+				flex-direction: column;
+				justify-content: flex-end;
+				background: linear-gradient(to top, rgba($blue, 0.8) 0%, rgba($blue, 0.6) 50%, rgba($blue, 0) 100%);
+
+				.rectangle {
+					position: absolute;
+					bottom: 0px;
+					left: 55%;
+					transform: translate(-50% 40%) rotate(-10deg);
+					background-color: $blue;
+					border: 15px lighten($blue, 50%);
+					width: 180px;
+					aspect-ratio: 1;
+					filter: drop-shadow(5px 5px 5px rgba(black, 0.4));
+				}
+
+				CharacterRenderer {
+					transform: scale(1.5);
+					width: 100%;
+					aspect-ratio: 1;
+					background-size: contain;
+					background-repeat: no-repeat;
+				}
+			}
+		}
+	}
+</style>

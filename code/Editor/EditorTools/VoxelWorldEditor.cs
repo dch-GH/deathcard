@@ -142,6 +142,7 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 
 		// Assign layout to window.
 		window.Layout = layout;
+		AddOverlay( window, TextFlag.RightCenter, 0 );
 	}
 
 	public override void OnSelectionChanged()

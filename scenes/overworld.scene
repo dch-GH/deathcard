@@ -15,6 +15,23 @@
       ]
     },
     {
+      "Id": "0e4cfcaf-aeec-4f9f-94b9-5bd072c996b0",
+      "Name": "HUD",
+      "Enabled": true,
+      "Components": [
+        {
+          "__type": "HUD"
+        },
+        {
+          "__type": "ScreenPanel",
+          "AutoScreenScale": true,
+          "Opacity": 1,
+          "Scale": 1,
+          "ZIndex": 100
+        }
+      ]
+    },
+    {
       "Id": "a6ef2875-baac-4f8b-a13f-fe61c7c731c0",
       "Name": "Sun",
       "Position": "-422.7993,3010.459,3528.724",
@@ -111,6 +128,6 @@
   },
   "Title": "overworld",
   "Description": "",
-  "LastSaved": "2024-02-11T13:36:40.6984879\u002B01:00",
+  "LastSaved": "2024-02-12T02:13:03.6806384\u002B02:00",
   "__references": []
 }
