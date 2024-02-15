@@ -187,15 +187,24 @@ VS
 
 PS
 {
+    #define CUSTOM_MATERIAL_INPUTS
+    #define CUSTOM_TEXTURE_FILTERING
+
     #include "sbox_pixel.fxc"
     #include "common/pixel.hlsl"
-
+    
     CreateTexture2DArray( g_tAlbedo ) < Attribute( "Albedo" ); SrgbRead( true ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
     CreateTexture2DArray( g_tRAE ) < Attribute( "RAE" ); SrgbRead( false ); Filter( MIN_MAG_MIP_POINT ); AddressU( CLAMP ); AddressV( CLAMP ); > ;    
 
     SamplerState g_sSampler < Filter( POINT ); AddressU( CLAMP ); AddressV( CLAMP ); >;
 
-    RenderState( CullMode, DEFAULT );		
+    RenderState( CullMode, DEFAULT );	
+
+    #define BLEND_MODE_ALREADY_SET
+	RenderState( BlendEnable, true );
+	RenderState( SrcBlend, SRC_ALPHA );
+	RenderState( DstBlend, INV_SRC_ALPHA);
+
     BoolAttribute( translucent, true );
 
     #if ( S_MODE_DEPTH )
@@ -210,14 +219,15 @@ PS
         Material m = Material::Init();
         m.Albedo = albedo.rgb * i.vColor.rgb * i.fOcclusion;
         m.Normal = i.vNormal;
-        // m.Roughness = rae.r;
+        m.Roughness = rae.r;
 		m.Metalness = 0;
 		m.AmbientOcclusion = 1;
 		m.TintMask = 1;
-		// m.Opacity = rae.g;
-		// m.Emission = rae.r * albedo.rgb;
+		m.Opacity = 1 - rae.g;
+		m.Emission = rae.r * albedo.rgb;
 		m.Transmission = 0;
-
+        
+        // 
         return ShadingModelStandard::Shade( i, m );
     }
 }
