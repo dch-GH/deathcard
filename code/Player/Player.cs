@@ -113,6 +113,8 @@ public class Player : Component
 	{
 		if ( IsProxy ) return;
 
+		ShootAndChange();
+
 		EyeAngles += Input.AnalogLook;
 		EyeAngles = EyeAngles.WithPitch( MathX.Clamp( EyeAngles.pitch, -80f, 80f ) );
 		Transform.Rotation = Rotation.FromYaw( EyeAngles.yaw );
@@ -205,25 +207,8 @@ public class Player : Component
 		FlyMoveHelper.Move();
 	}
 
-	/*
-	protected override void OnUpdate()
+	void ShootAndChange()
 	{
-		// Toggle noclip
-		if ( Input.Pressed( "Noclip" ) )
-		{
-			IsFlying = !IsFlying;
-		}
-
-		// Rotation
-		var delta = Mouse.Delta * MOUSE_SENSITIVITY;
-		var ang = Camera.Transform.Rotation.Angles();
-		var pitch = MathX.Clamp( ang.pitch + delta.y, -89, 89 );
-		Renderer.Transform.LocalRotation = Rotation.FromYaw( ang.yaw );
-		Camera.Transform.LocalRotation = Rotation.From( pitch, ang.yaw - delta.x, 0 );
-
-		// Movement
-		Move();
-
 		// Shoot explosives
 		if ( Input.Pressed( "Interact" ) )
 		{
@@ -269,90 +254,49 @@ public class Player : Component
 
 		if ( set != 0 )
 		{
-			var chunks = new Collection<Chunk>();
+			var chunks = new Dictionary<Chunk, bool>();
 
 			for ( int x = 0; x <= size; x++ )
-				for ( int y = 0; y <= size; y++ )
-					for ( int z = 0; z <= size; z++ )
-					{
-						var center = (Vector3)pos;
-						var target = center
-							+ new Vector3( x, y, z )
-							- size / 2f;
+			for ( int y = 0; y <= size; y++ )
+			for ( int z = 0; z <= size; z++ )
+			{
+				var center = (Vector3)pos;
+				var target = center
+					+ new Vector3( x, y, z )
+					- size / 2f;
 
-						if ( target.Distance( center ) >= size / 2f + 0.5f )
-							continue;
+				if ( target.Distance( center ) >= size / 2f + 0.5f )
+					continue;
 
-						var voxel = set == 1
-							? new Block() { TextureId = (ushort)Game.Random.Int( 0, 2 ) }
-							: (IVoxel)null;
+				var voxel = set == 1
+					? new Block() { TextureId = (ushort)Game.Random.Int( 0, parent.Atlas.Items.Count - 1 ) }
+					: (IVoxel)null;
 
-						var data = parent.SetVoxel(
-							target.x.FloorToInt(),
-							target.y.FloorToInt(),
-							target.z.FloorToInt(), voxel, local );
+				var data = parent.SetVoxel(
+					target.x.FloorToInt(),
+					target.y.FloorToInt(),
+					target.z.FloorToInt(), voxel, local );
 
-						if ( data.Chunk == null )
-							continue;
+				if ( data.Chunk == null )
+					continue;
 
-						var neighbors = data.Chunk.GetNeighbors( data.Position.x, data.Position.y, data.Position.z );
-						foreach ( var neighbor in neighbors )
-						{
-							if ( neighbor == null || chunks.Contains( neighbor ) )
-								continue;
+				var neighbors = data.Chunk.GetNeighbors( data.Position.x, data.Position.y, data.Position.z, false );
+				if ( chunks.ContainsKey( data.Chunk ) )
+					chunks[data.Chunk] = true;
+				else
+					chunks.Add( data.Chunk, true );
 
-							chunks.Add( neighbor );
-						}
-					}
+				foreach ( var neighbor in neighbors )
+				{
+					if ( neighbor == null || chunks.ContainsKey( neighbor ) )
+						continue;
 
-			foreach ( var chunk in chunks )
-				_ = parent.GenerateChunk( chunk );
+					chunks.Add( neighbor, false );
+				}
+			}
+
+			foreach ( var (chunk, withPhysics) in chunks )
+				GameTask.RunInThreadAsync( () => parent.GenerateChunk( chunk, withPhysics ) );
 		}
 	}
-
-	private void Move()
-	{
-		var direction = InputExtensions.GetDirection( "Forward", "Backward", "Left", "Right" );
-
-		// Flying
-		if ( Flying )
-		{
-			Transform.Position += direction
-				* FLY_SPEED
-				* Camera.Transform.Rotation
-				* Time.Delta;
-
-			Velocity = 0;
-
-			return;
-		}
-
-		// Jump
-		if ( Input.Down( "Jump" ) && Grounded )
-			Velocity += JUMP_POWER * Vector3.Up;
-
-		// Normal movement
-		Velocity = (direction * SPEED * Renderer.Transform.Rotation)
-			.WithZ( Velocity.z ); // Maintain gravity.
-
-		var tr = Scene.Trace.Box( Bounds, Transform.Position, Transform.Position )
-			.IgnoreGameObjectHierarchy( GameObject );
-
-		var helper = new CharacterControllerHelper( tr, Transform.Position, Velocity );
-
-		if ( helper.TryMoveWithStep( Time.Delta, STEP_SIZE ) > 0 )
-		{
-			Transform.Position = helper.Position;
-			Velocity = helper.Velocity;
-		}
-
-		// Gravity
-		var down = helper.TraceFromTo( Transform.Position, Transform.Position + Vector3.Down * 2f );
-		GroundObject = down.GameObject;
-
-		if ( !Grounded )
-			Velocity += Vector3.Down * GRAVITY * Time.Delta;
-		else
-			Transform.Position = down.EndPosition;
-	}*/
 }

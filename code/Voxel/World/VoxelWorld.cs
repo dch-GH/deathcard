@@ -1,4 +1,4 @@
-﻿namespace Deathcard;
+namespace Deathcard;
 
 /*
 if ( voxel != null )
@@ -121,7 +121,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			var position = new Vector3B( x, y, z );
 
 			// Let's start checking for collisions.
-			if ( !tested[x, y, z] && GameManager.IsPlaying )
+			if ( !tested[x, y, z] && GameManager.IsPlaying && withPhysics )
 			{
 				tested[x, y, z] = true;
 
