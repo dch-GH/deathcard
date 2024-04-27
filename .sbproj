@@ -5,12 +5,7 @@
   "Ident": "deathcard",
   "Tags": "voxel crawl deez",
   "Schema": 1,
-  "HasAssets": true,
-  "AssetsPath": "",
   "Resources": "/vox/*\n/resources/*",
-  "MenuResources": null,
-  "HasCode": true,
-  "CodePath": "/code/",
   "PackageReferences": [],
   "EditorReferences": null,
   "Metadata": {
