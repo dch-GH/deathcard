@@ -31,15 +31,15 @@ public interface IVoxel
 			.Where( t => t.IsValueType )
 			.ToDictionary(
 				type => type.TargetType, // Key selector
-				type => type.Methods.FirstOrDefault( method => method.IsNamed( "Deathcard.IVoxel.get_Type" ) )?.InvokeWithReturn<BlockType>( null ) // Value selector
+				type => (BlockType?)type.Properties.FirstOrDefault( method => method.IsNamed( "Deathcard.IVoxel.Type" ) )?.GetValue( null ) // Value selector
 			);
-
+		
 		// Readers
 		Readers = TypeLibrary?
 			.GetTypes<IVoxel>()
 			.Where( t => t.IsValueType )
 			.ToDictionary(
-				type => type.Methods.FirstOrDefault( method => method.IsNamed( "Deathcard.IVoxel.get_Type" ) )?.InvokeWithReturn<BlockType>( null ), // Key selector
+				type => (BlockType?)type.Properties.FirstOrDefault( method => method.IsNamed( "Deathcard.IVoxel.Type" ) )?.GetValue( null ), // Key selector
 				type => type.Methods?.FirstOrDefault( method => method.IsNamed( "Deathcard.IVoxel.Read" ) ) // Value selector
 			);
 	}

@@ -12,3 +12,5 @@ global using System.Text.Json;
 global using System.Text.Json.Nodes;
 
 global using Deathcard.Importer;
+
+//global static Vector3B = Deathcard.Vector3N<byte>;

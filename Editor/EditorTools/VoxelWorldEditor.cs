@@ -167,7 +167,9 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 		}
 
 		// Focus on hovered VoxelWorld.
+		//var t = DateTime.Now;
 		var tr = Selected.Trace( Gizmo.CurrentRay, 50000f );
+		//Log.Error( $"Trace took {(DateTime.Now - t).TotalMilliseconds}ms" );
 		if ( !tr.Hit )
 			return;
 

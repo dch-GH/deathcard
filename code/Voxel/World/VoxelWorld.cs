@@ -94,7 +94,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			return;
 
 		await GameTask.MainThread();
-		var vxChunk = GameManager.IsPlaying ? GetVoxelChunk( chunk ) : null;
+		var vxChunk = Game.IsPlaying ? GetVoxelChunk( chunk ) : null;
 		await GameTask.WorkerThread();
 
 		// Let's create a mesh.
@@ -121,7 +121,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 			var position = new Vector3B( x, y, z );
 
 			// Let's start checking for collisions.
-			if ( !tested[x, y, z] && GameManager.IsPlaying && withPhysics )
+			if ( !tested[x, y, z] && Game.IsPlaying && withPhysics )
 			{
 				tested[x, y, z] = true;
 
@@ -202,7 +202,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 		Gizmo.Draw.Color = Color.Yellow;
 		Gizmo.Draw.LineThickness = 0.1f;
 
-		if ( !GameManager.IsPlaying )
+		if ( !Game.IsPlaying )
 			foreach ( var (chunk, model) in gizmoCache )
 			{
 				var pos = (Vector3)chunk * VoxelScale * Chunk.Size;
@@ -212,7 +212,7 @@ public partial class VoxelWorld : Component, Component.ExecuteInEditor
 				AssignAttributes( obj.Attributes );
 
 				Gizmo.Hitbox.BBox( bounds ); // Gizmo.Model doesn't work sadly...
-				
+
 				if ( ChunkGizmo )
 					Gizmo.Draw.LineBBox( bounds );
 			}

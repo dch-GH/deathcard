@@ -119,6 +119,7 @@ partial class VoxelWorld
 		var start = ray.Position;
 		var position = start;
 		var direction = ray.Forward;
+		var lastChunk = (Chunk)null;
 
 		while ( position.Distance( start ) <= distance )
 		{
@@ -140,7 +141,16 @@ partial class VoxelWorld
 				};
 
 			// Keep moving forward, we didn't hit anything.
+			/*if ( (chunk == null || chunk.Empty) )
+			{
+				var p = (Vector3)local;
+				var opposite = (Vector3)Chunk.Size - p;
+				var dist = p.Distance( opposite ) / 2f;
+				position += direction * (dist * VoxelScale / 2f - precision);
+			}*/
+			
 			position += direction * precision;
+			lastChunk = chunk;
 		}
 
 		return result;
