@@ -78,10 +78,10 @@ PS
 	CreateInputTexture2D( ColorTintMask, Linear, 8, "", "_tint", "Material,10/20", Default3( 1.0, 1.0, 1.0 ) );
 	float3 g_flColorTint < UiType( Color ); Default3( 1.0, 1.0, 1.0 ); UiGroup( "Material,10/20" ); >;
 
-	CreateTexture2DWithoutSampler( g_tColor ) < Channel( RGB, Box( Color ), Srgb ); Channel( A, Box( ColorTintMask ), Linear ); OutputFormat( BC7 ); SrgbRead( true ); Filter( POINT ); >;	
+	Texture2D g_tColor < Channel( RGB, Box( Color ), Srgb ); Channel( A, Box( ColorTintMask ), Linear ); OutputFormat( BC7 ); SrgbRead( true ); >;
 
     CreateInputTexture2D( Normal, Linear, 8, "NormalizeNormals", "_normal", "Material,10/30", Default3( 0.5, 0.5, 1.0 ) );
-	CreateTexture2DWithoutSampler( g_tNormal ) < Channel( RGB, Box( Normal ), Linear ); OutputFormat( DXT5 ); SrgbRead( false ); >;
+	Texture2D g_tNormal < Channel( RGB, Box( Normal ), Linear ); OutputFormat( DXT5 ); SrgbRead( false ); >;
 	float NormalStrength < UiType( Slider ); Default( 1.0f ); Range ( 0, 50.0 ); UiGroup( "Material,10/30"); >; 
 
 	CreateInputTexture2D( Roughness, Linear, 8, "", "_rough", "Material,10/40", Default( 1 ) );
@@ -89,13 +89,13 @@ PS
 	CreateInputTexture2D( AmbientOcclusion, Linear, 8, "", "_ao",  "Material,10/60", Default( 1.0 ) );
 	float AmbientOcclusionStrength < UiType( Slider ); Default( 1.0f ); Range( 0, 10.0 ); UiGroup( "Material,10/60" ); >;
 
-	CreateTexture2DWithoutSampler( g_tRmo ) < Channel( R, Box( Roughness ), Linear ); Channel( G, Box( Metalness ), Linear ); Channel( B, Box( AmbientOcclusion ), Linear ); OutputFormat( BC7 ); SrgbRead( false ); >;
+	Texture2D g_tRmo < Channel( R, Box( Roughness ), Linear ); Channel( G, Box( Metalness ), Linear ); Channel( B, Box( AmbientOcclusion ), Linear ); OutputFormat( BC7 ); SrgbRead( false ); >;
 
 	#if ( S_EMISSIVE )
-		float EmissionStrength < UiType( Slider ); Default( 1.0f ); Range( 0, 5.0 ); UiGroup( "Emission,20/10" );  >;
+		float EmissionStrength < UiType( Slider ); Default( 1.0f ); Range( 0, 5.0 ); UiGroup( "Emission,20/10" ); >;
 
 		CreateInputTexture2D( Emission, Linear, 8, "", "", "Emission,20/20", Default3( 0, 0, 0 ) );
-		CreateTexture2DWithoutSampler( g_tEmission ) < Channel( RGB, Box( Emission ), Linear ); OutputFormat( BC7 ); SrgbRead( false ); >;
+		Texture2D g_tEmission < Channel( RGB, Box( Emission ), Linear ); OutputFormat( BC7 ); SrgbRead( false ); >;
 	#endif 
 
     #include "sbox_pixel.fxc"
@@ -112,8 +112,7 @@ PS
 		BoolAttribute( translucent, true );
 
 		CreateInputTexture2D( TransparencyMask, Linear, 8, "", "_trans", "Transparency,30/10", Default( 1 ) );
-		CreateTexture2DWithoutSampler( g_tTransparencyMask ) < Channel( R, Box( TransparencyMask ), Linear ); OutputFormat( BC7 ); SrgbRead( false ); >;
-	
+		Texture2D g_tTransparencyMask < Channel( R, Box( TransparencyMask ), Linear ); OutputFormat( BC7 ); SrgbRead( false ); >;
 		float TransparencyRounding< Default( 0.0f ); Range( 0.0f, 1.0f ); UiGroup( "Transparency,30/20" ); >;
 	#endif
 
@@ -129,31 +128,30 @@ PS
 	float4 MainPs( PixelInput i ) : SV_Target0
 	{
 		float2 UV = i.vTextureCoords.xy;
-		float4 l_tColorMap = Tex2DS(g_tColor, Sampler, UV.xy).rgba;
+		float4 l_tColorMap = g_tColor.Sample( g_sPointWrap, UV ).rgba;
 
         Material m = Material::Init();
 
 		m.Albedo = lerp( l_tColorMap.rgb, l_tColorMap.rgb * g_flColorTint, l_tColorMap.a );  
 
-		// Multiplies red and green channels of decoded normal map, then packs it into single float3 texture. Blue channel is unaffected. Not the best solution, probably.
-		float3 l_tNormalMap = DecodeNormal( Tex2DS( g_tNormal, SamplerAniso, UV.xy ).rgb );
+		float3 l_tNormalMap = DecodeNormal( g_tNormal.Sample( g_sAniso, UV ).rgb );
 		m.Normal = TransformNormal( float3( l_tNormalMap.rg * NormalStrength, l_tNormalMap.b ), i.vNormalWs, i.vTangentUWs, i.vTangentVWs );
 
-		float3 rmo = Tex2DS( g_tRmo, SamplerAniso, UV.xy ).rgb;
+		float3 rmo = g_tRmo.Sample( g_sAniso, UV ).rgb;
         m.Roughness = rmo.r;
         m.Metalness = rmo.g;
         m.AmbientOcclusion = rmo.b / AmbientOcclusionStrength;
-        m.TintMask = Tex2DS( g_tColor, Sampler, UV.xy ).a;
+        m.TintMask = l_tColorMap.a;
         m.Opacity = 1;
 		m.Emission = 0;
 		#if( S_EMISSIVE )
-       	 	m.Emission = Tex2DS( g_tEmission, SamplerAniso, UV.xy ).rgb * EmissionStrength;
+       	 	m.Emission = g_tEmission.Sample( g_sAniso, UV ).rgb * EmissionStrength;
 		#endif
         m.Transmission = 0;
 
 		float4 result = ShadingModelStandard::Shade( i, m );
 		#if( S_TRANSPARENCY )
-			float alpha = Tex2DS( g_tTransparencyMask, Sampler, UV.xy ).r;
+			float alpha = g_tTransparencyMask.Sample( g_sPointWrap, UV ).r;
 			result.a = max( alpha, floor( alpha + TransparencyRounding ) );
 		#endif
 
