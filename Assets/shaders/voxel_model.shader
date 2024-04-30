@@ -67,9 +67,7 @@ PS
 	StaticCombo( S_TRANSPARENCY, F_TRANSPARENCY, Sys( ALL ) );
 	
 	#define CUSTOM_TEXTURE_FILTERING
-    SamplerState Sampler < Filter( POINT ); AddressU( WRAP ); AddressV( WRAP ); >;
-	SamplerState SamplerAniso < Filter( ANISO ); AddressU( WRAP ); AddressV( WRAP ); >; 
-
+	
 	StaticCombo( S_MODE_DEPTH, 0..1, Sys( ALL ) );
 	StaticCombo( S_EMISSIVE, F_EMISSIVE, Sys( ALL ) );
 
